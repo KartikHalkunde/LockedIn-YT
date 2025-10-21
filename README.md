@@ -28,7 +28,7 @@ See how LockedIn transforms the cluttered YouTube interface into a clean, focuse
 | Before LockedIn (Default YouTube) | After LockedIn (Feed Hidden) |
 | :---: | :---: |
 | *An endless grid of distracting recommendations.* | *A clean slate, ready for your intentional search.* |
-| ![Default YouTube Homepage](https://placehold.co/600x338/333/FFF/png?text=Default+Homepage+Screenshot) | ![LockedIn YouTube Homepage](https://placehold.co/600x338/111/FFF/png?text=Clean+Homepage+Screenshot) |
+| ![Default YouTube Homepage](assets/homepage-before.png) | ![LockedIn YouTube Homepage](assets/homepage-after.png) |
 
 ---
 
@@ -36,7 +36,7 @@ See how LockedIn transforms the cluttered YouTube interface into a clean, focuse
 | Before LockedIn (Default YouTube) | After LockedIn (Recommended Videos Hidden) |
 | :---: | :---: |
 | *A sidebar of "Up Next" videos pulling your attention away.* | *Just the video and its description. Nothing else.* |
-| ![Default YouTube Video Page](https://placehold.co/600x338/333/FFF/png?text=Video+Page+with+Sidebar) | ![LockedIn YouTube Video Page](https://placehold.co/600x338/111/FFF/png?text=Video+Page+without+Sidebar) |
+| ![Default YouTube Video Page](assets/video-before.png) | ![LockedIn YouTube Video Page](assets/video-after.png) |
 
 ---
 
@@ -96,3 +96,16 @@ The LockedIn icon will appear in your toolbar, ready to use!
 <div align="center">
   <h3>Stop scrolling. Start learning.</h3>
 </div>
+
+## 📁 Assets used in this README
+
+Place your screenshots in the `assets/` folder using the following filenames. The README above already references these exact paths:
+
+- Logo used above: `icons/iconFull.png`
+- Extension icon (48px): `icons/icon48.png`
+- Homepage (before): `assets/homepage-before.png`
+- Homepage (after): `assets/homepage-after.png`
+- Video page (before): `assets/video-before.png`
+- Video page (after): `assets/video-after.png`
+
+Tip: If you haven't captured screenshots yet, drop the images into the `assets/` folder with these names and they'll render automatically in the sections above.
