@@ -51,13 +51,13 @@ Lock down your YouTube experience with granular control. Hide what you don't wan
 | :--- | :---: | :--- |
 | 🚫 **Hide Homepage Feed** | ✅ Complete | Erase the entire grid of recommended videos on the homepage. |
 | 🙈 **Hide Recommended Videos** | ✅ Complete | Remove the "Up Next" sidebar next to videos. |
-| 💀 **Hide Shorts Tab**| ✅ Complete | Annihilates Shorts Tab from the sidebar. |
+| 🩳 **Hide Shorts Tab**| ✅ Complete | Annihilates Shorts Tab from the sidebar. |
 | 💬 **Hide Live Chat** | ✅ Complete | Remove the distracting live chat replay. |
 | 🔚 **Hide End Screen Cards** | ✅ Complete | Block the video suggestions that appear at the end of videos. |
 | 🧭 **Hide Explore & Trending** | ✅ Complete | Nuke the entire "Explore" section from the sidebar. |
 | 🔄 **Disable Autoplay** | ✅ Complete | Stop the next video from automatically playing. |
 
-## 🚀 Roadmap: What's Next?
+## → Roadmap: What's Next?
 
 LockedIn is just getting started. Here's a preview of what's planned for future updates:
 
@@ -73,7 +73,7 @@ LockedIn is just getting started. Here's a preview of what's planned for future 
 
 This project was heavily inspired by the fantastic work on the [Unhook]([https://github.com/hook-flow/unhook](https://addons.mozilla.org/en-US/firefox/addon/youtube-recommended-videos/?utm_source=addons.mozilla.org&utm_medium=referral&utm_content=search)) extension. LockedIn aims to provide a similar level of powerful control with a unique and modern user interface.
 
-## 📦 Installation (Manual for Firefox)
+## → Installation (Manual for Firefox)
 
 Until it's officially listed, you can install LockedIn in Firefox with these steps:
 
@@ -97,15 +97,3 @@ The LockedIn icon will appear in your toolbar, ready to use!
   <h3>Stop scrolling. Start learning.</h3>
 </div>
 
-## 📁 Assets used in this README
-
-Place your screenshots in the `assets/` folder using the following filenames. The README above already references these exact paths:
-
-- Logo used above: `icons/iconFull.png`
-- Extension icon (48px): `icons/icon48.png`
-- Homepage (before): `assets/homepage-before.png`
-- Homepage (after): `assets/homepage-after.png`
-- Video page (before): `assets/video-before.png`
-- Video page (after): `assets/video-after.png`
-
-Tip: If you haven't captured screenshots yet, drop the images into the `assets/` folder with these names and they'll render automatically in the sections above.
