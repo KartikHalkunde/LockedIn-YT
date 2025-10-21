@@ -1,0 +1,192 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 320px;
+  height: 500px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: transparent;
+  overflow: hidden;
+}
+
+/* Popup Container - Glassmorphism */
+.popup-container {
+  width: 320px;
+  height: 500px;
+  background: hsla(220, 20%, 5%, 0.98);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid hsla(0, 0%, 100%, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+.popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid hsla(0, 0%, 100%, 0.1);
+  flex-shrink: 0;
+}
+
+.header-logo {
+  max-width: 100%;
+  max-height: 40px;
+  height: auto;
+  width: auto;
+}
+
+/* Scrollable Settings Area */
+.settings-scroll-area {
+  height: 400px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1;
+}
+
+/* Custom Scrollbar */
+.settings-scroll-area::-webkit-scrollbar {
+  width: 6px;
+}
+
+.settings-scroll-area::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.settings-scroll-area::-webkit-scrollbar-thumb {
+  background: hsla(0, 0%, 100%, 0.2);
+  border-radius: 3px;
+}
+
+.settings-scroll-area::-webkit-scrollbar-thumb:hover {
+  background: hsla(0, 0%, 100%, 0.3);
+}
+
+/* Settings Container */
+.settings-container {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Settings Group */
+.settings-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.group-title {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: hsl(0, 0%, 70%);
+  margin-bottom: 4px;
+}
+
+.settings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Setting Row */
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+}
+
+.setting-label {
+  font-size: 14px;
+  font-weight: 400;
+  color: hsl(0, 0%, 88%);
+}
+
+/* Toggle Switch */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: hsl(240, 4%, 25%);
+  border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.toggle-slider::before {
+  content: "";
+  position: absolute;
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+/* Toggle Switch - Checked State */
+.toggle-switch input:checked + .toggle-slider {
+  background-color: hsl(0, 100%, 50%);
+}
+
+.toggle-switch input:checked + .toggle-slider::before {
+  transform: translateX(20px);
+}
+
+/* Toggle Switch - Focus State */
+.toggle-switch input:focus + .toggle-slider {
+  box-shadow: 0 0 0 2px hsla(0, 100%, 50%, 0.3);
+}
+
+/* Hover Effect */
+.toggle-switch:hover .toggle-slider {
+  opacity: 0.9;
+}
+
+/* Footer */
+.popup-footer {
+  flex-shrink: 0;
+  padding: 12px 16px 8px 16px;
+}
+
+.footer-divider {
+  border: none;
+  border-top: 1px solid hsla(0, 0%, 100%, 0.1);
+  margin: 0 0 8px 0;
+}
+
+.version-info {
+  text-align: center;
+  font-size: 11px;
+  color: hsla(0, 0%, 100%, 0.6);
+  font-weight: 400;
+}
