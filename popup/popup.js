@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function loadSettings() {
   const toggles = document.querySelectorAll('input[type="checkbox"]');
   
-  chrome.storage.sync.get(null, (settings) => {
+  browser.storage.sync.get(null, (settings) => {
     toggles.forEach((toggle) => {
       const settingId = toggle.dataset.setting;
       if (settings[settingId] !== undefined) {
@@ -24,10 +24,10 @@ function setupToggleListeners() {
       const settingId = e.target.dataset.setting;
       const isChecked = e.target.checked;
       
-      chrome.storage.sync.set({ [settingId]: isChecked }, () => {
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      browser.storage.sync.set({ [settingId]: isChecked }, () => {
+        browser.tabs.query({ active: true, currentWindow: true }, (tabs) => {
           if (tabs[0]) {
-            chrome.tabs.sendMessage(tabs[0].id, {
+            browser.tabs.sendMessage(tabs[0].id, {
               action: 'settingChanged',
               setting: settingId,
               value: isChecked
