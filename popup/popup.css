@@ -12,7 +12,6 @@ body {
   overflow: hidden;
 }
 
-/* Popup Container - Glassmorphism */
 .popup-container {
   width: 320px;
   height: 500px;
@@ -26,7 +25,6 @@ body {
   flex-direction: column;
 }
 
-/* Header */
 .popup-header {
   display: flex;
   align-items: center;
@@ -43,7 +41,6 @@ body {
   width: auto;
 }
 
-/* Scrollable Settings Area */
 .settings-scroll-area {
   height: 400px;
   overflow-y: auto;
@@ -51,7 +48,6 @@ body {
   flex: 1;
 }
 
-/* Custom Scrollbar */
 .settings-scroll-area::-webkit-scrollbar {
   width: 6px;
 }
@@ -69,7 +65,6 @@ body {
   background: hsla(0, 0%, 100%, 0.3);
 }
 
-/* Settings Container */
 .settings-container {
   padding: 16px;
   display: flex;
@@ -77,7 +72,6 @@ body {
   gap: 16px;
 }
 
-/* Settings Group */
 .settings-group {
   display: flex;
   flex-direction: column;
@@ -99,7 +93,6 @@ body {
   gap: 8px;
 }
 
-/* Setting Row */
 .setting-row {
   display: flex;
   align-items: center;
@@ -113,7 +106,6 @@ body {
   color: hsl(0, 0%, 88%);
 }
 
-/* Toggle Switch */
 .toggle-switch {
   position: relative;
   display: inline-block;
@@ -153,7 +145,6 @@ body {
   transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
 }
 
-/* Toggle Switch - Checked State */
 .toggle-switch input:checked + .toggle-slider {
   background-color: hsl(0, 100%, 50%);
 }
@@ -162,17 +153,14 @@ body {
   transform: translateX(20px);
 }
 
-/* Toggle Switch - Focus State */
 .toggle-switch input:focus + .toggle-slider {
   box-shadow: 0 0 0 2px hsla(0, 100%, 50%, 0.3);
 }
 
-/* Hover Effect */
 .toggle-switch:hover .toggle-slider {
   opacity: 0.9;
 }
 
-/* Footer */
 .popup-footer {
   flex-shrink: 0;
   padding: 12px 16px 8px 16px;

@@ -1,10 +1,8 @@
-// Load saved settings when popup opens
 document.addEventListener('DOMContentLoaded', () => {
   loadSettings();
   setupToggleListeners();
 });
 
-// Load settings from chrome.storage
 function loadSettings() {
   const toggles = document.querySelectorAll('input[type="checkbox"]');
   
@@ -18,7 +16,6 @@ function loadSettings() {
   });
 }
 
-// Setup event listeners for all toggles
 function setupToggleListeners() {
   const toggles = document.querySelectorAll('input[type="checkbox"]');
   
@@ -27,9 +24,7 @@ function setupToggleListeners() {
       const settingId = e.target.dataset.setting;
       const isChecked = e.target.checked;
       
-      // Save to chrome.storage
       chrome.storage.sync.set({ [settingId]: isChecked }, () => {
-        // Notify content script of the change
         chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
           if (tabs[0]) {
             chrome.tabs.sendMessage(tabs[0].id, {
