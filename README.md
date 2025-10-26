@@ -1,7 +1,6 @@
 <div align="center">
-  <img src="icons/iconFull.png" alt="LockedIn Logo" width="200"/>
-  
-  # LockedIn
+  <img src="icons/iconFull.png" alt="LockedIn Logo" width="400"/>
+
   
   **Hide YouTube distractions. Stay focused. Get things done.**
   
@@ -11,48 +10,52 @@
   [![Chrome Web Store](https://img.shields.io/badge/Chrome-Coming%20Soon-blue?logo=google-chrome&logoColor=white)](#)
   [![Version](https://img.shields.io/badge/version-1.0.2-green.svg)](https://github.com/KartikHalkunde/LockedIn-YT/releases)
   [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-  
-  ![JavaScript](https://img.shields.io/badge/JavaScript-Vanilla-yellow?logo=javascript&logoColor=white)
-  ![Manifest](https://img.shields.io/badge/Manifest-V3-red?logo=googlechrome&logoColor=white)
-  ![No Build Tools](https://img.shields.io/badge/Build%20Tools-None-brightgreen)
-  ![Privacy](https://img.shields.io/badge/Privacy-First-success)
-</div>
 
 ---
 
 ## Features
 
-LockedIn gives you granular control over what you see on YouTube. Here's what you can hide:
+<table>
+<tr>
+<td width="50%">
 
-**Homepage & Feed**
-- YouTube Homepage Feed - start with a clean slate
-- Explore & Trending sections - avoid rabbit holes
+### 🎯 **Homepage & Feed**
+- Hide YouTube Homepage Feed
+- Hide Explore & Trending Pages
 
-**Video Page**
-- Recommended Videos sidebar - watch what you came for, nothing more
-- End Screen Cards - no more "up next" distractions
-- Live Chat - focus on the content
+### 📺 **Video Page**
+- Hide Recommended Videos Sidebar
+- Hide End Screen Cards
+- Hide Live Chat
 
-**Content Filtering**
-- YouTube Shorts - hide them everywhere (homepage, search, recommendations)
-- Shorts shelf and feed sections
+</td>
+<td width="50%">
 
-**Playback Controls**
-- Autoplay toggle - decide when to watch the next video
+### 🎬 **Content Types**
+- Hide YouTube Shorts (everywhere)
+- Block Shorts on homepage
+- Remove Shorts from search
 
-All settings are customizable through a simple popup interface, and your preferences sync across all your Firefox installations.
+### ⚙️ **Playback**
+- Disable Autoplay
+- Control video suggestions
+
+</td>
+</tr>
+</table>
 
 ---
+</div>
 
 ## Installation
 
-### Firefox (Available Now)
+### 🦊 Firefox (Available Now)
 
 ![Firefox](https://img.shields.io/badge/Firefox-Install%20Now-orange?style=flat-square&logo=firefox-browser&logoColor=white)
 
 The easiest way to get started:
 
-1. Visit the [Firefox Add-ons Store](https://addons.mozilla.org/firefox/)
+1. Visit the [Firefox Add-ons Store](https://addons.mozilla.org/en-US/firefox/addon/lockedin-yt/)
 2. Click "Add to Firefox"
 3. You're done! Click the extension icon to configure your preferences.
 
@@ -62,6 +65,7 @@ The easiest way to get started:
 
 Currently under review for the Chrome Web Store. Check back soon!
 
+---
 ### Building from Source
 
 ![Build](https://img.shields.io/badge/Build-Manual-blue?style=flat-square)
@@ -238,8 +242,6 @@ That's it. No tracking, no data collection, no network requests to external serv
 ### Version 1.0.2 (October 26, 2025)
 - Updated extension icons with new branding
 - Stable release with performance optimizations
-- Published to Firefox Add-ons
-- Submitted to Chrome Web Store
 
 ### Version 1.0.1 (October 25, 2025)
 - Fixed default toggle behavior
@@ -268,7 +270,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 - **Bug Reports**: [GitHub Issues](https://github.com/KartikHalkunde/LockedIn-YT/issues)
 - **Feature Requests**: [GitHub Discussions](https://github.com/KartikHalkunde/LockedIn-YT/discussions)
-- **Email**: kartik@lockedin.com
+- **Email**: kartikhalkunde26@gmail.com 
 
 ---
 
