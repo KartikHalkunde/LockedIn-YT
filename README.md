@@ -309,8 +309,6 @@ All code is vanilla JavaScript and can be reviewed directly in the repository.
 
 <div align="center">
 
-**[↑ Back to Top](#lockedin)**
-
 Made by [Kartik Halkunde](https://github.com/KartikHalkunde)
 
 If this helps you stay focused, consider starring the repo!
