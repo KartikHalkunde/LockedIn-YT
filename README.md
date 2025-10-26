@@ -309,7 +309,7 @@ All code is vanilla JavaScript and can be reviewed directly in the repository.
 
 <div align="center">
 
-Made by [Kartik Halkunde](https://github.com/KartikHalkunde)
+Made by ☕ and [Kartik Halkunde](https://github.com/KartikHalkunde)
 
 If this helps you stay focused, consider starring the repo!
 
