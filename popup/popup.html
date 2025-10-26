@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=320, height=500">
+  <title>LockedIn</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="popup-container">
+    <div class="popup-header">
+      <img src="../icons/iconFull.png" alt="LockedIn" class="header-logo">
+    </div>
+
+    <div class="settings-scroll-area">
+      <div class="settings-container">
+        <div class="settings-group">
+          <h2 class="group-title">Homepage & Feed</h2>
+          <div class="settings-list">
+            <div class="setting-row">
+              <span class="setting-label">Hide Homepage Feed</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="hideFeed" data-setting="hideFeed">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <span class="setting-label">Hide Explore & Trending</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="hideExplore" data-setting="hideExplore">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <h2 class="group-title">Video Page</h2>
+          <div class="settings-list">
+            <div class="setting-row">
+              <span class="setting-label">Hide Recommended Videos</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="hideSidebar" data-setting="hideSidebar">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <span class="setting-label">Hide End Screen Cards</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="hideEndCards" data-setting="hideEndCards">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <span class="setting-label">Hide Live Chat</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="hideLiveChat" data-setting="hideLiveChat">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <h2 class="group-title">Content Types</h2>
+          <div class="settings-list">
+            <div class="setting-row">
+              <span class="setting-label">Hide YouTube Shorts</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="hideShorts" data-setting="hideShorts">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <h2 class="group-title">Search & Playback</h2>
+          <div class="settings-list">
+            <div class="setting-row">
+              <span class="setting-label">Disable Autoplay</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="disableAutoplay" data-setting="disableAutoplay">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="popup-footer">
+      <hr class="footer-divider">
+      <div class="version-info">Version 1.0.2</div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

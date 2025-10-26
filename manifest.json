@@ -1,0 +1,31 @@
+{
+  "manifest_version": 3,
+  "name": "LockedIn",
+  "version": "1.0.2",
+  "description": "Hide YouTube distractions and stay focused.",
+  "icons": {
+    "48": "icons/icon48.png"
+  },
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "*://www.youtube.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": ["*://www.youtube.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_popup": "popup/popup.html",
+    "default_icon": "icons/icon48.png"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "kartik@lockedin.com"
+    }
+  }
+}
