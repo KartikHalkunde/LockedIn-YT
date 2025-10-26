@@ -1,325 +1,317 @@
-# 🔒 LockedIn
-
-> **Hide YouTube distractions. Stay focused. Get things done.**
-
-A lightweight browser extension that helps you reclaim your productivity by removing distracting elements from YouTube.
-
-[![Firefox Add-ons](https://img.shields.io/badge/Firefox-Available-orange?logo=firefox-browser&logoColor=white)](https://addons.mozilla.org/firefox/)
-[![Chrome Web Store](https://img.shields.io/badge/Chrome-Coming%20Soon-blue?logo=google-chrome&logoColor=white)](#)
-[![Version](https://img.shields.io/badge/version-1.0.2-green.svg)](https://github.com/YOUR_USERNAME/LockedIn/releases)
-[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-
----
-
-## ✨ Features
-
-<table>
-<tr>
-<td width="50%">
-
-### 🎯 **Homepage & Feed**
-- Hide YouTube Homepage Feed
-- Hide Explore & Trending Pages
-
-### 📺 **Video Page**
-- Hide Recommended Videos Sidebar
-- Hide End Screen Cards
-- Hide Live Chat
-
-</td>
-<td width="50%">
-
-### 🎬 **Content Types**
-- Hide YouTube Shorts (everywhere)
-- Block Shorts on homepage
-- Remove Shorts from search
-
-### ⚙️ **Playback**
-- Disable Autoplay
-- Control video suggestions
-
-</td>
-</tr>
-</table>
+<div align="center">
+  <img src="icons/iconFull.png" alt="LockedIn Logo" width="200"/>
+  
+  # LockedIn
+  
+  **Hide YouTube distractions. Stay focused. Get things done.**
+  
+  A lightweight browser extension for reclaiming your productivity by removing distracting elements from YouTube.
+  
+  [![Firefox Add-ons](https://img.shields.io/badge/Firefox-Available-orange?logo=firefox-browser&logoColor=white)](https://addons.mozilla.org/firefox/)
+  [![Chrome Web Store](https://img.shields.io/badge/Chrome-Coming%20Soon-blue?logo=google-chrome&logoColor=white)](#)
+  [![Version](https://img.shields.io/badge/version-1.0.2-green.svg)](https://github.com/KartikHalkunde/LockedIn-YT/releases)
+  [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+  
+  ![JavaScript](https://img.shields.io/badge/JavaScript-Vanilla-yellow?logo=javascript&logoColor=white)
+  ![Manifest](https://img.shields.io/badge/Manifest-V3-red?logo=googlechrome&logoColor=white)
+  ![No Build Tools](https://img.shields.io/badge/Build%20Tools-None-brightgreen)
+  ![Privacy](https://img.shields.io/badge/Privacy-First-success)
+</div>
 
 ---
 
-## 📥 Installation
+## Features
 
-### 🦊 **Firefox** (Available Now)
+LockedIn gives you granular control over what you see on YouTube. Here's what you can hide:
 
-<a href="https://addons.mozilla.org/firefox/" target="_blank">
-  <img src="https://img.shields.io/badge/Get%20for-Firefox-orange?style=for-the-badge&logo=firefox-browser&logoColor=white" alt="Get LockedIn for Firefox" height="50">
-</a>
+**Homepage & Feed**
+- YouTube Homepage Feed - start with a clean slate
+- Explore & Trending sections - avoid rabbit holes
+
+**Video Page**
+- Recommended Videos sidebar - watch what you came for, nothing more
+- End Screen Cards - no more "up next" distractions
+- Live Chat - focus on the content
+
+**Content Filtering**
+- YouTube Shorts - hide them everywhere (homepage, search, recommendations)
+- Shorts shelf and feed sections
+
+**Playback Controls**
+- Autoplay toggle - decide when to watch the next video
+
+All settings are customizable through a simple popup interface, and your preferences sync across all your Firefox installations.
+
+---
+
+## Installation
+
+### Firefox (Available Now)
+
+![Firefox](https://img.shields.io/badge/Firefox-Install%20Now-orange?style=flat-square&logo=firefox-browser&logoColor=white)
+
+The easiest way to get started:
 
 1. Visit the [Firefox Add-ons Store](https://addons.mozilla.org/firefox/)
 2. Click "Add to Firefox"
-3. Enjoy distraction-free YouTube! 🎉
+3. You're done! Click the extension icon to configure your preferences.
 
----
+### Chrome (Coming Soon)
 
-### 🌐 **Chrome** (Coming Soon)
+![Chrome](https://img.shields.io/badge/Chrome-Under%20Review-lightgrey?style=flat-square&logo=google-chrome&logoColor=white)
 
-<img src="https://img.shields.io/badge/Chrome-Coming%20Soon-lightgrey?style=for-the-badge&logo=google-chrome&logoColor=white" alt="Coming to Chrome Web Store" height="50">
+Currently under review for the Chrome Web Store. Check back soon!
 
-*Currently in review. Check back soon!*
+### Building from Source
 
----
+![Build](https://img.shields.io/badge/Build-Manual-blue?style=flat-square)
 
-### 🛠️ **Install from Source**
+If you prefer to build and install manually:
 
-Want to build it yourself? Follow these steps:
-
-#### **1. Clone the Repository**
+**1. Clone the repository**
 ```bash
-git clone https://github.com/YOUR_USERNAME/LockedIn.git
-cd LockedIn
+git clone https://github.com/KartikHalkunde/LockedIn-YT.git
+cd LockedIn-YT
 ```
 
-#### **2. Build the Extension**
+**2. Build the extension**
 
-**Linux/macOS:**
+Linux/macOS:
 ```bash
 chmod +x build.sh
 ./build.sh
 ```
 
-**Windows:**
+Windows (PowerShell):
 ```powershell
 .\build.ps1
 ```
 
-#### **3. Load in Browser**
+**3. Load in your browser**
 
-**Firefox:**
-1. Open `about:debugging#/runtime/this-firefox`
-2. Click "Load Temporary Add-on"
-3. Select `lockedin-1.0.2.zip`
+*For Firefox:*
+- Navigate to `about:debugging#/runtime/this-firefox`
+- Click "Load Temporary Add-on"
+- Select the generated `lockedin-1.0.2.zip` file
 
-**Chrome:**
-1. Open `chrome://extensions/`
-2. Enable "Developer mode"
-3. Click "Load unpacked"
-4. Select the project folder
-
----
-
-## 🎨 Screenshots
-
-<table>
-<tr>
-<td align="center">
-<img src="https://via.placeholder.com/300x200?text=Clean+Homepage" alt="Clean Homepage" width="300"/>
-<br/>
-<b>Clean Homepage</b><br/>
-<sub>No distracting feed</sub>
-</td>
-<td align="center">
-<img src="https://via.placeholder.com/300x200?text=Focused+Watching" alt="Focused Video" width="300"/>
-<br/>
-<b>Focused Video Watching</b><br/>
-<sub>No recommendations sidebar</sub>
-</td>
-</tr>
-</table>
+*For Chrome:*
+- Go to `chrome://extensions/`
+- Enable "Developer mode" (top right)
+- Click "Load unpacked"
+- Select the project folder
 
 ---
 
-## 🚀 How It Works
+## How It Works
 
-### **Content Script** (`content.js`)
-- 🎯 Runs on all YouTube pages
-- 🔄 Dynamically hides elements based on your preferences
-- 💾 Syncs settings across devices using browser storage
-- ⚡ Uses debounced MutationObserver for optimal performance
+LockedIn is built with simplicity and privacy in mind. Here's what's under the hood:
 
-### **Popup UI** (`popup/`)
-- 🎛️ Simple toggle switches for each feature
-- 💾 Auto-save preferences
-- 🌐 Settings sync across all your devices
-- 🎨 Clean, minimal design
+**Content Script (`content.js`)**
 
-### **Privacy First** 🔒
-- ✅ No data collection
-- ✅ No analytics or tracking
-- ✅ No external requests
-- ✅ All processing happens locally
-- ✅ Settings stored in your browser only
+The main script runs on YouTube pages and handles the actual element hiding. It uses a MutationObserver to detect when YouTube adds new content dynamically (which happens a lot), and applies your preferences in real-time. The observer is debounced to avoid performance issues.
+
+**Popup Interface (`popup/`)**
+
+A simple, clean interface with toggle switches for each feature. When you flip a switch, the setting is immediately saved to browser storage and applied to any open YouTube tabs. Settings are synced across your devices using Firefox Sync.
+
+**Privacy**
+
+Everything happens locally in your browser. The extension doesn't make any network requests, doesn't collect any data, and doesn't use analytics. Your settings are stored in your browser's sync storage - that's it.
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
-LockedIn/
-├── 📄 manifest.json       # Extension configuration
-├── 📜 content.js          # Main functionality (YouTube element hiding)
-├── 🖼️  icons/             # Extension icons
-│   ├── icon48.png         # 48x48 icon
-│   └── iconFull.png       # Full-size icon
-├── 🎨 popup/              # Popup UI
-│   ├── popup.html         # UI structure
+LockedIn-YT/
+├── manifest.json          # Extension configuration
+├── content.js             # Main functionality (YouTube element hiding)
+├── icons/
+│   ├── icon48.png         # Toolbar icon
+│   └── iconFull.png       # Full logo
+├── popup/
+│   ├── popup.html         # Settings UI structure
 │   ├── popup.css          # Styling
 │   └── popup.js           # Settings logic
-├── 🔧 build.sh            # Build script (Linux/macOS)
-├── 🔧 build.ps1           # Build script (Windows)
-└── 📖 README.md           # You are here!
+├── build.sh               # Build script (Linux/macOS)
+├── build.ps1              # Build script (Windows)
+└── README.md              # This file
 ```
 
 ---
 
-## 🛠️ Development
+## Development
 
-### **No Build Tools Required!**
+### Tech Stack
 
-This extension is built with **zero dependencies**:
+![Stack](https://img.shields.io/badge/Stack-Vanilla%20JS-yellow?style=flat-square)
+![Dependencies](https://img.shields.io/badge/Dependencies-Zero-success?style=flat-square)
 
-- ✅ **Pure JavaScript** - No webpack, Rollup, or Parcel
-- ✅ **No Transpilers** - No Babel, TypeScript compilation
-- ✅ **No Minification** - Code is readable and auditable
-- ✅ **No External Libraries** - Just vanilla JS and browser APIs
+This extension is intentionally simple - no build pipeline, no dependencies, just vanilla web technologies:
 
-**What you see is what you get.** All code is human-readable and matches the packaged extension exactly.
+- **Manifest V3** - Latest extension standard
+- **Vanilla JavaScript** - No frameworks or libraries
+- **CSS3** - Modern styling
+- **browser.storage.sync API** - Settings synchronization
+- **MutationObserver API** - Dynamic content detection
 
-### **Tech Stack**
-- 🌐 **Manifest V3** - Modern extension architecture
-- 💾 **browser.storage.sync** - Cross-device settings sync
-- 👁️ **MutationObserver** - Dynamic content detection
-- 🎨 **CSS3** - Modern styling
-- ⚡ **Vanilla JavaScript** - No frameworks
+### No Build Tools
 
----
+Unlike most modern extensions, this project doesn't use webpack, Rollup, Babel, TypeScript, or any other build tools. The code you see in the repository is exactly what runs in the browser. This makes the extension:
 
-## 🤝 Contributing
+- Easy to audit and review
+- Simple to contribute to
+- Fast to build (just zip the files)
+- Transparent - no hidden compilation steps
 
-Contributions, issues, and feature requests are welcome!
+### Contributing
 
-### **How to Contribute:**
+![Contributions](https://img.shields.io/badge/Contributions-Welcome-brightgreen?style=flat-square)
 
-1. **Fork** the repository
-2. **Create** a feature branch (`git checkout -b feature/AmazingFeature`)
-3. **Commit** your changes (`git commit -m 'Add some AmazingFeature'`)
-4. **Push** to the branch (`git push origin feature/AmazingFeature`)
-5. **Open** a Pull Request
+Want to help improve LockedIn? Here's how:
 
-### **Development Setup:**
+1. Fork this repository
+2. Create a branch for your feature (`git checkout -b feature/your-feature`)
+3. Make your changes
+4. Test by loading the extension in Firefox/Chrome
+5. Commit your changes (`git commit -m 'Add your feature'`)
+6. Push to your fork (`git push origin feature/your-feature`)
+7. Open a Pull Request
+
+### Local Development
+
 ```bash
 # Clone your fork
-git clone https://github.com/YOUR_USERNAME/LockedIn.git
-cd LockedIn
+git clone https://github.com/YOUR_USERNAME/LockedIn-YT.git
+cd LockedIn-YT
 
-# Make changes to the code
-# Test by loading as temporary extension in Firefox/Chrome
+# Make your changes...
 
 # Build
 ./build.sh
 
-# Test the built extension
+# Load in Firefox for testing
+# Go to about:debugging#/runtime/this-firefox
+# Click "Load Temporary Add-on" and select the ZIP file
 ```
 
 ---
 
-## 🐛 Bug Reports
+## Bug Reports & Feature Requests
 
-Found a bug? Please [open an issue](https://github.com/YOUR_USERNAME/LockedIn/issues) with:
-- 🖥️ Browser & version
-- 📝 Steps to reproduce
-- 📸 Screenshots (if applicable)
-- 🔍 Expected vs actual behavior
+![Issues](https://img.shields.io/badge/Issues-Open-blue?style=flat-square&logo=github)
+![Discussions](https://img.shields.io/badge/Discussions-Join-purple?style=flat-square&logo=github)
 
----
+If something isn't working right or you have an idea for improvement:
 
-## 📜 Permissions
+- **Bugs**: [Open an issue](https://github.com/KartikHalkunde/LockedIn-YT/issues) with details about what happened and what you expected
+- **Features**: Start a [discussion](https://github.com/KartikHalkunde/LockedIn-YT/discussions) to talk about your idea
 
-This extension requires minimal permissions:
-
-| Permission | Reason |
-|------------|--------|
-| `storage` | Save your preferences locally |
-| `*://www.youtube.com/*` | Access YouTube to hide distracting elements |
-
-**That's it!** No tracking, no data collection, no network requests.
+When reporting bugs, please include:
+- Your browser and version
+- Steps to reproduce the issue
+- What you expected vs what actually happened
+- Screenshots if relevant
 
 ---
 
-## 📊 Changelog
+## Permissions
 
-### **Version 1.0.2** - *October 26, 2025*
-- 🎨 Updated extension icons with new branding
-- ✅ Stable release with optimizations
-- 🦊 Published to Firefox Add-ons
-- 🌐 Submitted to Chrome Web Store
+![Privacy](https://img.shields.io/badge/Privacy-First-success?style=flat-square&logo=shield)
+![Data Collection](https://img.shields.io/badge/Data%20Collection-None-brightgreen?style=flat-square)
 
-### **Version 1.0.1** - *October 25, 2025*
-- 🐛 Fixed default toggle behavior
-- 🛡️ Added comprehensive error handling
-- ⚡ Performance improvements with debounced MutationObserver
-- 🔄 Improved settings initialization
+LockedIn only requests the permissions it actually needs:
 
-### **Version 1.0.0** - *October 21, 2025*
-- 🎉 Initial release
-- ✨ Core YouTube distraction hiding features
-- 🎛️ Settings popup with toggle controls
-- 💾 Cross-device settings sync
+| Permission | Why It's Needed |
+|------------|-----------------|
+| `storage` | Saves your preferences so they persist across browser sessions |
+| `*://www.youtube.com/*` | Allows the extension to modify YouTube pages |
+
+That's it. No tracking, no data collection, no network requests to external servers.
 
 ---
 
-## 📄 License
+## Changelog
 
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+![Release](https://img.shields.io/badge/Latest-v1.0.2-green?style=flat-square)
+
+### Version 1.0.2 (October 26, 2025)
+- Updated extension icons with new branding
+- Stable release with performance optimizations
+- Published to Firefox Add-ons
+- Submitted to Chrome Web Store
+
+### Version 1.0.1 (October 25, 2025)
+- Fixed default toggle behavior
+- Added comprehensive error handling
+- Performance improvements with debounced MutationObserver
+- Improved settings initialization
+
+### Version 1.0.0 (October 21, 2025)
+- Initial release
+- Core YouTube distraction hiding features
+- Settings popup with toggle controls
+- Cross-device settings sync
 
 ---
 
-## 💬 Support
+## License
 
-- 🐛 **Bug Reports:** [GitHub Issues](https://github.com/YOUR_USERNAME/LockedIn/issues)
-- 💡 **Feature Requests:** [GitHub Discussions](https://github.com/YOUR_USERNAME/LockedIn/discussions)
-- 📧 **Contact:** kartik@lockedin.com
+MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
-## 🌟 Acknowledgments
+## Contact & Support
 
-Built with ❤️ for people who want to focus.
+![GitHub Issues](https://img.shields.io/badge/GitHub-Issues-red?style=flat-square&logo=github)
+![Email](https://img.shields.io/badge/Email-Contact-blue?style=flat-square&logo=gmail)
 
-**Special thanks to:**
-- The open-source community
-- Firefox Add-ons reviewers
-- Early users and testers
+- **Bug Reports**: [GitHub Issues](https://github.com/KartikHalkunde/LockedIn-YT/issues)
+- **Feature Requests**: [GitHub Discussions](https://github.com/KartikHalkunde/LockedIn-YT/discussions)
+- **Email**: kartik@lockedin.com
 
 ---
 
-## 🔍 For Mozilla/Chrome Reviewers
+## For Extension Reviewers
 
-**Build Verification:**
+![Code Quality](https://img.shields.io/badge/Code-Readable-success?style=flat-square)
+![Build](https://img.shields.io/badge/Build-Reproducible-blue?style=flat-square)
 
-This extension is designed for easy review:
+If you're reviewing this extension for Mozilla or Chrome:
 
-✅ **No minification or obfuscation** - All code is readable  
-✅ **No build tools required** - Pure JavaScript, no bundlers  
-✅ **No external dependencies** - Zero npm packages  
-✅ **Complete source included** - What you see is what you get  
-✅ **Reproducible builds** - Run `./build.sh` to verify  
+**Build Verification**
 
-**Build Instructions:**
+This extension uses no build tools, minification, or obfuscation. To verify:
+
 ```bash
-# Linux/macOS
+# Clone the repo
+git clone https://github.com/KartikHalkunde/LockedIn-YT.git
+cd LockedIn-YT
+
+# Build (just creates a zip file)
 ./build.sh
 
-# Windows
-.\build.ps1
+# The resulting lockedin-1.0.2.zip contains the exact same code
+# you see in the repository - no compilation or transformation
 ```
 
-The generated `lockedin-1.0.2.zip` will match the submitted package byte-for-byte.
+**What to expect:**
+- No minified code
+- No external dependencies
+- No build pipeline
+- Human-readable source code
+- Deterministic builds (same input = same output)
+
+All code is vanilla JavaScript and can be reviewed directly in the repository.
 
 ---
 
 <div align="center">
 
-**[⬆ Back to Top](#-lockedin)**
+**[↑ Back to Top](#lockedin)**
 
-Made with ☕ by **[Kartik](https://github.com/YOUR_USERNAME)**
+Made by [Kartik Halkunde](https://github.com/KartikHalkunde)
 
-⭐ **Star this repo** if it helps you stay focused!
+If this helps you stay focused, consider starring the repo!
 
 </div>
