@@ -2,7 +2,7 @@
   <img src="icons/iconFull.png" alt="LockedIn Logo" width="400"/>
 
   
-  **Hide YouTube distractions. Stay focused. Get things done.**
+  **Stay focused. Get things done.**
   
   A lightweight browser extension for reclaiming your productivity by removing distracting elements from YouTube.
   
@@ -20,11 +20,11 @@
 <td width="50%">
 
 ### 🎯 **Homepage & Feed**
-- Hide YouTube Homepage Feed
-- Hide Explore & Trending Pages
+- Hide Homepage Feed
+- Hide Explore Pages
 
 ### 📺 **Video Page**
-- Hide Recommended Videos Sidebar
+- Hide Recommended Videos 
 - Hide End Screen Cards
 - Hide Live Chat
 
@@ -32,9 +32,8 @@
 <td width="50%">
 
 ### 🎬 **Content Types**
-- Hide YouTube Shorts (everywhere)
 - Block Shorts on homepage
-- Remove Shorts from search
+- Removes Shorts Tab 
 
 ### ⚙️ **Playback**
 - Disable Autoplay
