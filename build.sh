@@ -5,13 +5,16 @@
 
 set -e  # Exit on any error
 
+# Extract version from manifest.json
+VERSION=$(grep -o '"version": *"[^"]*"' manifest.json | grep -o '[0-9.]*')
+
 echo "========================================="
-echo "Building LockedIn Firefox Extension v1.0.2"
+echo "Building LockedIn Firefox Extension v$VERSION"
 echo "========================================="
 echo ""
 
 # Define output filename
-OUTPUT_FILE="lockedin-1.0.2.zip"
+OUTPUT_FILE="lockedin-${VERSION}.zip"
 
 # Remove existing build if present
 if [ -f "$OUTPUT_FILE" ]; then
@@ -54,17 +57,23 @@ if command -v zip &> /dev/null; then
 else
     # Fallback to Python zipfile
     echo "  (using Python zipfile - zip command not found)"
-    python3 << 'PYEOF'
+    python3 << PYEOF
 import zipfile
 import os
+import json
 
-output_file = "lockedin-1.0.2.zip"
-exclude_patterns = ['.DS_Store', '__MACOSX', '.git', '.gitignore', 'build.sh', 'build.ps1', 'README.md', 'SOURCE_SUBMISSION.md']
+# Read version from manifest.json
+with open('manifest.json', 'r') as f:
+    manifest = json.load(f)
+    version = manifest['version']
+
+output_file = f"lockedin-{version}.zip"
+exclude_patterns = ['.DS_Store', '__MACOSX', '.git', '.gitignore', 'build.sh', 'build.ps1', 'README.md', 'SOURCE_SUBMISSION.md', 'RELEASE_GUIDE.md', 'RELEASE_NOTES.md', 'CHANGELOG.md']
 
 with zipfile.ZipFile(output_file, 'w', zipfile.ZIP_DEFLATED) as zipf:
     for root, dirs, files in os.walk('.'):
         # Filter out excluded directories
-        dirs[:] = [d for d in dirs if d not in exclude_patterns]
+        dirs[:] = [d for d in dirs if d not in exclude_patterns and not d.startswith('.')]
         
         for file in files:
             # Skip if filename matches exclude patterns

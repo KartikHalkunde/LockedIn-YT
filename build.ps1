@@ -3,13 +3,17 @@
 
 $ErrorActionPreference = "Stop"
 
+# Extract version from manifest.json
+$manifest = Get-Content -Path "manifest.json" -Raw | ConvertFrom-Json
+$version = $manifest.version
+
 Write-Host "=========================================" -ForegroundColor Cyan
-Write-Host "Building LockedIn Firefox Extension v1.0.2" -ForegroundColor Cyan
+Write-Host "Building LockedIn Firefox Extension v$version" -ForegroundColor Cyan
 Write-Host "=========================================" -ForegroundColor Cyan
 Write-Host ""
 
 # Define output filename
-$outputFile = "lockedin-1.0.2.zip"
+$outputFile = "lockedin-$version.zip"
 
 # Remove existing build if present
 if (Test-Path $outputFile) {
