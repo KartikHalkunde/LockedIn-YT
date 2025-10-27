@@ -198,6 +198,15 @@ cd LockedIn-YT
 # Click "Load Temporary Add-on" and select the ZIP file
 ```
 
+### Creating Releases
+
+For maintainers, see [QUICK_START_RELEASE.md](QUICK_START_RELEASE.md) for step-by-step instructions on:
+- Creating your first GitHub release
+- Automated release workflow with GitHub Actions
+- Version numbering best practices
+- Publishing to browser extension stores
+
+
 ---
 
 ## Bug Reports & Feature Requests
@@ -259,6 +268,17 @@ That's it. No tracking, no data collection, no network requests to external serv
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details.
+
+---
+
+## Releases
+
+![Release](https://img.shields.io/badge/Latest-v1.0.2-green?style=flat-square)
+![GitHub Releases](https://img.shields.io/github/downloads/KartikHalkunde/LockedIn-YT/total?style=flat-square)
+
+Download the latest version from the [Releases page](https://github.com/KartikHalkunde/LockedIn-YT/releases).
+
+**For Maintainers**: See [QUICK_START_RELEASE.md](QUICK_START_RELEASE.md) for instructions on creating releases.
 
 ---
 
