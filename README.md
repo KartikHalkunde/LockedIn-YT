@@ -8,7 +8,7 @@
   
   [![Firefox Add-ons](https://img.shields.io/badge/Firefox-Available-orange?logo=firefox-browser&logoColor=white)](https://addons.mozilla.org/firefox/)
   [![Chrome Web Store](https://img.shields.io/badge/Chrome-Coming%20Soon-blue?logo=google-chrome&logoColor=white)](#)
-  [![Version](https://img.shields.io/badge/version-1.0.2-green.svg)](https://github.com/KartikHalkunde/LockedIn-YT/releases)
+  [![Version](https://img.shields.io/badge/version-1.0.4-green.svg)](https://github.com/KartikHalkunde/LockedIn-YT/releases)
   [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ---
@@ -95,7 +95,7 @@ Windows (PowerShell):
 *For Firefox:*
 - Navigate to `about:debugging#/runtime/this-firefox`
 - Click "Load Temporary Add-on"
-- Select the generated `lockedin-1.0.2.zip` file
+- Select the generated `lockedin-1.0.4.zip` file
 
 *For Chrome:*
 - Go to `chrome://extensions/`
@@ -236,7 +236,21 @@ That's it. No tracking, no data collection, no network requests to external serv
 
 ## Changelog
 
-![Release](https://img.shields.io/badge/Latest-v1.0.2-green?style=flat-square)
+![Release](https://img.shields.io/badge/Latest-v1.0.4-green?style=flat-square)
+
+### Version 1.0.4 (October 29, 2025)
+- **Performance**: Removed Google Fonts dependency for faster load times
+- **Size Optimization**: Extension package reduced by 95% (1.1 MB → 55 KB)
+- **Icons**: Optimized PNG files (700 KB → 48 KB total)
+- **Fonts**: Now uses native system fonts for better OS integration
+- **Offline**: Completely self-contained with no external network requests
+
+### Version 1.0.3 (October 29, 2025)
+- **Power Button**: Quick enable/disable toggle in extension popup
+- **Visual Feedback**: Logo changes to "LockedOut" when extension is disabled
+- **Enhanced Blocking**: Improved Shorts hiding across homepage, sidebar, and tab
+- **UI Improvements**: Reorganized settings, faster toggle animations
+- **Bug Fixes**: Fixed Shorts not being hidden in sidebar
 
 ### Version 1.0.2 (October 26, 2025)
 - Updated extension icons with new branding
@@ -292,7 +306,7 @@ cd LockedIn-YT
 # Build (just creates a zip file)
 ./build.sh
 
-# The resulting lockedin-1.0.2.zip contains the exact same code
+# The resulting lockedin-1.0.4.zip contains the exact same code
 # you see in the repository - no compilation or transformation
 ```
 
