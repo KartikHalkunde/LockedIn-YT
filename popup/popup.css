@@ -7,7 +7,7 @@
 body {
   width: 320px;
   height: 500px;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background: transparent;
   overflow: hidden;
 }
@@ -32,13 +32,52 @@ body {
   padding: 12px 16px;
   border-bottom: 1px solid hsla(0, 0%, 100%, 0.1);
   flex-shrink: 0;
+  position: relative;
 }
 
 .header-logo {
-  max-width: 100%;
-  max-height: 40px;
+  max-width: 180px;
+  max-height: 32px;
   height: auto;
   width: auto;
+  transition: opacity 0.2s ease;
+}
+
+.popup-container.disabled .header-logo {
+  content: url('../icons/LockedOut.png');
+}
+
+.power-button {
+  background: transparent;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.power-button:hover {
+  background: transparent;
+}
+
+.power-button:active {
+  background: transparent;
+}
+
+.power-icon {
+  width: 20px;
+  height: 20px;
+  color: hsl(0, 0%, 60%);
+  transition: color 0.15s ease;
+}
+
+.power-button:hover .power-icon {
+  color: hsl(0, 0%, 50%);
 }
 
 .settings-scroll-area {
@@ -46,6 +85,51 @@ body {
   overflow-y: auto;
   overflow-x: hidden;
   flex: 1;
+  transition: opacity 0.2s ease;
+}
+
+.popup-container.disabled .settings-scroll-area {
+  display: none;
+}
+
+.disabled-message {
+  display: none;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.popup-container.disabled .disabled-message {
+  display: flex;
+}
+
+.disabled-content {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.disabled-icon {
+  width: 48px;
+  height: 48px;
+  color: hsl(0, 100%, 50%);
+  opacity: 0.8;
+}
+
+.disabled-text {
+  font-size: 16px;
+  font-weight: 600;
+  color: hsl(0, 0%, 88%);
+  margin: 0;
+}
+
+.disabled-subtext {
+  font-size: 13px;
+  color: hsl(0, 0%, 60%);
+  margin: 0;
 }
 
 .settings-scroll-area::-webkit-scrollbar {
@@ -129,7 +213,7 @@ body {
   bottom: 0;
   background-color: hsl(240, 4%, 25%);
   border-radius: 12px;
-  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .toggle-slider::before {
@@ -142,7 +226,7 @@ body {
   background-color: white;
   border-radius: 50%;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .toggle-switch input:checked + .toggle-slider {
@@ -177,4 +261,69 @@ body {
   font-size: 11px;
   color: hsla(0, 0%, 100%, 0.6);
   font-weight: 400;
+}
+
+/* ===== LIGHT MODE STYLES ===== */
+.popup-container.light-mode {
+  background: hsla(0, 0%, 98%, 0.98);
+  border: 1px solid hsla(0, 0%, 0%, 0.15);
+}
+
+.popup-container.light-mode .popup-header {
+  border-bottom: 1px solid hsla(0, 0%, 0%, 0.1);
+}
+
+.popup-container.light-mode .theme-icon,
+.popup-container.light-mode .power-icon {
+  color: hsl(0, 0%, 30%);
+}
+
+.popup-container.light-mode .theme-button:hover .theme-icon,
+.popup-container.light-mode .power-button:hover .power-icon {
+  color: hsl(0, 0%, 10%);
+}
+
+.popup-container.light-mode .group-title {
+  color: hsl(0, 0%, 40%);
+}
+
+.popup-container.light-mode .setting-label {
+  color: hsl(0, 0%, 10%);
+}
+
+.popup-container.light-mode .toggle-slider {
+  background-color: hsl(0, 0%, 80%);
+}
+
+.popup-container.light-mode .toggle-slider::before {
+  background-color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+}
+
+.popup-container.light-mode .settings-scroll-area::-webkit-scrollbar-thumb {
+  background: hsla(0, 0%, 0%, 0.2);
+}
+
+.popup-container.light-mode .settings-scroll-area::-webkit-scrollbar-thumb:hover {
+  background: hsla(0, 0%, 0%, 0.3);
+}
+
+.popup-container.light-mode .footer-divider {
+  border-top: 1px solid hsla(0, 0%, 0%, 0.1);
+}
+
+.popup-container.light-mode .version-info {
+  color: hsla(0, 0%, 0%, 0.5);
+}
+
+.popup-container.light-mode .disabled-icon {
+  color: hsl(0, 100%, 45%);
+}
+
+.popup-container.light-mode .disabled-text {
+  color: hsl(0, 0%, 10%);
+}
+
+.popup-container.light-mode .disabled-subtext {
+  color: hsl(0, 0%, 40%);
 }

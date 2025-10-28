@@ -6,12 +6,12 @@
 set -e  # Exit on any error
 
 echo "========================================="
-echo "Building LockedIn Firefox Extension v1.0.2"
+echo "Building LockedIn Firefox Extension v1.0.4"
 echo "========================================="
 echo ""
 
 # Define output filename
-OUTPUT_FILE="lockedin-1.0.2.zip"
+OUTPUT_FILE="lockedin-1.0.4.zip"
 
 # Remove existing build if present
 if [ -f "$OUTPUT_FILE" ]; then
@@ -58,7 +58,7 @@ else
 import zipfile
 import os
 
-output_file = "lockedin-1.0.2.zip"
+output_file = "lockedin-1.0.4.zip"
 exclude_patterns = ['.DS_Store', '__MACOSX', '.git', '.gitignore', 'build.sh', 'build.ps1', 'README.md', 'SOURCE_SUBMISSION.md']
 
 with zipfile.ZipFile(output_file, 'w', zipfile.ZIP_DEFLATED) as zipf:

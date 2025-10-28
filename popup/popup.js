@@ -6,13 +6,67 @@ const DEFAULT_SETTINGS = {
   hideEndCards: false,
   hideExplore: false,
   hideShorts: false,
-  disableAutoplay: false
+  disableAutoplay: false,
+  extensionEnabled: true // New setting for power button
 };
 
 document.addEventListener('DOMContentLoaded', () => {
   loadSettings();
   setupToggleListeners();
+  setupPowerButton();
 });
+
+function setupPowerButton() {
+  const powerButton = document.getElementById('powerButton');
+  const popupContainer = document.querySelector('.popup-container');
+  
+  // Load initial state
+  browser.storage.sync.get('extensionEnabled', (result) => {
+    const isEnabled = result.extensionEnabled !== undefined ? result.extensionEnabled : true;
+    updatePowerState(isEnabled);
+  });
+  
+  powerButton.addEventListener('click', () => {
+    browser.storage.sync.get('extensionEnabled', (result) => {
+      const currentState = result.extensionEnabled !== undefined ? result.extensionEnabled : true;
+      const newState = !currentState;
+      
+      // Save new state
+      browser.storage.sync.set({ extensionEnabled: newState }, () => {
+        if (browser.runtime.lastError) {
+          console.error('LockedIn: Failed to save power state', browser.runtime.lastError);
+          return;
+        }
+        
+        updatePowerState(newState);
+        
+        // Notify all YouTube tabs about the power state change
+        browser.tabs.query({}, (tabs) => {
+          tabs.forEach((tab) => {
+            if (tab.url && tab.url.includes('youtube.com')) {
+              browser.tabs.sendMessage(tab.id, {
+                action: 'powerStateChanged',
+                enabled: newState
+              }).catch((error) => {
+                console.debug('LockedIn: Could not send message to tab', error);
+              });
+            }
+          });
+        });
+      });
+    });
+  });
+}
+
+function updatePowerState(isEnabled) {
+  const popupContainer = document.querySelector('.popup-container');
+  
+  if (isEnabled) {
+    popupContainer.classList.remove('disabled');
+  } else {
+    popupContainer.classList.add('disabled');
+  }
+}
 
 function loadSettings() {
   const toggles = document.querySelectorAll('input[type="checkbox"]');

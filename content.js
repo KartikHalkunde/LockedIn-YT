@@ -19,7 +19,8 @@ const DEFAULT_SETTINGS = {
   hideEndCards: false,
   hideExplore: false,
   hideShorts: false,
-  disableAutoplay: false
+  disableAutoplay: false,
+  extensionEnabled: true
 };
 
 // ===== INITIALIZE SETTINGS ON INSTALL =====
@@ -216,9 +217,42 @@ function hideExplore(shouldHide) {
 function hideShorts(shouldHide) {
   const displayStyle = shouldHide ? 'none' : '';
 
-  const shortsLink = document.querySelector('a[title="Shorts"]');
-  if (shortsLink) shortsLink.style.display = displayStyle;
+  // Hide Shorts tab in sidebar navigation (guide)
+  // Target both the link and its parent guide entry
+  document.querySelectorAll('a[title="Shorts"]').forEach(shortsLink => {
+    // Hide the link itself
+    shortsLink.style.display = displayStyle;
+    
+    // Hide the parent guide entry (ytd-guide-entry-renderer)
+    const guideEntry = shortsLink.closest('ytd-guide-entry-renderer');
+    if (guideEntry) {
+      guideEntry.style.display = displayStyle;
+    }
+    
+    // Also hide the parent mini guide entry for collapsed sidebar
+    const miniGuideEntry = shortsLink.closest('ytd-mini-guide-entry-renderer');
+    if (miniGuideEntry) {
+      miniGuideEntry.style.display = displayStyle;
+    }
+  });
+  
+  // Additional targeting for Shorts navigation items
+  document.querySelectorAll('ytd-guide-entry-renderer').forEach(entry => {
+    const link = entry.querySelector('a');
+    if (link && link.href && link.href.includes('/shorts')) {
+      entry.style.display = displayStyle;
+    }
+  });
+  
+  // Hide mini guide Shorts entry (collapsed sidebar)
+  document.querySelectorAll('ytd-mini-guide-entry-renderer').forEach(entry => {
+    const link = entry.querySelector('a');
+    if (link && link.href && link.href.includes('/shorts')) {
+      entry.style.display = displayStyle;
+    }
+  });
 
+  // Hide Shorts videos on homepage and feeds
   document.querySelectorAll('ytd-video-renderer, ytd-rich-item-renderer, ytd-grid-video-renderer').forEach(video => {
     const shortsIndicator = video.querySelector('ytd-thumbnail-overlay-time-status-renderer[overlay-style="SHORTS"]');
     const link = video.querySelector('a#thumbnail');
@@ -228,6 +262,7 @@ function hideShorts(shouldHide) {
     }
   });
   
+  // Hide Shorts in search results
   if (window.location.href.includes('/results?search_query=')) {
     document.querySelectorAll('ytd-video-renderer').forEach(videoResult => {
       const thumbnail = videoResult.querySelector('a#thumbnail');
@@ -242,6 +277,7 @@ function hideShorts(shouldHide) {
     });
   }
   
+  // Hide Shorts shelves on homepage
   document.querySelectorAll('ytd-rich-shelf-renderer, ytd-reel-shelf-renderer').forEach(shelf => {
     const titleElement = shelf.querySelector('#title');
     if (titleElement && titleElement.innerText.toLowerCase().includes('shorts')) {
@@ -249,10 +285,12 @@ function hideShorts(shouldHide) {
     }
   });
   
+  // Hide all reel shelves (Shorts carousels)
   document.querySelectorAll('ytd-reel-shelf-renderer').forEach(reelShelf => {
     reelShelf.style.display = displayStyle;
   });
   
+  // Hide any remaining Shorts links
   document.querySelectorAll('[href*="/shorts/"]').forEach(shortLink => {
     const videoContainer = shortLink.closest('ytd-video-renderer, ytd-rich-item-renderer, ytd-grid-video-renderer, ytd-compact-video-renderer');
     if (videoContainer) {
@@ -275,6 +313,13 @@ function runAll() {
   browser.storage.sync.get(null).then((settings) => {
     // Merge with defaults to ensure all settings exist
     const currentSettings = { ...DEFAULT_SETTINGS, ...settings };
+    
+    // Check if extension is enabled
+    if (!currentSettings.extensionEnabled) {
+      // Restore all elements if extension is disabled
+      restoreAllElements();
+      return;
+    }
     
     // Apply all hiding rules
     hideFeed(currentSettings.hideFeed);
@@ -300,6 +345,16 @@ function runAll() {
   });
 }
 
+function restoreAllElements() {
+  // Restore all hidden elements when extension is disabled
+  hideFeed(false);
+  hideSidebar(false);
+  hideLiveChat(false);
+  hideEndCards(false);
+  hideExplore(false);
+  hideShorts(false);
+}
+
 function ensureEssentialElementsVisible() {
   const player = document.querySelector('#movie_player, .html5-video-player');
   if (player) {
@@ -309,11 +364,6 @@ function ensureEssentialElementsVisible() {
   const primaryContainer = document.querySelector('#primary, #primary-inner');
   if (primaryContainer) {
     primaryContainer.style.display = '';
-  }
-  
-  const comments = document.querySelector('#comments, ytd-comments');
-  if (comments) {
-    comments.style.display = '';
   }
   
   const searchResults = document.querySelector('#contents');
@@ -361,6 +411,16 @@ observer.observe(document.body, {
 // ===== LISTEN FOR SETTINGS CHANGES =====
 browser.storage.onChanged.addListener((changes, area) => {
   if (area === 'sync') {
+    runAll();
+  }
+});
+// ===== LISTEN FOR MESSAGES FROM POPUP =====
+browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'powerStateChanged') {
+    // Immediately apply the power state change
+    runAll();
+  } else if (message.action === 'settingChanged') {
+    // Handle individual setting changes
     runAll();
   }
 });

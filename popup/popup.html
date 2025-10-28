@@ -4,21 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=320, height=500">
   <title>LockedIn</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
   <div class="popup-container">
     <div class="popup-header">
       <img src="../icons/iconFull.png" alt="LockedIn" class="header-logo">
+      <button id="powerButton" class="power-button" title="Toggle Extension">
+        <svg class="power-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3v9"></path>
+          <path d="M18.364 5.636A9 9 0 1 1 5.636 5.636"></path>
+        </svg>
+      </button>
     </div>
 
-    <div class="settings-scroll-area">
+    <div class="settings-scroll-area" id="settingsArea">
       <div class="settings-container">
         <div class="settings-group">
-          <h2 class="group-title">Homepage & Feed</h2>
+          <h2 class="group-title">Homepage</h2>
           <div class="settings-list">
             <div class="setting-row">
               <span class="setting-label">Hide Homepage Feed</span>
@@ -31,6 +34,13 @@
               <span class="setting-label">Hide Explore & Trending</span>
               <label class="toggle-switch">
                 <input type="checkbox" id="hideExplore" data-setting="hideExplore">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <span class="setting-label">Hide YouTube Shorts</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="hideShorts" data-setting="hideShorts">
                 <span class="toggle-slider"></span>
               </label>
             </div>
@@ -65,20 +75,7 @@
         </div>
 
         <div class="settings-group">
-          <h2 class="group-title">Content Types</h2>
-          <div class="settings-list">
-            <div class="setting-row">
-              <span class="setting-label">Hide YouTube Shorts</span>
-              <label class="toggle-switch">
-                <input type="checkbox" id="hideShorts" data-setting="hideShorts">
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <div class="settings-group">
-          <h2 class="group-title">Search & Playback</h2>
+          <h2 class="group-title">Playback</h2>
           <div class="settings-list">
             <div class="setting-row">
               <span class="setting-label">Disable Autoplay</span>
@@ -91,10 +88,20 @@
         </div>
       </div>
     </div>
+
+    <div class="disabled-message" id="disabledMessage">
+      <div class="disabled-content">
+        <svg class="disabled-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3v9"></path>
+          <path d="M18.364 5.636A9 9 0 1 1 5.636 5.636"></path>
+        </svg>
+        <p class="disabled-text">LockedIn is off</p>
+      </div>
+    </div>
     
     <div class="popup-footer">
       <hr class="footer-divider">
-      <div class="version-info">Version 1.0.2</div>
+      <div class="version-info">Version 1.0.4</div>
     </div>
   </div>
 
