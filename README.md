@@ -1,68 +1,18 @@
 <div align="center">
-  <img src="icons/iconFull.png" alt="LockedIn Logo" width="400"/>
+  <img src="icons/iconFull.png" alt="LockedIn Logo" width="500"/>
 
   
-  **Stay focused. Get things done.**
-  
-  A lightweight browser extension for reclaiming your productivity by removing distracting elements from YouTube.
-  
+ ## **Stay focused. Get things done.**
+ 
   [![Firefox Add-ons](https://img.shields.io/badge/Firefox-Available-orange?logo=firefox-browser&logoColor=white)](https://addons.mozilla.org/firefox/)
   [![Chrome Web Store](https://img.shields.io/badge/Chrome-Coming%20Soon-blue?logo=google-chrome&logoColor=white)](#)
   [![Version](https://img.shields.io/badge/version-1.0.4-green.svg)](https://github.com/KartikHalkunde/LockedIn-YT/releases)
   [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-
----
-
-## Features
-
-<table>
-<tr>
-<td width="50%">
-
-### 🎯 **Homepage & Feed**
-- Hide Homepage Feed
-- Hide Explore Pages
-
-### 📺 **Video Page**
-- Hide Recommended Videos 
-- Hide End Screen Cards
-- Hide Live Chat
-
-</td>
-<td width="50%">
-
-### 🎬 **Content Types**
-- Block Shorts on homepage
-- Removes Shorts Tab 
-
-### ⚙️ **Playback**
-- Disable Autoplay
-- Control video suggestions
-
-</td>
-</tr>
-</table>
-
----
+  <br>
+  **Download**: ![Firefox](https://addons.mozilla.org/en-US/firefox/addon/lockedin-yt/)
+  
 </div>
-
-## Installation
-
-### 🦊 Firefox (Available Now)
-
-![Firefox](https://img.shields.io/badge/Firefox-Install%20Now-orange?style=flat-square&logo=firefox-browser&logoColor=white)
-
-The easiest way to get started:
-
-1. Visit the [Firefox Add-ons Store](https://addons.mozilla.org/en-US/firefox/addon/lockedin-yt/)
-2. Click "Add to Firefox"
-3. You're done! Click the extension icon to configure your preferences.
-
-### Chrome (Coming Soon)
-
-![Chrome](https://img.shields.io/badge/Chrome-Under%20Review-lightgrey?style=flat-square&logo=google-chrome&logoColor=white)
-
-Currently under review for the Chrome Web Store. Check back soon!
+LockedIn is an open-source browser extension for Firefox designed to help users focus on YouTube by removing distracting elements. Users control which elements to hide via toggles in the extension's popup, and the extension automatically hides features like the homepage feed, recommended videos sidebar, and YouTube Shorts. It also supports hiding other categories, such as explore/trending sections, end screen cards, and live chat.
 
 ---
 ### Building from Source
