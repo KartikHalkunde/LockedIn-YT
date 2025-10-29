@@ -4,15 +4,16 @@
   
  ## **Stay focused. Get things done.**
  
-  [![Firefox Add-ons](https://img.shields.io/badge/Firefox-Available-orange?logo=firefox-browser&logoColor=white)](https://addons.mozilla.org/firefox/)
-  [![Chrome Web Store](https://img.shields.io/badge/Chrome-Coming%20Soon-blue?logo=google-chrome&logoColor=white)](#)
-  [![Version](https://img.shields.io/badge/version-1.0.4-green.svg)](https://github.com/KartikHalkunde/LockedIn-YT/releases)
+  [![Firefox Add-ons](https://img.shields.io/badge/Firefox-Available-orange?logo=firefox-browser&logoColor=white)](https://addons.mozilla.org/firefox/addon/lockedin-yt/)
+  [![Edge Add-ons](https://img.shields.io/badge/Edge-Available-blue?logo=microsoft-edge&logoColor=white)](#)
+  [![Chrome Web Store](https://img.shields.io/badge/Chrome-Coming%20Soon-lightgrey?logo=google-chrome&logoColor=white)](#)
+  [![Version](https://img.shields.io/badge/version-1.0.5-green.svg)](https://github.com/KartikHalkunde/LockedIn-YT/releases)
   [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
   <br>
   **Download**: ![Firefox](https://addons.mozilla.org/en-US/firefox/addon/lockedin-yt/)
   
 </div>
-LockedIn is an open-source browser extension for Firefox designed to help users focus on YouTube by removing distracting elements. Users control which elements to hide via toggles in the extension's popup, and the extension automatically hides features like the homepage feed, recommended videos sidebar, and YouTube Shorts. It also supports hiding other categories, such as explore/trending sections, end screen cards, and live chat.
+LockedIn is an open-source browser extension designed to help users focus on YouTube by removing distracting elements. Compatible with **Firefox, Microsoft Edge, and Chromium-based browsers**. Users control which elements to hide via toggles in the extension's popup, and the extension automatically hides features like the homepage feed, recommended videos sidebar, and YouTube Shorts. It also supports hiding other categories, such as explore/trending sections, end screen cards, and live chat.
 
 ---
 ### Building from Source
@@ -45,11 +46,11 @@ Windows (PowerShell):
 *For Firefox:*
 - Navigate to `about:debugging#/runtime/this-firefox`
 - Click "Load Temporary Add-on"
-- Select the generated `lockedin-1.0.4.zip` file
+- Select the generated `lockedin-1.0.5.zip` file
 
-*For Chrome:*
-- Go to `chrome://extensions/`
-- Enable "Developer mode" (top right)
+*For Edge/Chrome:*
+- Go to `edge://extensions/` (Edge) or `chrome://extensions/` (Chrome)
+- Enable "Developer mode" (bottom left for Edge, top right for Chrome)
 - Click "Load unpacked"
 - Select the project folder
 
@@ -186,7 +187,13 @@ That's it. No tracking, no data collection, no network requests to external serv
 
 ## Changelog
 
-![Release](https://img.shields.io/badge/Latest-v1.0.4-green?style=flat-square)
+![Release](https://img.shields.io/badge/Latest-v1.0.5-green?style=flat-square)
+
+### Version 1.0.5 (October 29, 2025)
+- **Cross-Browser Support**: Now compatible with Firefox, Edge, and Chrome
+- **Edge Add-ons**: Available on Microsoft Edge Add-ons store
+- **Browser API**: Added cross-browser compatibility layer for Chromium-based browsers
+- **Multi-Platform**: Single codebase works across all browsers
 
 ### Version 1.0.4 (October 29, 2025)
 - **Performance**: Removed Google Fonts dependency for faster load times
@@ -256,7 +263,7 @@ cd LockedIn-YT
 # Build (just creates a zip file)
 ./build.sh
 
-# The resulting lockedin-1.0.4.zip contains the exact same code
+# The resulting lockedin-1.0.5.zip contains the exact same code
 # you see in the repository - no compilation or transformation
 ```
 

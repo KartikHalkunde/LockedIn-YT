@@ -1,3 +1,9 @@
+// ===== CROSS-BROWSER COMPATIBILITY =====
+// Support both Firefox (browser) and Chromium-based browsers (chrome)
+if (typeof browser === 'undefined') {
+  var browser = chrome;
+}
+
 // ===== DEBOUNCE UTILITY =====
 function debounce(func, wait) {
   let timeout;
