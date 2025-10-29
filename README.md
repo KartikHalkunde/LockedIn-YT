@@ -13,7 +13,7 @@
   **Download**: ![Firefox](https://addons.mozilla.org/en-US/firefox/addon/lockedin-yt/)
   
 </div>
-LockedIn is an open-source browser extension designed to help users focus on YouTube by removing distracting elements. Compatible with **Firefox, Microsoft Edge, and Chromium-based browsers**. Users control which elements to hide via toggles in the extension's popup, and the extension automatically hides features like the homepage feed, recommended videos sidebar, and YouTube Shorts. It also supports hiding other categories, such as explore/trending sections, end screen cards, and live chat.
+LockedIn is an open-source browser extension designed to help users focus on YouTube by removing distracting elements. Compatible with <b>Firefox and Chromium-based browsers</b>(Only avalibale on Edge add ons for now). Users control which elements to hide via toggles in the extension's popup, and the extension automatically hides features like the homepage feed, recommended videos sidebar, and YouTube Shorts. It also supports hiding other categories, such as explore/trending sections, end screen cards, and live chat.
 
 ---
 ### Building from Source
@@ -190,7 +190,7 @@ That's it. No tracking, no data collection, no network requests to external serv
 ![Release](https://img.shields.io/badge/Latest-v1.0.5-green?style=flat-square)
 
 ### Version 1.0.5 (October 29, 2025)
-- **Cross-Browser Support**: Now compatible with Firefox, Edge, and Chrome
+- **Cross-Browser Support**: Now compatible with Firefox and Chromium Browsers
 - **Edge Add-ons**: Available on Microsoft Edge Add-ons store
 - **Browser API**: Added cross-browser compatibility layer for Chromium-based browsers
 - **Multi-Platform**: Single codebase works across all browsers
