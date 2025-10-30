@@ -23,6 +23,12 @@
     "default_popup": "popup/popup.html",
     "default_icon": "icons/icon48.png"
   },
+  "web_accessible_resources": [
+    {
+      "resources": ["homepage/*.png", "homepage/*.jpg", "homepage/*.gif"],
+      "matches": ["*://www.youtube.com/*"]
+    }
+  ],
   "browser_specific_settings": {
     "gecko": {
       "id": "kartik@lockedin.com"
