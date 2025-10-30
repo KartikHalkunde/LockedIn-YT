@@ -7,20 +7,33 @@ if (typeof browser === 'undefined') {
 // ===== DEFAULT SETTINGS =====
 const DEFAULT_SETTINGS = {
   hideFeed: false,
+  hideShortsHomepage: false,
   hideSidebar: false,
   hideLiveChat: false,
   hideEndCards: false,
-  hideExplore: false,
-  hideShorts: false,
+  hideComments: false,
   disableAutoplay: false,
-  extensionEnabled: true // New setting for power button
+  hideSearchRecommended: false,
+  hideShortsSearch: false,
+  hideExplore: false,
+  hideMoreFromYT: false,
+  extensionEnabled: true
 };
 
 document.addEventListener('DOMContentLoaded', () => {
   loadSettings();
   setupToggleListeners();
   setupPowerButton();
+  displayVersion();
 });
+
+function displayVersion() {
+  const manifest = browser.runtime.getManifest();
+  const versionElement = document.querySelector('.version');
+  if (versionElement) {
+    versionElement.textContent = `v${manifest.version}`;
+  }
+}
 
 function setupPowerButton() {
   const powerButton = document.getElementById('powerButton');

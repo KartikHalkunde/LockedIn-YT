@@ -3,6 +3,10 @@
 lockedin-*.zip
 lockedin-source-*.zip
 
+# Compressed/optimized images (generated during build)
+homepage/*.jpg
+homepage/*.jpeg
+
 # Mozilla submission documentation (private - not for GitHub)
 PACKAGE_SUMMARY.md
 SOURCE_SUBMISSION.md

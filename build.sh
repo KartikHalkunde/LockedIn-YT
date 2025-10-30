@@ -6,12 +6,12 @@
 set -e  # Exit on any error
 
 echo "========================================="
-echo "Building LockedIn Firefox Extension v1.0.5"
+echo "Building LockedIn Firefox Extension v1.0.6"
 echo "========================================="
 echo ""
 
 # Define output filename
-OUTPUT_FILE="lockedin-1.0.5.zip"
+OUTPUT_FILE="lockedin-1.0.6.zip"
 
 # Remove existing build if present
 if [ -f "$OUTPUT_FILE" ]; then
@@ -50,15 +50,16 @@ if command -v zip &> /dev/null; then
         content.js \
         icons/ \
         popup/ \
+        homepage/ \
         -x "*.DS_Store" "*/__MACOSX/*" "*/.git/*" "*.gitignore" "build.sh" "build.ps1" "README.md"
 else
     # Fallback to Python zipfile
     echo "  (using Python zipfile - zip command not found)"
-    python3 << 'PYEOF'
+    python3 << PYEOF
 import zipfile
 import os
 
-output_file = "lockedin-1.0.5.zip"
+output_file = "$OUTPUT_FILE"
 exclude_patterns = ['.DS_Store', '__MACOSX', '.git', '.gitignore', 'build.sh', 'build.ps1', 'README.md', 'SOURCE_SUBMISSION.md']
 
 with zipfile.ZipFile(output_file, 'w', zipfile.ZIP_DEFLATED) as zipf:
@@ -78,7 +79,7 @@ with zipfile.ZipFile(output_file, 'w', zipfile.ZIP_DEFLATED) as zipf:
             
             # Only include extension files
             if arcname in ['manifest.json', 'content.js'] or \
-               arcname.startswith('icons/') or arcname.startswith('popup/'):
+               arcname.startswith('icons/') or arcname.startswith('popup/') or arcname.startswith('homepage/'):
                 zipf.write(file_path, arcname)
                 print(f"  Adding: {arcname}")
 PYEOF

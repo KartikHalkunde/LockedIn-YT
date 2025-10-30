@@ -8,20 +8,31 @@ if (typeof browser === 'undefined') {
 // Inject CSS to hide Shorts immediately, before JavaScript detection
 const instantHideStyle = document.createElement('style');
 instantHideStyle.id = 'lockedin-instant-hide';
-instantHideStyle.textContent = `
-  /* Hide Shorts shelf containers instantly */
+// Initial content (will be updated dynamically)
+instantHideStyle.textContent = '';
+
+// Inject the style immediately (before anything loads)
+(document.head || document.documentElement).appendChild(instantHideStyle);
+
+// Function to enable/disable instant CSS hiding
+function setInstantHiding(hideHomepage, hideSearch) {
+  const style = document.getElementById('lockedin-instant-hide');
+  if (!style) return;
+  
+  let css = '';
+  
+  // Add homepage-specific CSS if hideHomepage is enabled
+  if (hideHomepage) {
+    css += `
+  /* Hide Shorts shelf containers on homepage */
   ytd-reel-shelf-renderer:not([data-lockedin-hidden]),
   ytd-rich-shelf-renderer:has([href^="/shorts/"]):not([data-lockedin-hidden]),
-  grid-shelf-view-model:not([data-lockedin-hidden]),
   ytd-rich-section-renderer:has([href^="/shorts/"]):not([data-lockedin-hidden]) {
     display: none;
   }
   
-  /* Hide video renderers that link to Shorts */
-  ytd-video-renderer:has([href^="/shorts/"]):not([data-lockedin-hidden]),
+  /* Hide video renderers that link to Shorts on homepage */
   ytd-rich-item-renderer:has([href^="/shorts/"]):not([data-lockedin-hidden]),
-  ytd-grid-video-renderer:has([href^="/shorts/"]):not([data-lockedin-hidden]),
-  ytd-compact-video-renderer:has([href^="/shorts/"]):not([data-lockedin-hidden]),
   ytd-reel-item-renderer:not([data-lockedin-hidden]) {
     display: none;
   }
@@ -32,30 +43,38 @@ instantHideStyle.textContent = `
     display: none;
   }
   
-  /* Hide Shorts overlay badge items */
-  ytd-video-renderer:has(ytd-thumbnail-overlay-time-status-renderer[overlay-style="SHORTS"]):not([data-lockedin-hidden]),
-  ytd-rich-item-renderer:has(ytd-thumbnail-overlay-time-status-renderer[overlay-style="SHORTS"]):not([data-lockedin-hidden]),
-  ytd-grid-video-renderer:has(ytd-thumbnail-overlay-time-status-renderer[overlay-style="SHORTS"]):not([data-lockedin-hidden]),
-  ytd-compact-video-renderer:has(ytd-thumbnail-overlay-time-status-renderer[overlay-style="SHORTS"]):not([data-lockedin-hidden]) {
+  /* Hide Shorts overlay badge items on homepage */
+  ytd-rich-item-renderer:has(ytd-thumbnail-overlay-time-status-renderer[overlay-style="SHORTS"]):not([data-lockedin-hidden]) {
     display: none;
   }
 `;
-
-// Inject the style immediately (before anything loads)
-(document.head || document.documentElement).appendChild(instantHideStyle);
-
-// Function to enable/disable instant CSS hiding
-function setInstantHiding(enabled) {
-  if (enabled) {
-    if (!document.getElementById('lockedin-instant-hide')) {
-      (document.head || document.documentElement).appendChild(instantHideStyle);
-    }
-  } else {
-    const style = document.getElementById('lockedin-instant-hide');
-    if (style) {
-      style.remove();
-    }
   }
+  
+  // Add search-specific CSS if hideSearch is enabled
+  if (hideSearch) {
+    css += `
+  /* Hide Shorts shelf containers on search page */
+  ytd-reel-shelf-renderer:not([data-lockedin-hidden]),
+  ytd-rich-shelf-renderer:has([href^="/shorts/"]):not([data-lockedin-hidden]),
+  ytd-rich-section-renderer:has([href^="/shorts/"]):not([data-lockedin-hidden]),
+  grid-shelf-view-model:not([data-lockedin-hidden]) {
+    display: none;
+  }
+  
+  /* Hide video renderers that link to Shorts on search page */
+  ytd-video-renderer:has([href^="/shorts/"]):not([data-lockedin-hidden]) {
+    display: none;
+  }
+  
+  /* Hide Shorts overlay badge items on search page */
+  ytd-video-renderer:has(ytd-thumbnail-overlay-time-status-renderer[overlay-style="SHORTS"]):not([data-lockedin-hidden]) {
+    display: none;
+  }
+`;
+  }
+  
+  // Update the style element
+  style.textContent = css;
 }
 
 // ===== DEBOUNCE UTILITY =====
@@ -74,12 +93,16 @@ function debounce(func, wait) {
 // ===== DEFAULT SETTINGS =====
 const DEFAULT_SETTINGS = {
   hideFeed: false,
+  hideShortsHomepage: false,
   hideSidebar: false,
   hideLiveChat: false,
   hideEndCards: false,
-  hideExplore: false,
-  hideShorts: false,
+  hideComments: false,
   disableAutoplay: false,
+  hideSearchRecommended: false,
+  hideShortsSearch: false,
+  hideExplore: false,
+  hideMoreFromYT: false,
   extensionEnabled: true
 };
 
@@ -111,14 +134,21 @@ function toggleAllElements(selector, shouldHide) {
 }
 
 function hideFeed(shouldHide) {
-  const feedElement = document.querySelector('ytd-rich-grid-renderer');
   const placeholderId = 'lockedin-feed-placeholder';
   
   if (!shouldHide) {
-    if (feedElement) {
-      feedElement.style.display = '';
-      feedElement.removeAttribute('data-lockedin-hidden');
-    }
+    // Restore feed elements
+    const feedElements = [
+      document.querySelector('ytd-rich-grid-renderer'),
+      document.querySelector('ytd-two-column-browse-results-renderer'),
+      ...document.querySelectorAll('[data-lockedin-hidden="feed"]')
+    ].filter(el => el);
+    
+    feedElements.forEach(el => {
+      el.style.removeProperty('display');
+      el.removeAttribute('data-lockedin-hidden');
+    });
+    
     // Remove placeholder if it exists
     const placeholder = document.getElementById(placeholderId);
     if (placeholder) {
@@ -129,26 +159,39 @@ function hideFeed(shouldHide) {
   
   // Only hide on homepage
   if (window.location.pathname === '/' || window.location.pathname === '/home') {
-    if (feedElement && !feedElement.hasAttribute('data-lockedin-hidden')) {
-      feedElement.style.display = 'none';
-      feedElement.setAttribute('data-lockedin-hidden', 'feed');
-      
-      // Create and inject placeholder with random meme image
-      if (!document.getElementById(placeholderId)) {
+    // Hide multiple feed-related elements
+    const feedSelectors = [
+      'ytd-rich-grid-renderer',
+      'ytd-two-column-browse-results-renderer #primary',
+      'ytd-browse[page-subtype="home"]'
+    ];
+    
+    feedSelectors.forEach(selector => {
+      const elements = document.querySelectorAll(selector);
+      elements.forEach(el => {
+        if (!el.hasAttribute('data-lockedin-hidden')) {
+          el.style.setProperty('display', 'none', 'important');
+          el.setAttribute('data-lockedin-hidden', 'feed');
+        }
+      });
+    });
+    
+    // Create and inject placeholder with random meme image
+    if (!document.getElementById(placeholderId)) {
         const placeholder = document.createElement('div');
         placeholder.id = placeholderId;
         placeholder.style.cssText = `
-          position: fixed;
-          top: 50%;
+          position: absolute;
+          top: 200px;
           left: 50%;
-          transform: translate(-50%, -50%);
+          transform: translateX(-50%);
           text-align: center;
-          z-index: 99999;
+          z-index: 1;
           pointer-events: none;
         `;
         
         // List of available meme images
-        const memeImages = ['meme1.png', 'meme2.png', 'meme3.png', 'meme4.png', 'meme5.png'];
+        const memeImages = ['meme1.jpg', 'meme2.jpg', 'meme3.jpg', 'meme4.jpg', 'meme5.jpg'];
         const randomMeme = memeImages[Math.floor(Math.random() * memeImages.length)];
         const imageUrl = browser.runtime.getURL('homepage/' + randomMeme);
         
@@ -174,12 +217,7 @@ function hideFeed(shouldHide) {
         document.body.appendChild(placeholder);
         console.log('LockedIn: Placeholder injected into body');
       }
-    }
   } else {
-    if (feedElement) {
-      feedElement.style.display = '';
-      feedElement.removeAttribute('data-lockedin-hidden');
-    }
     // Remove placeholder if not on homepage
     const placeholder = document.getElementById(placeholderId);
     if (placeholder) {
@@ -339,130 +377,6 @@ function hideExplore(shouldHide) {
   });
 }
 
-function hideShorts(shouldHide) {
-  if (!shouldHide) {
-    // Restore all Shorts elements
-    document.querySelectorAll('[data-lockedin-hidden="shorts"]').forEach(el => {
-      el.removeAttribute('hidden');
-      el.style.display = '';
-      el.removeAttribute('data-lockedin-hidden');
-    });
-    return;
-  }
-
-  // 1. Hide Shorts tab in sidebar (guide) - both expanded and collapsed
-  const guideShortsSelectors = [
-    'ytd-guide-entry-renderer a[href="/shorts"]',
-    'ytd-guide-entry-renderer a[title="Shorts"]',
-    'ytd-mini-guide-entry-renderer a[href="/shorts"]',
-    'ytd-mini-guide-entry-renderer a[title="Shorts"]'
-  ];
-  
-  guideShortsSelectors.forEach(selector => {
-    document.querySelectorAll(selector).forEach(link => {
-      const container = link.closest('ytd-guide-entry-renderer, ytd-mini-guide-entry-renderer');
-      if (container && !container.hasAttribute('data-lockedin-hidden')) {
-        container.setAttribute('hidden', '');
-        container.setAttribute('data-lockedin-hidden', 'shorts');
-      }
-    });
-  });
-
-  // 2. Hide Shorts shelves/carousels (dedicated Shorts containers)
-  const shelfSelectors = [
-    'ytd-reel-shelf-renderer',           // Shorts shelf
-    'ytd-rich-shelf-renderer',           // Rich shelf (check if contains Shorts)
-    'ytd-rich-section-renderer',         // Rich section
-    'grid-shelf-view-model'              // Extendable shelf with shorts on Search page
-  ];
-  
-  shelfSelectors.forEach(selector => {
-    document.querySelectorAll(selector).forEach(shelf => {
-      // Check if shelf contains Shorts by looking for reel items or Shorts links
-      const hasReelItems = shelf.querySelector('ytd-reel-item-renderer') !== null;
-      const hasShortsLinks = shelf.querySelector('[href^="/shorts/"]') !== null;
-      const titleHasShorts = shelf.querySelector('#title')?.textContent.toLowerCase().includes('shorts');
-      
-      if (hasReelItems || hasShortsLinks || titleHasShorts) {
-        if (!shelf.hasAttribute('data-lockedin-hidden')) {
-          shelf.setAttribute('hidden', '');
-          shelf.setAttribute('data-lockedin-hidden', 'shorts');
-          // Rearrange grid if needed
-          gridRearranger.execute(shelf);
-        }
-      }
-    });
-  });
-
-  // 3. THE KEY METHOD: Hide individual video renderers containing Shorts links
-  // This uses the proven method from hide-youtube-shorts extension
-  const videoRendererSelectors = [
-    'ytd-video-renderer',           // Search results, list view, subscription feed
-    'ytd-rich-item-renderer',       // Home page, grid view
-    'ytd-grid-video-renderer',      // Grid mode
-    'ytd-compact-video-renderer',   // Sidebar recommendations
-    'ytd-playlist-video-renderer',  // Playlist items
-    'ytd-reel-item-renderer'        // Reel items
-  ];
-  
-  videoRendererSelectors.forEach(selector => {
-    document.querySelectorAll(selector).forEach(video => {
-      // Check if this video links to a Short using [href^="/shorts/"] (starts with)
-      // This is the most reliable method used by hide-youtube-shorts extension
-      const shortsLink = video.querySelector('[href^="/shorts/"]');
-      
-      if (shortsLink && !video.hasAttribute('data-lockedin-hidden')) {
-        video.setAttribute('hidden', '');
-        video.setAttribute('data-lockedin-hidden', 'shorts');
-        
-        // Rearrange grid if this is a grid item to prevent gaps
-        gridRearranger.execute(video);
-        
-        // Check if parent container should be hidden (if all siblings are hidden)
-        hideContainerIfAllChildrenHidden(video);
-      }
-    });
-  });
-
-  // 4. Hide by SHORTS overlay badge (backup method for videos without links yet)
-  document.querySelectorAll('ytd-thumbnail-overlay-time-status-renderer[overlay-style="SHORTS"]').forEach(overlay => {
-    const container = overlay.closest(
-      'ytd-video-renderer, ytd-rich-item-renderer, ytd-grid-video-renderer, ytd-compact-video-renderer'
-    );
-    
-    if (container && !container.hasAttribute('data-lockedin-hidden')) {
-      container.setAttribute('hidden', '');
-      container.setAttribute('data-lockedin-hidden', 'shorts');
-      hideContainerIfAllChildrenHidden(container);
-    }
-  });
-
-  // 5. Hide Shorts filter chips/tabs
-  document.querySelectorAll('yt-chip-cloud-chip-renderer').forEach(chip => {
-    const text = chip.textContent.toLowerCase();
-    if ((text.includes('shorts') || text.includes('short')) && !chip.hasAttribute('data-lockedin-hidden')) {
-      chip.setAttribute('hidden', '');
-      chip.setAttribute('data-lockedin-hidden', 'shorts');
-    }
-  });
-
-  // 6. Hide "Shorts remixing this video" section
-  document.querySelectorAll('[aria-label*="Shorts remixing"]').forEach(section => {
-    if (!section.hasAttribute('data-lockedin-hidden')) {
-      section.setAttribute('hidden', '');
-      section.setAttribute('data-lockedin-hidden', 'shorts');
-    }
-  });
-
-  // 7. Redirect if currently on /shorts page
-  if (window.location.pathname.startsWith('/shorts/')) {
-    const videoId = window.location.pathname.split('/shorts/')[1].split('?')[0];
-    if (videoId) {
-      window.location.href = `https://www.youtube.com/watch?v=${videoId}`;
-    }
-  }
-}
-
 // ===== HELPER FUNCTIONS FOR GRID REARRANGING =====
 // Check if all children in an element are hidden
 function allChildrenHidden(element) {
@@ -542,8 +456,295 @@ class RearrangeVideosInGrid {
 // Create instance for grid rearranging
 const gridRearranger = new RearrangeVideosInGrid();
 
-// Helper function: Hide parent container if all children are hidden
-function hideContainerIfAllChildrenHidden(element) {
+function disableAutoplay(shouldDisable) {
+  if (shouldDisable) {
+    const autoplayButton = document.querySelector('button.ytp-autonav-toggle-button');
+    if (autoplayButton && autoplayButton.getAttribute('aria-pressed') === 'true') {
+      autoplayButton.click();
+    }
+  }
+}
+
+function hideComments(shouldHide) {
+  if (!shouldHide) {
+    // Restore comments section
+    toggleElement('#comments', false);
+    toggleElement('ytd-comments', false);
+    toggleAllElements('ytd-comments-entry-point-header-renderer', false);
+    return;
+  }
+  
+  // Hide comments section
+  toggleElement('#comments', true);
+  toggleElement('ytd-comments', true);
+  toggleAllElements('ytd-comments-entry-point-header-renderer', true);
+}
+
+function hideSearchRecommended(shouldHide) {
+  if (!shouldHide) {
+    // Restore search recommendations
+    document.querySelectorAll('[data-lockedin-hidden="search-recommended"]').forEach(el => {
+      el.removeAttribute('hidden');
+      el.style.display = '';
+      el.removeAttribute('data-lockedin-hidden');
+    });
+    return;
+  }
+  
+  // Only run on search results page
+  if (!window.location.pathname.includes('/results')) return;
+  
+  // Hide "Explore more", "Channels new to you", "People also watched", "From related searches", etc.
+  const recommendedKeywords = [
+    'explore more',
+    'channels new to you',
+    'people also watched',
+    'previously watched',
+    'related to your search',
+    'from related searches',
+    'for you',
+    'related searches'
+  ];
+  
+  document.querySelectorAll('ytd-shelf-renderer').forEach(shelf => {
+    const title = shelf.querySelector('#title');
+    if (title) {
+      const titleText = title.textContent.toLowerCase().trim();
+      if (recommendedKeywords.some(keyword => titleText.includes(keyword))) {
+        if (!shelf.hasAttribute('data-lockedin-hidden')) {
+          shelf.setAttribute('hidden', '');
+          shelf.setAttribute('data-lockedin-hidden', 'search-recommended');
+        }
+      }
+    }
+  });
+  
+  // Also hide other recommendation sections
+  document.querySelectorAll('ytd-horizontal-card-list-renderer, ytd-item-section-renderer').forEach(section => {
+    const heading = section.querySelector('yt-formatted-string, #title');
+    if (heading) {
+      const headingText = heading.textContent.toLowerCase().trim();
+      if (recommendedKeywords.some(keyword => headingText.includes(keyword))) {
+        if (!section.hasAttribute('data-lockedin-hidden')) {
+          section.setAttribute('hidden', '');
+          section.setAttribute('data-lockedin-hidden', 'search-recommended');
+        }
+      }
+    }
+  });
+}
+
+function hideMoreFromYT(shouldHide) {
+  if (!shouldHide) {
+    // Restore "More From YouTube" section
+    document.querySelectorAll('[data-lockedin-hidden="more-from-yt"]').forEach(el => {
+      el.removeAttribute('hidden');
+      el.style.display = '';
+      el.removeAttribute('data-lockedin-hidden');
+    });
+    return;
+  }
+  
+  // Find and hide "More From YouTube" section in sidebar
+  document.querySelectorAll('ytd-guide-section-renderer').forEach(section => {
+    const heading = section.querySelector('#guide-section-title');
+    if (heading) {
+      const headingText = heading.textContent.toLowerCase().trim();
+      if (headingText.includes('more from youtube')) {
+        if (!section.hasAttribute('data-lockedin-hidden')) {
+          section.setAttribute('hidden', '');
+          section.setAttribute('data-lockedin-hidden', 'more-from-yt');
+        }
+      }
+    }
+  });
+}
+
+function hideShortsHomepage(shouldHide) {
+  if (!shouldHide) {
+    // Restore homepage Shorts elements
+    document.querySelectorAll('[data-lockedin-hidden="shorts-homepage"]').forEach(el => {
+      el.removeAttribute('hidden');
+      el.style.display = '';
+      el.removeAttribute('data-lockedin-hidden');
+    });
+    return;
+  }
+
+  // 1. Hide Shorts tab in sidebar (guide) - both expanded and collapsed
+  const guideShortsSelectors = [
+    'ytd-guide-entry-renderer a[href="/shorts"]',
+    'ytd-guide-entry-renderer a[title="Shorts"]',
+    'ytd-mini-guide-entry-renderer a[href="/shorts"]',
+    'ytd-mini-guide-entry-renderer a[title="Shorts"]'
+  ];
+  
+  guideShortsSelectors.forEach(selector => {
+    document.querySelectorAll(selector).forEach(link => {
+      const container = link.closest('ytd-guide-entry-renderer, ytd-mini-guide-entry-renderer');
+      if (container && !container.hasAttribute('data-lockedin-hidden')) {
+        container.setAttribute('hidden', '');
+        container.setAttribute('data-lockedin-hidden', 'shorts-homepage');
+      }
+    });
+  });
+
+  // 2. Hide Shorts shelves/carousels on homepage (dedicated Shorts containers)
+  const shelfSelectors = [
+    'ytd-reel-shelf-renderer',           // Shorts shelf
+    'ytd-rich-shelf-renderer',           // Rich shelf (check if contains Shorts)
+    'ytd-rich-section-renderer'          // Rich section
+  ];
+  
+  shelfSelectors.forEach(selector => {
+    document.querySelectorAll(selector).forEach(shelf => {
+      // Check if shelf contains Shorts by looking for reel items or Shorts links
+      const hasReelItems = shelf.querySelector('ytd-reel-item-renderer') !== null;
+      const hasShortsLinks = shelf.querySelector('[href^="/shorts/"]') !== null;
+      const titleHasShorts = shelf.querySelector('#title')?.textContent.toLowerCase().includes('shorts');
+      
+      if (hasReelItems || hasShortsLinks || titleHasShorts) {
+        if (!shelf.hasAttribute('data-lockedin-hidden')) {
+          shelf.setAttribute('hidden', '');
+          shelf.setAttribute('data-lockedin-hidden', 'shorts-homepage');
+          // Rearrange grid if needed
+          gridRearranger.execute(shelf);
+        }
+      }
+    });
+  });
+
+  // 3. Hide individual video renderers containing Shorts links on HOMEPAGE ONLY
+  // Only target homepage grid items
+  const isHomepage = window.location.pathname === '/' || window.location.pathname === '/feed/trending';
+  if (isHomepage) {
+    const videoRendererSelectors = [
+      'ytd-rich-item-renderer',       // Home page, grid view
+      'ytd-reel-item-renderer'        // Reel items
+    ];
+    
+    videoRendererSelectors.forEach(selector => {
+      document.querySelectorAll(selector).forEach(video => {
+        const shortsLink = video.querySelector('[href^="/shorts/"]');
+        
+        if (shortsLink && !video.hasAttribute('data-lockedin-hidden')) {
+          video.setAttribute('hidden', '');
+          video.setAttribute('data-lockedin-hidden', 'shorts-homepage');
+          
+          // Rearrange grid if this is a grid item to prevent gaps
+          gridRearranger.execute(video);
+          
+          // Check if parent container should be hidden (if all siblings are hidden)
+          hideContainerIfAllChildrenHiddenHomepage(video);
+        }
+      });
+    });
+  }
+
+  // 4. Hide by SHORTS overlay badge on homepage
+  if (isHomepage) {
+    document.querySelectorAll('ytd-thumbnail-overlay-time-status-renderer[overlay-style="SHORTS"]').forEach(overlay => {
+      const container = overlay.closest('ytd-rich-item-renderer');
+      
+      if (container && !container.hasAttribute('data-lockedin-hidden')) {
+        container.setAttribute('hidden', '');
+        container.setAttribute('data-lockedin-hidden', 'shorts-homepage');
+        hideContainerIfAllChildrenHiddenHomepage(container);
+      }
+    });
+  }
+
+  // 5. Redirect if currently on /shorts page
+  if (window.location.pathname.startsWith('/shorts/')) {
+    const videoId = window.location.pathname.split('/shorts/')[1].split('?')[0];
+    if (videoId) {
+      window.location.href = `https://www.youtube.com/watch?v=${videoId}`;
+    }
+  }
+}
+
+function hideShortsSearch(shouldHide) {
+  if (!shouldHide) {
+    // Restore search Shorts elements
+    document.querySelectorAll('[data-lockedin-hidden="shorts-search"]').forEach(el => {
+      el.removeAttribute('hidden');
+      el.style.display = '';
+      el.removeAttribute('data-lockedin-hidden');
+    });
+    return;
+  }
+
+  // Only run on search results page
+  const isSearchPage = window.location.pathname.includes('/results');
+  if (!isSearchPage) return;
+
+  // 1. Hide Shorts shelves/carousels on search page
+  const shelfSelectors = [
+    'ytd-reel-shelf-renderer',           // Shorts shelf
+    'ytd-rich-shelf-renderer',           // Rich shelf (check if contains Shorts)
+    'ytd-rich-section-renderer',         // Rich section
+    'grid-shelf-view-model'              // Extendable shelf with shorts on Search page
+  ];
+  
+  shelfSelectors.forEach(selector => {
+    document.querySelectorAll(selector).forEach(shelf => {
+      // Check if shelf contains Shorts by looking for reel items or Shorts links
+      const hasReelItems = shelf.querySelector('ytd-reel-item-renderer') !== null;
+      const hasShortsLinks = shelf.querySelector('[href^="/shorts/"]') !== null;
+      const titleHasShorts = shelf.querySelector('#title')?.textContent.toLowerCase().includes('shorts');
+      
+      if (hasReelItems || hasShortsLinks || titleHasShorts) {
+        if (!shelf.hasAttribute('data-lockedin-hidden')) {
+          shelf.setAttribute('hidden', '');
+          shelf.setAttribute('data-lockedin-hidden', 'shorts-search');
+        }
+      }
+    });
+  });
+
+  // 2. Hide individual video renderers containing Shorts links in SEARCH ONLY
+  const videoRendererSelectors = [
+    'ytd-video-renderer',           // Search results, list view
+    'ytd-reel-item-renderer'        // Reel items
+  ];
+  
+  videoRendererSelectors.forEach(selector => {
+    document.querySelectorAll(selector).forEach(video => {
+      const shortsLink = video.querySelector('[href^="/shorts/"]');
+      
+      if (shortsLink && !video.hasAttribute('data-lockedin-hidden')) {
+        video.setAttribute('hidden', '');
+        video.setAttribute('data-lockedin-hidden', 'shorts-search');
+        
+        // Check if parent container should be hidden (if all siblings are hidden)
+        hideContainerIfAllChildrenHiddenSearch(video);
+      }
+    });
+  });
+
+  // 3. Hide by SHORTS overlay badge in search
+  document.querySelectorAll('ytd-thumbnail-overlay-time-status-renderer[overlay-style="SHORTS"]').forEach(overlay => {
+    const container = overlay.closest('ytd-video-renderer');
+    
+    if (container && !container.hasAttribute('data-lockedin-hidden')) {
+      container.setAttribute('hidden', '');
+      container.setAttribute('data-lockedin-hidden', 'shorts-search');
+      hideContainerIfAllChildrenHiddenSearch(container);
+    }
+  });
+
+  // 4. Hide Shorts filter chips/tabs on search page
+  document.querySelectorAll('yt-chip-cloud-chip-renderer').forEach(chip => {
+    const text = chip.textContent.toLowerCase();
+    if ((text.includes('shorts') || text.includes('short')) && !chip.hasAttribute('data-lockedin-hidden')) {
+      chip.setAttribute('hidden', '');
+      chip.setAttribute('data-lockedin-hidden', 'shorts-search');
+    }
+  });
+}
+
+// Helper function for homepage Shorts hiding
+function hideContainerIfAllChildrenHiddenHomepage(element) {
   const parent = element.parentElement;
   if (!parent) return;
   
@@ -568,18 +769,41 @@ function hideContainerIfAllChildrenHidden(element) {
       const container = element.closest(selector);
       if (container && !container.hasAttribute('data-lockedin-hidden')) {
         container.setAttribute('hidden', '');
-        container.setAttribute('data-lockedin-hidden', 'shorts');
+        container.setAttribute('data-lockedin-hidden', 'shorts-homepage');
         break;
       }
     }
   }
 }
 
-function disableAutoplay(shouldDisable) {
-  if (shouldDisable) {
-    const autoplayButton = document.querySelector('button.ytp-autonav-toggle-button');
-    if (autoplayButton && autoplayButton.getAttribute('aria-pressed') === 'true') {
-      autoplayButton.click();
+// Helper function for search Shorts hiding
+function hideContainerIfAllChildrenHiddenSearch(element) {
+  const parent = element.parentElement;
+  if (!parent) return;
+  
+  // Check if all siblings are hidden
+  let allHidden = true;
+  for (let i = 0; i < parent.children.length; i++) {
+    if (!parent.children[i].hasAttribute('hidden')) {
+      allHidden = false;
+      break;
+    }
+  }
+  
+  // If all children are hidden, hide the container too
+  if (allHidden) {
+    const containerSelectors = [
+      'ytd-item-section-renderer',
+      'ytd-shelf-renderer'
+    ];
+    
+    for (const selector of containerSelectors) {
+      const container = element.closest(selector);
+      if (container && !container.hasAttribute('data-lockedin-hidden')) {
+        container.setAttribute('hidden', '');
+        container.setAttribute('data-lockedin-hidden', 'shorts-search');
+        break;
+      }
     }
   }
 }
@@ -594,47 +818,72 @@ function runAll() {
     if (!currentSettings.extensionEnabled) {
       // Restore all elements if extension is disabled
       restoreAllElements();
-      setInstantHiding(false); // Disable CSS hiding
+      setInstantHiding(false, false); // Disable CSS hiding for both homepage and search
       return;
     }
     
-    // Enable/disable instant CSS hiding based on hideShorts setting
-    setInstantHiding(currentSettings.hideShorts);
+    // Enable/disable instant CSS hiding based on hideShorts settings
+    setInstantHiding(currentSettings.hideShortsHomepage, currentSettings.hideShortsSearch);
     
-    // Apply all hiding rules
+    // Apply all hiding rules - Homepage group
     hideFeed(currentSettings.hideFeed);
+    hideShortsHomepage(currentSettings.hideShortsHomepage);
+    
+    // Video Page group
     hideSidebar(currentSettings.hideSidebar);
     hideLiveChat(currentSettings.hideLiveChat);
     hideEndCards(currentSettings.hideEndCards);
-    hideExplore(currentSettings.hideExplore);
-    hideShorts(currentSettings.hideShorts);
+    hideComments(currentSettings.hideComments);
     disableAutoplay(currentSettings.disableAutoplay);
+    
+    // Search Results group
+    hideSearchRecommended(currentSettings.hideSearchRecommended);
+    hideShortsSearch(currentSettings.hideShortsSearch);
+    
+    // YouTube Sidebar group
+    hideExplore(currentSettings.hideExplore);
+    hideMoreFromYT(currentSettings.hideMoreFromYT);
     
     ensureEssentialElementsVisible();
   }).catch((error) => {
     console.error('LockedIn: Failed to load settings', error);
     // Fallback: use default settings if storage fails
     const currentSettings = DEFAULT_SETTINGS;
-    setInstantHiding(currentSettings.hideShorts);
+    setInstantHiding(currentSettings.hideShortsHomepage, currentSettings.hideShortsSearch);
+    
     hideFeed(currentSettings.hideFeed);
+    hideShortsHomepage(currentSettings.hideShortsHomepage);
+    
     hideSidebar(currentSettings.hideSidebar);
     hideLiveChat(currentSettings.hideLiveChat);
     hideEndCards(currentSettings.hideEndCards);
-    hideExplore(currentSettings.hideExplore);
-    hideShorts(currentSettings.hideShorts);
+    hideComments(currentSettings.hideComments);
     disableAutoplay(currentSettings.disableAutoplay);
+    
+    hideSearchRecommended(currentSettings.hideSearchRecommended);
+    hideShortsSearch(currentSettings.hideShortsSearch);
+    
+    hideExplore(currentSettings.hideExplore);
+    hideMoreFromYT(currentSettings.hideMoreFromYT);
   });
 }
 
 function restoreAllElements() {
   // Restore all hidden elements when extension is disabled
-  setInstantHiding(false); // Disable CSS hiding
+  setInstantHiding(false, false); // Disable CSS hiding for both
   hideFeed(false);
+  hideShortsHomepage(false);
+  
   hideSidebar(false);
   hideLiveChat(false);
   hideEndCards(false);
+  hideComments(false);
+  
+  hideSearchRecommended(false);
+  hideShortsSearch(false);
+  
   hideExplore(false);
-  hideShorts(false);
+  hideMoreFromYT(false);
 }
 
 function ensureEssentialElementsVisible() {
@@ -671,6 +920,18 @@ function ensureEssentialElementsVisible() {
     videoInfo.style.display = '';
   }
 }
+
+// ===== INITIALIZE INSTANT HIDING ON LOAD =====
+// Load settings and set instant hiding CSS immediately
+browser.storage.sync.get(null).then((settings) => {
+  const currentSettings = { ...DEFAULT_SETTINGS, ...settings };
+  if (currentSettings.extensionEnabled) {
+    setInstantHiding(currentSettings.hideShortsHomepage, currentSettings.hideShortsSearch);
+  }
+}).catch(() => {
+  // Use defaults if storage fails
+  setInstantHiding(DEFAULT_SETTINGS.hideShortsHomepage, DEFAULT_SETTINGS.hideShortsSearch);
+});
 
 // ===== RUN ON PAGE LOAD =====
 runAll();

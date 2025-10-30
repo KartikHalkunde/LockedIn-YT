@@ -31,16 +31,9 @@
               </label>
             </div>
             <div class="setting-row">
-              <span class="setting-label">Hide Explore & Trending</span>
-              <label class="toggle-switch">
-                <input type="checkbox" id="hideExplore" data-setting="hideExplore">
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-            <div class="setting-row">
               <span class="setting-label">Hide YouTube Shorts</span>
               <label class="toggle-switch">
-                <input type="checkbox" id="hideShorts" data-setting="hideShorts">
+                <input type="checkbox" id="hideShortsHomepage" data-setting="hideShortsHomepage">
                 <span class="toggle-slider"></span>
               </label>
             </div>
@@ -65,9 +58,23 @@
               </label>
             </div>
             <div class="setting-row">
+              <span class="setting-label">Hide Comments</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="hideComments" data-setting="hideComments">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="setting-row">
               <span class="setting-label">Hide Live Chat</span>
               <label class="toggle-switch">
                 <input type="checkbox" id="hideLiveChat" data-setting="hideLiveChat">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <span class="setting-label">Disable Autoplay</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="disableAutoplay" data-setting="disableAutoplay">
                 <span class="toggle-slider"></span>
               </label>
             </div>
@@ -75,12 +82,39 @@
         </div>
 
         <div class="settings-group">
-          <h2 class="group-title">Playback</h2>
+          <h2 class="group-title">Search Results</h2>
           <div class="settings-list">
             <div class="setting-row">
-              <span class="setting-label">Disable Autoplay</span>
+              <span class="setting-label">Hide Recommended Videos</span>
               <label class="toggle-switch">
-                <input type="checkbox" id="disableAutoplay" data-setting="disableAutoplay">
+                <input type="checkbox" id="hideSearchRecommended" data-setting="hideSearchRecommended">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <span class="setting-label">Hide YouTube Shorts</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="hideShortsSearch" data-setting="hideShortsSearch">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <h2 class="group-title">YouTube Sidebar</h2>
+          <div class="settings-list">
+            <div class="setting-row">
+              <span class="setting-label">Hide Explore & Trending</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="hideExplore" data-setting="hideExplore">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <span class="setting-label">Hide More From YouTube</span>
+              <label class="toggle-switch">
+                <input type="checkbox" id="hideMoreFromYT" data-setting="hideMoreFromYT">
                 <span class="toggle-slider"></span>
               </label>
             </div>
@@ -101,7 +135,11 @@
     
     <div class="popup-footer">
       <hr class="footer-divider">
-      <div class="version-info">Version 1.0.5</div>
+      <div class="footer-content">
+        <a href="https://github.com/KartikHalkunde/LockedIn-YT" target="_blank" class="footer-link">GitHub</a>
+        <div class="version"></div>
+        <a href="https://github.com/KartikHalkunde/LockedIn-YT/blob/main/SUPPORT.md" target="_blank" class="footer-link">Support</a>
+      </div>
     </div>
   </div>
 
