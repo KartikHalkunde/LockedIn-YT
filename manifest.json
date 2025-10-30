@@ -31,7 +31,10 @@
   ],
   "browser_specific_settings": {
     "gecko": {
-      "id": "kartik@lockedin.com"
+      "id": "kartik@lockedin.com",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
     }
   }
 }
