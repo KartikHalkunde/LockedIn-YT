@@ -176,7 +176,9 @@ The extension is deterministic - same source always produces identical output.
 
 ## 🔗 Important Links
 
-- **Extension Listing:** https://addons.mozilla.org/firefox/addon/lockedin-yt/
+- **Firefox Add-ons:** https://addons.mozilla.org/firefox/addon/lockedin-yt/
+- **Edge Add-ons:** https://microsoftedge.microsoft.com/addons/detail/hibjbjgfbmhpiaapeccnfddnpabnlklj
+- **Chrome Web Store:** Coming Soon
 - **GitHub Repository:** https://github.com/KartikHalkunde/LockedIn-YT
 - **Support:** https://github.com/KartikHalkunde/LockedIn-YT/blob/main/SUPPORT.md
 - **Developer Portal:** https://addons.mozilla.org/developers/
@@ -200,14 +202,16 @@ The extension is deterministic - same source always produces identical output.
 
 ## 🎉 Post-Approval Tasks
 
-After approval:
-1. [ ] Verify extension appears in Firefox Add-ons store
-2. [ ] Test installation from official store
-3. [ ] Update GitHub release notes
-4. [ ] Create Git tag: `v1.0.6`
-5. [ ] Announce on social media (if applicable)
-6. [ ] Monitor user reviews and ratings
-7. [ ] Respond to user feedback
+After approval on all platforms:
+1. [ ] Verify extension appears in Firefox Add-ons store ✅
+2. [ ] Verify extension appears in Edge Add-ons store ✅
+3. [ ] Verify extension appears in Chrome Web Store (Pending)
+4. [ ] Test installation from all official stores
+5. [ ] Update GitHub release notes
+6. [ ] Create Git tag: `v1.0.6`
+7. [ ] Announce on social media (Reddit, Product Hunt, etc.)
+8. [ ] Monitor user reviews and ratings across all platforms
+9. [ ] Respond to user feedback
 
 ---
 
