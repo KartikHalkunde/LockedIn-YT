@@ -20,7 +20,7 @@
     <meta name="twitter:description" content="Block YouTube distractions. Free & open-source browser extension.">
     
     <title>LockedIn - Stay Focused on YouTube | Block Shorts & Distractions</title>
-    <link rel="icon" type="image/png" href="assets/logo.png">
+    <link rel="icon" type="image/png" href="assets/icon.png">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -30,13 +30,15 @@
             <div class="nav-content">
                 <div class="logo">
                     <img src="assets/logo.png" alt="LockedIn Logo">
-                    <span>LockedIn</span>
                 </div>
-                <div class="nav-links">
-                    <a href="#features">Features</a>
-                    <a href="#privacy">Privacy</a>
+                <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">☰</button>
+                <div class="mobile-menu-overlay" id="mobileMenuOverlay"></div>
+                <div class="nav-links" id="navLinks">
+                    <a href="index.html">Home</a>
+                    <a href="about.html">About</a>
+                    <a href="features.html">Features</a>
                     <a href="https://github.com/KartikHalkunde/LockedIn-YT" target="_blank">GitHub</a>
-                    <a href="#download" class="cta-button">Download</a>
+                    <button class="download-button" id="headerDownloadBtn">Get Extension</button>
                 </div>
             </div>
         </div>
@@ -50,49 +52,35 @@
                 <p class="hero-subtitle">Stay focused on what matters. Hide distracting Shorts, recommendations, and comments with one click.</p>
                 
                 <div class="download-buttons">
-                    <a href="https://addons.mozilla.org/firefox/addon/lockedin-yt/" target="_blank" class="download-btn firefox">
-                        <svg class="browser-icon" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M21.634 12.8c-.243 2.486-1.444 4.593-3.254 6.045a9.953 9.953 0 0 1-3.738 1.96c-1.31.34-2.71.403-4.052.185a9.827 9.827 0 0 1-3.896-1.534 9.923 9.923 0 0 1-3.054-3.292c-.767-1.345-1.195-2.88-1.195-4.45 0-.966.155-1.917.454-2.822A10.026 10.026 0 0 1 4.32 5.57a9.93 9.93 0 0 1 3.054-2.42A9.868 9.868 0 0 1 11.5 2c1.33 0 2.626.266 3.836.776 1.21.51 2.296 1.244 3.206 2.154a9.93 9.93 0 0 1 2.154 3.206c.51 1.21.776 2.506.776 3.836 0 .162-.006.323-.018.483-.006.078-.012.156-.02.233z"/>
-                        </svg>
-                        <div>
-                            <span class="btn-label">Download for</span>
-                            <span class="btn-browser">Firefox</span>
-                        </div>
+                    <a href="https://addons.mozilla.org/firefox/addon/lockedin-yt/" target="_blank" class="download-badge firefox-badge">
+                        <img src="https://blog.mozilla.org/addons/files/2020/04/get-the-addon-fx-apr-2020.svg" alt="Get the Firefox Add-on" height="60">
                     </a>
                     
-                    <a href="#" class="download-btn chrome disabled" title="Coming Soon to Chrome Web Store">
-                        <svg class="browser-icon" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 0C8.21 0 4.831 1.757 2.632 4.501l3.953 6.848A5.454 5.454 0 0 1 12 6.545h10.691A12 12 0 0 0 12 0zM1.931 5.47A11.943 11.943 0 0 0 0 12c0 6.012 4.42 10.991 10.189 11.864l3.953-6.847a5.45 5.45 0 0 1-6.865-2.29zm13.342 2.166a5.446 5.446 0 0 1 1.45 7.09l.002.001h-.002l-5.344 9.257c.206.01.413.016.621.016 6.627 0 12-5.373 12-12 0-1.54-.29-3.011-.818-4.364z"/>
-                        </svg>
-                        <div>
-                            <span class="btn-label">Coming Soon</span>
-                            <span class="btn-browser">Chrome</span>
-                        </div>
-                    </a>
-                    
-                    <a href="https://microsoftedge.microsoft.com/addons/detail/hibjbjgfbmhpiaapeccnfddnpabnlklj" target="_blank" class="download-btn edge">
-                        <svg class="browser-icon" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M21.86 7.65c-.89-2.89-3.26-5.19-6.38-6.19C13.21.39 10.68 0 8.38 0 5.48 0 2.89.74 1.14 2.16-.39 3.42-1.03 5.37.91 7.45c.89.97 2.21 1.65 3.66 1.93.34.06.68.09 1.02.09.97 0 1.93-.27 2.75-.78.24-.15.47-.32.68-.51v6.27c0 .68.08 1.33.23 1.94.63 2.54 2.54 4.56 5.02 5.32.68.21 1.39.32 2.12.32 1.08 0 2.13-.24 3.08-.69 2.89-1.39 4.87-4.29 4.87-7.54V9.7c0-.71-.06-1.41-.18-2.05zM8.89 5.54c-.51.32-1.11.49-1.73.49-.24 0-.48-.03-.72-.08-.71-.13-1.37-.52-1.86-1.09-.89-.97-.76-1.93 0-2.54C5.48 1.49 6.89 1 8.38 1c1.93 0 4.08.32 6.08 1.08-1.93 1.39-3.89 2.54-5.57 3.46zm11.68 8.01c0 2.81-1.73 5.32-4.29 6.54-.68.32-1.42.49-2.19.49-.57 0-1.13-.08-1.65-.24-2.16-.65-3.89-2.42-4.42-4.53-.12-.5-.18-1.02-.18-1.54V9.32c2.16-1.27 4.56-2.89 6.86-4.65 1.08-.82 1.65-1.93 1.65-3.19v-.15c2.42.89 4.29 2.75 4.94 5.08.08.27.15.56.21.85.09.56.14 1.14.14 1.73v4.56z"/>
-                        </svg>
-                        <div>
-                            <span class="btn-label">Download for</span>
-                            <span class="btn-browser">Edge</span>
-                        </div>
+                    <a href="https://microsoftedge.microsoft.com/addons/detail/hibjbjgfbmhpiaapeccnfddnpabnlklj" target="_blank" class="download-badge edge-badge">
+                        <img src="assets/edge-badge.png" alt="Get it from Microsoft Edge Add-ons" height="60">
                     </a>
                 </div>
+                <p class="coming-soon-note">Coming soon on Chrome Web Store</p>
                 
                 <div class="hero-stats">
                     <div class="stat">
-                        <span class="stat-number">192 KB</span>
+                        <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="#888888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                        </svg>
                         <span class="stat-label">Lightweight</span>
                     </div>
                     <div class="stat">
-                        <span class="stat-number">100%</span>
+                        <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="#888888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/>
+                            <path d="M9 18c-4.51 2-5-2-7-2"/>
+                        </svg>
                         <span class="stat-label">Open Source</span>
                     </div>
                     <div class="stat">
-                        <span class="stat-number">0</span>
-                        <span class="stat-label">Data Collection</span>
+                        <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="#888888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                        <span class="stat-label">Zero Data Collection</span>
                     </div>
                 </div>
             </div>
@@ -106,168 +94,10 @@
                         <div class="browser-url">youtube.com</div>
                     </div>
                     <div class="browser-content">
-                        <img src="assets/logo.png" alt="LockedIn Extension Demo">
+                        <img src="assets/screenshot.png" alt="LockedIn Extension Demo">
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
-
-    <!-- Problem Section -->
-    <section class="problem">
-        <div class="container">
-            <h2>Tired of YouTube Distractions?</h2>
-            <div class="problem-grid">
-                <div class="problem-card">
-                    <div class="problem-icon">🔄</div>
-                    <h3>Endless Shorts Scroll</h3>
-                    <p>You came to learn something, but spent an hour on Shorts instead.</p>
-                </div>
-                <div class="problem-card">
-                    <div class="problem-icon">🎯</div>
-                    <h3>Recommendation Rabbit Holes</h3>
-                    <p>"Just one more video" turns into hours of unplanned watching.</p>
-                </div>
-                <div class="problem-card">
-                    <div class="problem-icon">⏰</div>
-                    <h3>Autoplay Stealing Time</h3>
-                    <p>Videos keep playing automatically, destroying your productivity.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Features Section -->
-    <section id="features" class="features">
-        <div class="container">
-            <h2>11 Powerful Features, 4 Organized Groups</h2>
-            <p class="section-subtitle">Take control of your YouTube experience with customizable toggles</p>
-            
-            <div class="features-grid">
-                <div class="feature-group">
-                    <h3>🏠 Homepage Controls</h3>
-                    <ul>
-                        <li><strong>Hide Homepage Feed</strong> - Replace with motivational memes</li>
-                        <li><strong>Hide Shorts (Homepage)</strong> - Block endless scrolling</li>
-                        <li><strong>Hide Sidebar</strong> - Remove trending distractions</li>
-                    </ul>
-                </div>
-                
-                <div class="feature-group">
-                    <h3>📺 Video Page Controls</h3>
-                    <ul>
-                        <li><strong>Hide Live Chat</strong> - Focus on the content</li>
-                        <li><strong>Hide End Cards</strong> - No autoplay suggestions</li>
-                        <li><strong>Hide Comments</strong> - Avoid rabbit holes</li>
-                        <li><strong>Disable Autoplay</strong> - Watch intentionally</li>
-                    </ul>
-                </div>
-                
-                <div class="feature-group">
-                    <h3>🔍 Search Results Controls</h3>
-                    <ul>
-                        <li><strong>Hide Search Recommendations</strong> - Clean results</li>
-                        <li><strong>Hide Shorts (Search)</strong> - Remove from results</li>
-                    </ul>
-                </div>
-                
-                <div class="feature-group">
-                    <h3>📋 YouTube Sidebar Controls</h3>
-                    <ul>
-                        <li><strong>Hide Explore</strong> - Remove distractions</li>
-                        <li><strong>Hide "More From YouTube"</strong> - Clean sidebar</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Privacy Section -->
-    <section id="privacy" class="privacy">
-        <div class="container">
-            <h2>🔒 Privacy First, Always</h2>
-            <div class="privacy-grid">
-                <div class="privacy-card">
-                    <h3>Zero Data Collection</h3>
-                    <p>We don't collect, store, or transmit any of your data. Explicitly declared in the manifest.</p>
-                </div>
-                <div class="privacy-card">
-                    <h3>100% Local Processing</h3>
-                    <p>Everything happens on your device. No external servers, no tracking, no analytics.</p>
-                </div>
-                <div class="privacy-card">
-                    <h3>Open Source</h3>
-                    <p>Full source code available on GitHub. Audit it yourself or contribute improvements.</p>
-                </div>
-                <div class="privacy-card">
-                    <h3>Minimal Permissions</h3>
-                    <p>Only requests YouTube access and local storage. No sneaky permissions.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- How It Works -->
-    <section class="how-it-works">
-        <div class="container">
-            <h2>How It Works</h2>
-            <div class="steps">
-                <div class="step">
-                    <div class="step-number">1</div>
-                    <h3>Install</h3>
-                    <p>Add LockedIn from Firefox Add-ons or Chrome Web Store</p>
-                </div>
-                <div class="step">
-                    <div class="step-number">2</div>
-                    <h3>Customize</h3>
-                    <p>Click the extension icon and toggle features you want</p>
-                </div>
-                <div class="step">
-                    <div class="step-number">3</div>
-                    <h3>Focus</h3>
-                    <p>Browse YouTube distraction-free and stay productive</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Download CTA -->
-    <section id="download" class="download-cta">
-        <div class="container">
-            <h2>Ready to Stay Focused?</h2>
-            <p>Join users who've taken back control of their YouTube experience</p>
-            <div class="download-buttons">
-                <a href="https://addons.mozilla.org/firefox/addon/lockedin-yt/" target="_blank" class="download-btn firefox large">
-                    <svg class="browser-icon" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M21.634 12.8c-.243 2.486-1.444 4.593-3.254 6.045a9.953 9.953 0 0 1-3.738 1.96c-1.31.34-2.71.403-4.052.185a9.827 9.827 0 0 1-3.896-1.534 9.923 9.923 0 0 1-3.054-3.292c-.767-1.345-1.195-2.88-1.195-4.45 0-.966.155-1.917.454-2.822A10.026 10.026 0 0 1 4.32 5.57a9.93 9.93 0 0 1 3.054-2.42A9.868 9.868 0 0 1 11.5 2c1.33 0 2.626.266 3.836.776 1.21.51 2.296 1.244 3.206 2.154a9.93 9.93 0 0 1 2.154 3.206c.51 1.21.776 2.506.776 3.836 0 .162-.006.323-.018.483-.006.078-.012.156-.02.233z"/>
-                    </svg>
-                    <div>
-                        <span class="btn-label">Download for</span>
-                        <span class="btn-browser">Firefox</span>
-                    </div>
-                </a>
-                
-                <a href="#" class="download-btn chrome large disabled" title="Coming Soon to Chrome Web Store">
-                    <svg class="browser-icon" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M12 0C8.21 0 4.831 1.757 2.632 4.501l3.953 6.848A5.454 5.454 0 0 1 12 6.545h10.691A12 12 0 0 0 12 0zM1.931 5.47A11.943 11.943 0 0 0 0 12c0 6.012 4.42 10.991 10.189 11.864l3.953-6.847a5.45 5.45 0 0 1-6.865-2.29zm13.342 2.166a5.446 5.446 0 0 1 1.45 7.09l.002.001h-.002l-5.344 9.257c.206.01.413.016.621.016 6.627 0 12-5.373 12-12 0-1.54-.29-3.011-.818-4.364z"/>
-                    </svg>
-                    <div>
-                        <span class="btn-label">Coming Soon</span>
-                        <span class="btn-browser">Chrome</span>
-                    </div>
-                </a>
-                
-                <a href="https://microsoftedge.microsoft.com/addons/detail/hibjbjgfbmhpiaapeccnfddnpabnlklj" target="_blank" class="download-btn edge large">
-                    <svg class="browser-icon" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M21.86 7.65c-.89-2.89-3.26-5.19-6.38-6.19C13.21.39 10.68 0 8.38 0 5.48 0 2.89.74 1.14 2.16-.39 3.42-1.03 5.37.91 7.45c.89.97 2.21 1.65 3.66 1.93.34.06.68.09 1.02.09.97 0 1.93-.27 2.75-.78.24-.15.47-.32.68-.51v6.27c0 .68.08 1.33.23 1.94.63 2.54 2.54 4.56 5.02 5.32.68.21 1.39.32 2.12.32 1.08 0 2.13-.24 3.08-.69 2.89-1.39 4.87-4.29 4.87-7.54V9.7c0-.71-.06-1.41-.18-2.05zM8.89 5.54c-.51.32-1.11.49-1.73.49-.24 0-.48-.03-.72-.08-.71-.13-1.37-.52-1.86-1.09-.89-.97-.76-1.93 0-2.54C5.48 1.49 6.89 1 8.38 1c1.93 0 4.08.32 6.08 1.08-1.93 1.39-3.89 2.54-5.57 3.46zm11.68 8.01c0 2.81-1.73 5.32-4.29 6.54-.68.32-1.42.49-2.19.49-.57 0-1.13-.08-1.65-.24-2.16-.65-3.89-2.42-4.42-4.53-.12-.5-.18-1.02-.18-1.54V9.32c2.16-1.27 4.56-2.89 6.86-4.65 1.08-.82 1.65-1.93 1.65-3.19v-.15c2.42.89 4.29 2.75 4.94 5.08.08.27.15.56.21.85.09.56.14 1.14.14 1.73v4.56z"/>
-                    </svg>
-                    <div>
-                        <span class="btn-label">Download for</span>
-                        <span class="btn-browser">Edge</span>
-                    </div>
-                </a>
-            </div>
-            <p class="download-note">100% Free • Open Source • Zero Data Collection</p>
         </div>
     </section>
 
@@ -275,50 +105,24 @@
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
-                <div class="footer-section">
-                    <h4>LockedIn</h4>
-                    <p>Stay focused on YouTube. Block distractions, not content.</p>
-                    <div class="social-links">
-                        <a href="https://github.com/KartikHalkunde/LockedIn-YT" target="_blank" aria-label="GitHub">
-                            <svg viewBox="0 0 24 24" fill="currentColor" width="24" height="24">
-                                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
-                            </svg>
-                        </a>
-                    </div>
+                <div class="footer-logo">
+                    <img src="assets/icon.png" alt="LockedIn">
                 </div>
-                
-                <div class="footer-section">
-                    <h4>Resources</h4>
-                    <ul>
-                        <li><a href="https://github.com/KartikHalkunde/LockedIn-YT" target="_blank">GitHub Repository</a></li>
-                        <li><a href="https://github.com/KartikHalkunde/LockedIn-YT/blob/main/SUPPORT.md" target="_blank">Support</a></li>
-                        <li><a href="https://github.com/KartikHalkunde/LockedIn-YT/issues" target="_blank">Report Issue</a></li>
-                        <li><a href="https://github.com/KartikHalkunde/LockedIn-YT/blob/main/CONTRIBUTING.md" target="_blank">Contribute</a></li>
-                    </ul>
+                <div class="footer-credits">
+                    <p>Made with 
+                        <svg class="coffee-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#888888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 8h1a4 4 0 0 1 0 8h-1"/>
+                            <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+                            <line x1="6" y1="1" x2="6" y2="4"/>
+                            <line x1="10" y1="1" x2="10" y2="4"/>
+                            <line x1="14" y1="1" x2="14" y2="4"/>
+                        </svg>
+                        by <a href="https://github.com/KartikHalkunde" target="_blank">Kartik</a>
+                    </p>
                 </div>
-                
-                <div class="footer-section">
-                    <h4>Download</h4>
-                    <ul>
-                        <li><a href="https://addons.mozilla.org/firefox/addon/lockedin-yt/" target="_blank">Firefox Add-ons</a></li>
-                        <li><span style="color: #888;">Chrome Web Store (Coming Soon)</span></li>
-                        <li><a href="https://microsoftedge.microsoft.com/addons/detail/hibjbjgfbmhpiaapeccnfddnpabnlklj" target="_blank">Edge Add-ons</a></li>
-                        <li><a href="https://github.com/KartikHalkunde/LockedIn-YT/releases" target="_blank">Release Notes</a></li>
-                    </ul>
+                <div class="footer-copy">
+                    <p>&copy; 2025 LockedIn</p>
                 </div>
-                
-                <div class="footer-section">
-                    <h4>Legal</h4>
-                    <ul>
-                        <li><a href="https://github.com/KartikHalkunde/LockedIn-YT/blob/main/PRIVACY.md" target="_blank">Privacy Policy</a></li>
-                        <li><a href="https://github.com/KartikHalkunde/LockedIn-YT/blob/main/LICENSE" target="_blank">MIT License</a></li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="footer-bottom">
-                <p>&copy; 2025 LockedIn. Built with ❤️ for focus.</p>
-                <p>Made by <a href="https://github.com/KartikHalkunde" target="_blank">Kartik Halkunde</a></p>
             </div>
         </div>
     </footer>

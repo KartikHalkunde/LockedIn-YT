@@ -1,3 +1,44 @@
+// Mobile Menu Toggle
+const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+const navLinks = document.getElementById('navLinks');
+const mobileMenuOverlay = document.getElementById('mobileMenuOverlay');
+
+if (mobileMenuToggle && navLinks) {
+    // Toggle menu
+    mobileMenuToggle.addEventListener('click', () => {
+        navLinks.classList.toggle('active');
+        if (mobileMenuOverlay) {
+            mobileMenuOverlay.classList.toggle('active');
+        }
+        // Change icon between hamburger and X
+        mobileMenuToggle.textContent = navLinks.classList.contains('active') ? '✕' : '☰';
+        // Prevent body scroll when menu is open
+        document.body.style.overflow = navLinks.classList.contains('active') ? 'hidden' : '';
+    });
+
+    // Close menu when clicking on a link
+    navLinks.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+            navLinks.classList.remove('active');
+            if (mobileMenuOverlay) {
+                mobileMenuOverlay.classList.remove('active');
+            }
+            mobileMenuToggle.textContent = '☰';
+            document.body.style.overflow = '';
+        });
+    });
+
+    // Close menu when clicking overlay
+    if (mobileMenuOverlay) {
+        mobileMenuOverlay.addEventListener('click', () => {
+            navLinks.classList.remove('active');
+            mobileMenuOverlay.classList.remove('active');
+            mobileMenuToggle.textContent = '☰';
+            document.body.style.overflow = '';
+        });
+    }
+}
+
 // Smooth scroll for anchor links
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
@@ -199,6 +240,36 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
+// Browser detection and smart download button
+const downloadBtn = document.getElementById('headerDownloadBtn');
+
+if (downloadBtn) {
+    downloadBtn.addEventListener('click', function() {
+        const userAgent = navigator.userAgent.toLowerCase();
+        
+        // Detect Firefox
+        if (userAgent.indexOf('firefox') > -1) {
+            window.open('https://addons.mozilla.org/firefox/addon/lockedin-yt/', '_blank');
+        }
+        // Detect Edge
+        else if (userAgent.indexOf('edg') > -1) {
+            window.open('https://microsoftedge.microsoft.com/addons/detail/hibjbjgfbmhpiaapeccnfddnpabnlklj', '_blank');
+        }
+        // Chrome and other Chromium-based browsers
+        else if (userAgent.indexOf('chrome') > -1 || userAgent.indexOf('chromium') > -1) {
+            alert('Not available on Chrome Web Store yet. Coming soon!');
+        }
+        // Safari
+        else if (userAgent.indexOf('safari') > -1) {
+            alert('Not available on Safari yet. Coming soon!');
+        }
+        // Other browsers
+        else {
+            alert('Extension currently available for Firefox and Edge. Chrome Web Store version coming soon!');
+        }
+    });
+}
+
 // Rainbow animation for easter egg
 const rainbowStyle = document.createElement('style');
 rainbowStyle.textContent = `
@@ -208,6 +279,17 @@ rainbowStyle.textContent = `
     }
 `;
 document.head.appendChild(rainbowStyle);
+
+// Feedback button handler
+const feedbackBtn = document.getElementById('feedbackBtn');
+if (feedbackBtn) {
+    feedbackBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        // You can replace this URL with your Google Form link
+        const formURL = 'YOUR_GOOGLE_FORM_URL_HERE';
+        window.open(formURL, '_blank');
+    });
+}
 
 // Log a friendly message to developers
 console.log('%c👋 Hey developer!', 'font-size: 20px; font-weight: bold; color: #FF4444;');
