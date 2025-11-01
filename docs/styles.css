@@ -57,13 +57,16 @@ body {
 
 .nav-content {
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: flex-start;
+    gap: 1rem;
+    position: relative;
 }
 
 .logo {
     display: flex;
     align-items: center;
+    flex: 0 0 auto;
 }
 
 .logo img {
@@ -98,6 +101,7 @@ body {
     cursor: pointer;
     padding: 0.5rem;
     z-index: 1001;
+    margin-left: auto;
 }
 
 .mobile-menu-toggle:hover {
@@ -1035,8 +1039,14 @@ body {
 /* Tablet and Mobile */
 @media (max-width: 968px) {
     /* Mobile Navigation */
+    .nav-content {
+        justify-content: space-between;
+        gap: 0.5rem;
+    }
     .mobile-menu-toggle {
         display: block;
+        margin-left: 0;
+        position: static;
     }
     
     .nav-links {

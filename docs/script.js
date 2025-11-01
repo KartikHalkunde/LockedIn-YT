@@ -163,48 +163,6 @@ document.querySelectorAll('.download-btn').forEach(btn => {
     });
 });
 
-// Mobile menu toggle (if needed in future)
-const createMobileMenu = () => {
-    const navLinks = document.querySelector('.nav-links');
-    const menuToggle = document.createElement('button');
-    
-    menuToggle.classList.add('menu-toggle');
-    menuToggle.innerHTML = '☰';
-    menuToggle.style.cssText = `
-        display: none;
-        background: none;
-        border: none;
-        color: white;
-        font-size: 1.5rem;
-        cursor: pointer;
-    `;
-    
-    // Insert menu toggle before nav links
-    navLinks.parentNode.insertBefore(menuToggle, navLinks);
-    
-    menuToggle.addEventListener('click', () => {
-        navLinks.classList.toggle('mobile-active');
-    });
-    
-    // Show menu toggle on mobile
-    const mediaQuery = window.matchMedia('(max-width: 768px)');
-    const handleMobile = (e) => {
-        if (e.matches) {
-            menuToggle.style.display = 'block';
-        } else {
-            menuToggle.style.display = 'none';
-            navLinks.classList.remove('mobile-active');
-        }
-    };
-    
-    mediaQuery.addListener(handleMobile);
-    handleMobile(mediaQuery);
-};
-
-// Initialize mobile menu if on small screen
-if (window.innerWidth <= 768) {
-    createMobileMenu();
-}
 
 // Add copy-to-clipboard for install commands (if you add them later)
 const addCopyButtons = () => {
