@@ -1218,32 +1218,157 @@ body {
     /* Features */
     .feature-content {
         grid-template-columns: 1fr;
-        gap: 2rem;
+        gap: 2.5rem;
     }
     
     .feature-section {
-        padding: 40px 0;
+        padding: 50px 0 40px;
     }
     
     .features-hero h1 {
         font-size: 2.5rem;
     }
     
+    .feature-text {
+        order: 2;
+        padding: 0 10px;
+    }
+    
+    .feature-image {
+        order: 1;
+        margin-bottom: 1.5rem;
+    }
+    
     .feature-text h2 {
-        font-size: 1.8rem;
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.3;
+    }
+    
+    .feature-text p {
+        font-size: 1.05rem;
+        line-height: 1.7;
+        margin-bottom: 1.5rem;
     }
     
     .feature-list {
         padding-left: 0;
     }
     
+    /* Feedback section tablet/mobile */
+    .feedback-section {
+        padding: 50px 0;
+    }
+    
+    .feedback-content-compact {
+        padding: 0 10px;
+    }
+    
+    .feedback-content-compact h3 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        line-height: 1.3;
+    }
+    
+    .feedback-content-compact p {
+        font-size: 1.05rem;
+        line-height: 1.7;
+        margin-bottom: 1.5rem;
+    }
+    
+    .feedback-button {
+        padding: 0.875rem 2rem;
+        font-size: 1rem;
+    }
+    
     /* About page */
     .problem {
-        padding: 40px 0;
+        padding: 50px 0 40px;
+    }
+    
+    .problem h2 {
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+        line-height: 1.3;
     }
     
     .section-subtitle {
-        font-size: 1rem !important;
+        font-size: 1.05rem !important;
+        line-height: 1.7 !important;
+        padding: 0 10px;
+    }
+    
+    /* Why LockedIn section mobile improvements */
+    .why-lockedin {
+        padding: 40px 0;
+    }
+    
+    .why-content {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+        padding: 0 10px;
+    }
+    
+    .why-left {
+        padding: 0;
+        order: 2;
+    }
+    
+    .why-left h2 {
+        font-size: 2rem;
+        margin-bottom: 2rem;
+        line-height: 1.3;
+    }
+    
+    .why-right {
+        order: 1;
+        margin: 0 auto;
+        max-width: 100%;
+        display: flex;
+        justify-content: center;
+        margin-bottom: 1rem;
+    }
+    
+    .popup-image {
+        max-width: 280px;
+        width: 100%;
+        height: auto;
+        margin: 0 auto;
+    }
+    
+    .features-list {
+        margin-top: 1rem;
+    }
+    
+    .features-list li {
+        margin-bottom: 2rem;
+        padding: 1.25rem;
+        background-color: rgba(26, 26, 26, 0.4);
+        border-radius: 12px;
+        border: 1px solid var(--border-color);
+        gap: 1.25rem;
+    }
+    
+    .features-list li:last-child {
+        margin-bottom: 0;
+    }
+    
+    .check-icon {
+        width: 28px;
+        height: 28px;
+        margin-top: 2px;
+        flex-shrink: 0;
+    }
+    
+    .features-list strong {
+        font-size: 1.15rem;
+        margin-bottom: 0.5rem;
+        line-height: 1.4;
+    }
+    
+    .features-list p {
+        font-size: 1rem;
+        line-height: 1.6;
     }
     
     /* Footer */
@@ -1432,37 +1557,89 @@ body {
         font-size: 1.8rem;
     }
     
+    .problem {
+        padding: 40px 0 30px;
+    }
+    
     .problem h2 {
         font-size: 1.8rem;
+        margin-bottom: 1.25rem;
     }
     
     .section-subtitle {
-        font-size: 0.95rem !important;
-        line-height: 1.6 !important;
+        font-size: 1rem !important;
+        line-height: 1.7 !important;
+        padding: 0 5px;
     }
     
-    .feature-section {
+    /* Why LockedIn section small mobile */
+    .why-lockedin {
         padding: 30px 0;
     }
     
+    .why-content {
+        gap: 2rem;
+        padding: 0 5px;
+    }
+    
+    .why-left h2 {
+        font-size: 1.75rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .popup-image {
+        max-width: 250px;
+    }
+    
+    .features-list li {
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+        gap: 1rem;
+    }
+    
+    .check-icon {
+        width: 24px;
+        height: 24px;
+    }
+    
+    .features-list strong {
+        font-size: 1.05rem;
+        margin-bottom: 0.4rem;
+    }
+    
+    .features-list p {
+        font-size: 0.95rem;
+    }
+    
+    /* Features page small mobile */
+    .feature-section {
+        padding: 40px 0 30px;
+    }
+    
+    .feature-content {
+        gap: 2rem;
+    }
+    
     .feature-text h2 {
-        font-size: 1.5rem;
-        margin-bottom: 1rem;
+        font-size: 1.75rem;
+        margin-bottom: 1.25rem;
     }
     
     .feature-text p {
-        font-size: 0.95rem;
-        line-height: 1.6;
+        font-size: 1rem;
+        line-height: 1.7;
+        margin-bottom: 1.25rem;
     }
     
     .feature-list {
         margin-top: 1rem;
-        padding-left: 1rem;
+        padding-left: 0.75rem;
     }
     
     .feature-list li {
-        font-size: 0.9rem;
-        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+        margin-bottom: 0.75rem;
+        line-height: 1.5;
     }
     
     .feature-image img {
@@ -1530,20 +1707,29 @@ body {
     
     /* Feedback Section */
     .feedback-section {
-        padding: 30px 0;
+        padding: 40px 0;
+    }
+    
+    .feedback-content-compact {
+        padding: 0 10px;
     }
     
     .feedback-content-compact h3 {
-        font-size: 1.3rem;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        line-height: 1.3;
     }
     
     .feedback-content-compact p {
-        font-size: 0.9rem;
+        font-size: 1rem;
+        line-height: 1.7;
+        margin-bottom: 1.5rem;
     }
     
     .feedback-button {
-        padding: 0.6rem 1.5rem;
-        font-size: 0.9rem;
+        padding: 0.875rem 2rem;
+        font-size: 1rem;
+        display: inline-block;
     }
 }
 
