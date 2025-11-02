@@ -1,12 +1,12 @@
 <div align="center">
-  <img src="icons/iconFull.png" alt="LockedIn Logo" width="500"/>
+  <img src="assets/logo.png" alt="LockedIn Logo" width="500"/>
   
   **Stay focused. Get things done.**
   
   [![Firefox Add-ons](https://img.shields.io/badge/Firefox-Available-orange?logo=firefox-browser&logoColor=white)](https://addons.mozilla.org/firefox/addon/lockedin-yt/)
-  [![Edge Add-ons](https://img.shields.io/badge/Edge-Available-blue?logo=microsoft-edge&logoColor=white)](#)
+  [![Edge Add-ons](https://img.shields.io/badge/Edge-Available-blue?logo=microsoft-edge&logoColor=white)](https://microsoftedge.microsoft.com/addons/detail/hibjbjgfbmhpiaapeccnfddnpabnlklj)
   [![Chrome Web Store](https://img.shields.io/badge/Chrome-Coming%20Soon-lightgrey?logo=google-chrome&logoColor=white)](#)
-  [![Version](https://img.shields.io/badge/version-1.0.5-green.svg)](https://github.com/KartikHalkunde/LockedIn-YT/releases)
+  [![Version](https://img.shields.io/badge/version-1.0.6-green.svg)](https://github.com/KartikHalkunde/LockedIn-YT/releases)
   [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
   
 </div>
@@ -17,15 +17,17 @@
 
 LockedIn is an open-source browser extension that helps you focus on YouTube by removing distracting elements. 
 
-**Compatible with:** Firefox and all the Chromium-based browsers
+**Compatible with:** Firefox, Microsoft Edge, and Chromium-based browsers
 
 **Features:**
--  Hide Homepage Feed & Explore Pages
--  Hide Recommended Videos & End Screen Cards
--  Block YouTube Shorts everywhere
--  Hide Live Chat
--  Disable Autoplay
--  Power button to quickly toggle entire extension
+- 🎯 Hide Homepage Feed with motivational memes
+- 📺 Hide Recommended Videos & End Screen Cards
+- 🎬 Block YouTube Shorts (separate controls for homepage & search)
+- 💬 Hide Comments & Live Chat
+- 🔍 Hide Search Recommendations & "More From YouTube"
+- ⚙️ Disable Autoplay
+- 🎨 New organized UI with 4 logical groups
+- 🔌 Power button to quickly toggle entire extension
 
 **Privacy:** Zero data collection. No external network requests. All processing happens locally in your browser.
 
@@ -33,8 +35,8 @@ LockedIn is an open-source browser extension that helps you focus on YouTube by 
 
 ## Download
 
-- **Firefox**: Get it on [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/lockedin-yt/)
-- **Edge**: Available on Edge Add-ons (link coming soon)
+- **Firefox**: [Get it on Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/lockedin-yt/)
+- **Edge**: [Get it on Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/hibjbjgfbmhpiaapeccnfddnpabnlklj)
 - **Chrome**: Coming soon to Chrome Web Store
 
 ---
@@ -72,6 +74,15 @@ Simple toggle switches for each feature. Settings are saved instantly and synced
 ---
 
 ## Changelog
+
+### Version 1.0.6 (October 31, 2025)
+- **UI Overhaul**: Complete popup redesign with 4 logical groups and thread-line styling
+- **New Features**: Added hide comments, search recommendations, and "More From YouTube" filters
+- **Split Controls**: Separate toggles for homepage and search Shorts hiding
+- **Motivational Memes**: Display random meme when homepage feed is hidden
+- **Footer Updates**: GitHub and Support links with auto-version display
+- **Bug Fixes**: Fixed homepage feed hiding and search recommendations filtering
+- **Optimization**: Compressed meme images (1.7MB → 188KB total extension size)
 
 ### Version 1.0.5 (October 29, 2025)
 - **Cross-Browser Support**: Now compatible with Firefox, Edge, and Chrome
@@ -123,6 +134,6 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 Made with ☕ by [Kartik Halkunde](https://github.com/KartikHalkunde)
 
-If this helps you stay focused, consider [⭐ing this repo](https://github.com/KartikHalkunde/LockedIn-YT)!
+If this helps you stay focused, consider [⭐ starring the repo](https://github.com/KartikHalkunde/LockedIn-YT)!
 
 </div>
