@@ -20,14 +20,14 @@ LockedIn is an open-source browser extension that helps you focus on YouTube by 
 **Compatible with:** Firefox, Microsoft Edge, and Chromium-based browsers
 
 **Features:**
-- 🎯 Hide Homepage Feed with motivational memes
-- 📺 Hide Recommended Videos & End Screen Cards
-- 🎬 Block YouTube Shorts (separate controls for homepage & search)
-- 💬 Hide Comments & Live Chat
-- 🔍 Hide Search Recommendations & "More From YouTube"
-- ⚙️ Disable Autoplay
-- 🎨 New organized UI with 4 logical groups
-- 🔌 Power button to quickly toggle entire extension
+-  Hide Homepage Feed with motivational memes
+-  Hide Recommended Videos & End Screen Cards
+-  Block YouTube Shorts (separate controls for homepage & search)
+-  Hide Comments & Live Chat
+-  Hide Search Recommendations & "More From YouTube"
+-  Disable Autoplay
+-  New organized UI with 4 logical groups
+-  Power button to quickly toggle entire extension
 
 **Privacy:** Zero data collection. No external network requests. All processing happens locally in your browser.
 
@@ -59,6 +59,7 @@ Simple toggle switches for each feature. Settings are saved instantly and synced
 - 📋 [Changelog](#changelog)
 - 🐛 [Report Issues](https://github.com/KartikHalkunde/LockedIn-YT/issues)
 - 💬 [Discussions](https://github.com/KartikHalkunde/LockedIn-YT/discussions)
+- 🌐 [Website](https://kartikhalkunde.github.io/LockedIn-YT/)
 
 ---
 
