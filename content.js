@@ -103,6 +103,7 @@ const DEFAULT_SETTINGS = {
   hideShortsSearch: false,
   hideExplore: false,
   hideMoreFromYT: false,
+  hidePlaylists: false,
   extensionEnabled: true
 };
 
@@ -227,87 +228,121 @@ function hideFeed(shouldHide) {
 }
 
 function hideSidebar(shouldHide) {
-  if (!window.location.href.includes('/watch?v=')) {
+  if (!window.location.href.includes('/watch')) {
     return;
   }
   
+  const playlistPanel = document.querySelector('#secondary ytd-playlist-panel-renderer, ytd-playlist-panel-renderer, ytd-playlist-panel-view-model, #playlist');
+  const hasPlaylistPanel = !!playlistPanel;
+  
+  // Restore state when disabled
   if (!shouldHide) {
+    // Restore recommendation items
+    document.querySelectorAll('[data-lockedin-hidden="sidebar-recommendation"]').forEach(el => {
+      el.style.display = '';
+      el.removeAttribute('data-lockedin-hidden');
+    });
+    // Restore sidebar container
     toggleElement('#secondary', false);
     toggleElement('#secondary-inner', false);
-    
-    toggleAllElements('ytd-watch-next-secondary-results-renderer', false);
-    toggleAllElements('#related', false);
-    toggleAllElements('.watch-sidebar', false);
-    
-    const theaterSidebar = document.querySelector('#secondary.ytd-watch-flexy');
-    if (theaterSidebar) {
-      theaterSidebar.style.display = '';
+    const flexyContainerRestore = document.querySelector('ytd-watch-flexy');
+    if (flexyContainerRestore) {
+      flexyContainerRestore.style.removeProperty('--ytd-watch-flexy-sidebar-width');
     }
-    
-    document.querySelectorAll('#secondary *').forEach(element => {
-      element.style.display = '';
-    });
-    
-    toggleAllElements('.ytp-upnext', false);
-    toggleAllElements('.ytp-upnext-container', false);
-    toggleAllElements('.ytp-videowall-still', false);
-    toggleAllElements('.ytp-suggestion-set', false);
-    
-    const primary = document.querySelector('#primary');
-    if (primary) {
-      primary.style.marginRight = '';
-      primary.style.width = '';
-    }
-    
-    const flexyContainer = document.querySelector('ytd-watch-flexy');
-    if (flexyContainer) {
-      flexyContainer.style.removeProperty('--ytd-watch-flexy-sidebar-width');
-    }
-    
+    // Restore Up Next overlays
+    toggleAllElements('.ytp-upnext, .ytp-upnext-container, .ytp-suggestion-set', false);
     return;
   }
   
-  toggleElement('#secondary', true);
-  toggleElement('#secondary-inner', true);
-  
-  toggleAllElements('ytd-watch-next-secondary-results-renderer', true);
-  toggleAllElements('#related', true);
-  toggleAllElements('.watch-sidebar', true);
-  
-  const theaterSidebar = document.querySelector('#secondary.ytd-watch-flexy');
-  if (theaterSidebar) {
-    theaterSidebar.style.display = 'none';
-  }
-  
-  document.querySelectorAll('#secondary *').forEach(element => {
-    element.style.display = 'none';
-  });
-  
-  toggleAllElements('.ytp-upnext', true);
-  toggleAllElements('.ytp-upnext-container', true);
-  toggleAllElements('.ytp-videowall-still', true);
-  toggleAllElements('.ytp-suggestion-set', true);
-  toggleAllElements('.ytp-endscreen-content', true);
-  
-  document.querySelectorAll('.ytp-videowall-still').forEach(wall => {
-    wall.style.display = 'none';
-  });
-  
-  document.querySelectorAll('[class*="suggestion"]').forEach(suggestion => {
-    if (suggestion.closest('.ytp-player')) {
-      suggestion.style.display = 'none';
+  if (hasPlaylistPanel) {
+    // Keep playlist panel visible, hide other recommendation items
+    const recommendationSelectors = [
+      '#secondary ytd-compact-video-renderer',
+      '#secondary ytd-compact-movie-renderer',
+      '#secondary ytd-compact-radio-renderer',
+      'ytd-watch-next-secondary-results-renderer ytd-compact-video-renderer',
+      'ytd-watch-next-secondary-results-renderer ytd-compact-movie-renderer',
+      'ytd-watch-next-secondary-results-renderer ytd-compact-radio-renderer'
+    ];
+    recommendationSelectors.forEach(selector => {
+      document.querySelectorAll(selector).forEach(el => {
+        // Do not hide the playlist panel itself
+        if (el.closest('ytd-playlist-panel-renderer')) return;
+        if (!el.hasAttribute('data-lockedin-hidden')) {
+          el.style.display = 'none';
+          el.setAttribute('data-lockedin-hidden', 'sidebar-recommendation');
+        }
+      });
+    });
+    // Also hide common recommendation containers (keep playlist panel)
+    const recommendationContainers = [
+      'ytd-watch-next-secondary-results-renderer',
+      '#related',
+      '#secondary #items',
+      'ytd-item-section-renderer'
+    ];
+    recommendationContainers.forEach(containerSel => {
+      document.querySelectorAll(`#secondary ${containerSel}`).forEach(container => {
+        if (playlistPanel && container.contains(playlistPanel)) return;
+        if (!container.hasAttribute('data-lockedin-hidden')) {
+          container.style.display = 'none';
+          container.setAttribute('data-lockedin-hidden', 'sidebar-recommendation');
+        }
+      });
+    });
+    // Ensure sidebar stays visible
+    toggleElement('#secondary', false);
+    toggleElement('#secondary-inner', false);
+  } else {
+    // No current playlist: hide entire sidebar
+    toggleElement('#secondary', true);
+    toggleElement('#secondary-inner', true);
+    const flexyContainer = document.querySelector('ytd-watch-flexy');
+    if (flexyContainer) {
+      flexyContainer.style.setProperty('--ytd-watch-flexy-sidebar-width', '0px', 'important');
     }
-  });
-  
-  const primary = document.querySelector('#primary');
-  if (primary) {
-    primary.style.marginRight = '0';
-    primary.style.width = '100%';
   }
   
-  const flexyContainer = document.querySelector('ytd-watch-flexy');
-  if (flexyContainer) {
-    flexyContainer.style.setProperty('--ytd-watch-flexy-sidebar-width', '0px', 'important');
+  // Hide player Up Next overlays when hiding recommendations or sidebar
+  toggleAllElements('.ytp-upnext, .ytp-upnext-container, .ytp-suggestion-set', true);
+}
+
+function hidePlaylists(shouldHide) {
+  if (!window.location.href.includes('/watch')) {
+    return;
+  }
+  
+  const playlistPanel = document.querySelector('#secondary ytd-playlist-panel-renderer, ytd-playlist-panel-renderer, ytd-playlist-panel-view-model, #playlist');
+  
+  if (!shouldHide) {
+    document.querySelectorAll('[data-lockedin-hidden="current-playlist-panel"]').forEach(el => {
+      el.style.display = '';
+      el.removeAttribute('data-lockedin-hidden');
+    });
+    if (playlistPanel) {
+      playlistPanel.style.display = '';
+    }
+    collapseSidebarIfEmpty();
+    return;
+  }
+  
+  if (playlistPanel && !playlistPanel.hasAttribute('data-lockedin-hidden')) {
+    playlistPanel.style.display = 'none';
+    playlistPanel.setAttribute('data-lockedin-hidden', 'current-playlist-panel');
+  }
+  collapseSidebarIfEmpty();
+}
+
+function collapseSidebarIfEmpty() {
+  const sidebar = document.querySelector('#secondary');
+  if (!sidebar) return;
+  const hasVisible = Array.from(sidebar.querySelectorAll('*')).some(el => {
+    return el.offsetParent !== null && el.getAttribute('data-lockedin-hidden') !== 'sidebar-recommendation' && el.getAttribute('data-lockedin-hidden') !== 'current-playlist-panel';
+  });
+  if (!hasVisible) {
+    sidebar.style.display = 'none';
+  } else {
+    sidebar.style.display = '';
   }
 }
 
@@ -831,6 +866,7 @@ function runAll() {
     
     // Video Page group
     hideSidebar(currentSettings.hideSidebar);
+    hidePlaylists(currentSettings.hidePlaylists);
     hideLiveChat(currentSettings.hideLiveChat);
     hideEndCards(currentSettings.hideEndCards);
     hideComments(currentSettings.hideComments);
@@ -855,6 +891,7 @@ function runAll() {
     hideShortsHomepage(currentSettings.hideShortsHomepage);
     
     hideSidebar(currentSettings.hideSidebar);
+    hidePlaylists(currentSettings.hidePlaylists);
     hideLiveChat(currentSettings.hideLiveChat);
     hideEndCards(currentSettings.hideEndCards);
     hideComments(currentSettings.hideComments);
@@ -875,6 +912,7 @@ function restoreAllElements() {
   hideShortsHomepage(false);
   
   hideSidebar(false);
+  hidePlaylists(false);
   hideLiveChat(false);
   hideEndCards(false);
   hideComments(false);

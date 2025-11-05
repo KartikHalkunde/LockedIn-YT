@@ -17,6 +17,7 @@ const DEFAULT_SETTINGS = {
   hideShortsSearch: false,
   hideExplore: false,
   hideMoreFromYT: false,
+  hidePlaylists: false,
   extensionEnabled: true
 };
 
