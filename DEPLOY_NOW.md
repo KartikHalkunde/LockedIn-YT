@@ -1,13 +1,13 @@
-# 🚀 READY TO DEPLOY - Version 1.0.6
+# 🚀 READY TO DEPLOY - Version 1.0.7
 
 ## ✅ All Files Ready
 
 ### Extension Package
-📦 **lockedin-1.0.6.zip** (192 KB)
+📦 **lockedin-1.0.7.zip** (192 KB)
 - Upload this to Mozilla Add-ons
 
 ### Source Code (if requested)
-📄 **lockedin-source-1.0.6.zip** (1.4 MB)
+📄 **lockedin-source-1.0.7.zip** (1.4 MB)
 - Provide only if Mozilla reviewers request it
 
 ### Documentation

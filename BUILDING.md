@@ -27,7 +27,7 @@ chmod +x build.sh
 ### Firefox:
 - Navigate to `about:debugging#/runtime/this-firefox`
 - Click "Load Temporary Add-on"
-- Select the generated `lockedin-1.0.6.zip` file
+- Select the generated `lockedin-1.0.7.zip` file
 
 ### Edge/Chrome:
 - Go to `edge://extensions/` (Edge) or `chrome://extensions/` (Chrome)

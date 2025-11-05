@@ -4,12 +4,12 @@
 $ErrorActionPreference = "Stop"
 
 Write-Host "=========================================" -ForegroundColor Cyan
-Write-Host "Building LockedIn Firefox Extension v1.0.6" -ForegroundColor Cyan
+Write-Host "Building LockedIn Firefox Extension v1.0.7" -ForegroundColor Cyan
 Write-Host "=========================================" -ForegroundColor Cyan
 Write-Host ""
 
 # Define output filename
-$outputFile = "lockedin-1.0.6.zip"
+$outputFile = "lockedin-1.0.7.zip"
 
 # Remove existing build if present
 if (Test-Path $outputFile) {
