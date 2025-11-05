@@ -6,7 +6,7 @@
   [![Firefox Add-ons](https://img.shields.io/badge/Firefox-Available-orange?logo=firefox-browser&logoColor=white)](https://addons.mozilla.org/firefox/addon/lockedin-yt/)
   [![Edge Add-ons](https://img.shields.io/badge/Edge-Available-blue?logo=microsoft-edge&logoColor=white)](https://microsoftedge.microsoft.com/addons/detail/hibjbjgfbmhpiaapeccnfddnpabnlklj)
   [![Chrome Web Store](https://img.shields.io/badge/Chrome-Coming%20Soon-lightgrey?logo=google-chrome&logoColor=white)](#)
-  [![Version](https://img.shields.io/badge/version-1.0.6-green.svg)](https://github.com/KartikHalkunde/LockedIn-YT/releases)
+  [![Version](https://img.shields.io/badge/version-1.0.7-green.svg)](https://github.com/KartikHalkunde/LockedIn-YT/releases)
   [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
   
 </div>
@@ -21,7 +21,9 @@ LockedIn is an open-source browser extension that helps you focus on YouTube by 
 
 **Features:**
 -  Hide Homepage Feed with motivational memes
--  Hide Recommended Videos & End Screen Cards
+-  Smart Video Sidebar Controls:
+   - Hide Recommended Videos while keeping playlists visible
+   - Separate toggle for playlists visibility
 -  Block YouTube Shorts (separate controls for homepage & search)
 -  Hide Comments & Live Chat
 -  Hide Search Recommendations & "More From YouTube"
@@ -76,6 +78,14 @@ Simple toggle switches for each feature. Settings are saved instantly and synced
 
 ## Changelog
 
+### Version 1.0.7 (November 5, 2025)
+- **Smart Sidebar**: Improved video page sidebar controls
+  - New toggle to show/hide playlists separately
+  - Refined recommended videos hiding to preserve playlists
+  - Better user control over sidebar content
+- **UI Enhancements**: Optimized popup interface dimensions
+- **Technical**: Updated internal version references
+
 ### Version 1.0.6 (October 31, 2025)
 - **UI Overhaul**: Complete popup redesign with 4 logical groups and thread-line styling
 - **New Features**: Added hide comments, search recommendations, and "More From YouTube" filters
@@ -89,16 +99,6 @@ Simple toggle switches for each feature. Settings are saved instantly and synced
 - **Cross-Browser Support**: Now compatible with Firefox, Edge, and Chrome
 - **Edge Add-ons**: Available on Microsoft Edge Add-ons store
 - **Multi-Platform**: Single codebase works across all browsers
-
-### Version 1.0.4 (October 29, 2025)
-- **Performance**: Removed Google Fonts dependency for faster load times
-- **Size Optimization**: Extension package reduced by 95% (1.1 MB → 55 KB)
-- **Icons**: Optimized PNG files (700 KB → 48 KB total)
-
-### Version 1.0.3 (October 29, 2025)
-- **Power Button**: Quick enable/disable toggle in extension popup
-- **Enhanced Blocking**: Improved Shorts hiding across homepage, sidebar, and tab
-- **UI Improvements**: Reorganized settings, faster toggle animations
 
 [Full Changelog](https://github.com/KartikHalkunde/LockedIn-YT/releases)
 
