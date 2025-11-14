@@ -1,13 +1,13 @@
-# 🚀 READY TO DEPLOY - Version 1.0.7
+# 🚀 READY TO DEPLOY - Version 1.0.75
 
 ## ✅ All Files Ready
 
 ### Extension Package
-📦 **lockedin-1.0.7.zip** (192 KB)
+📦 **lockedin-1.0.75.zip** (193 KB)
 - Upload this to Mozilla Add-ons
 
 ### Source Code (if requested)
-📄 **lockedin-source-1.0.7.zip** (1.4 MB)
+📄 **lockedin-source-1.0.75.zip** (3.9 MB)
 - Provide only if Mozilla reviewers request it
 
 ### Documentation
@@ -24,8 +24,8 @@
 2. **Login** with your Mozilla account
 3. **Find LockedIn** in "My Submissions"
 4. **Click** "Upload New Version"
-5. **Upload** `lockedin-1.0.6.zip`
-6. **Fill in** version info (see DEPLOYMENT_1.0.6.md)
+5. **Upload** `lockedin-1.0.75.zip`
+6. **Fill in** version info (see below)
 7. **Submit** for review
 
 ---
@@ -33,41 +33,32 @@
 ## 📝 Release Notes (Copy-Paste Ready)
 
 ```
-Version 1.0.6 - Major UI Overhaul & New Features!
+Version 1.0.75 - Livestream Sidebar & Mobile Fixes
 
-NEW FEATURES:
-• Complete popup redesign with 4 logical groups
-• Hide Comments feature
-• Hide Search Recommendations
-• Hide "More From YouTube" section
-• Split Shorts controls (homepage vs search)
-• Motivational memes when feed is hidden
-• Auto-version display with GitHub/Support links
+FIXES:
+• Fixed sidebar recommendations not hiding on YouTube livestreams
+• Fixed meme overlay covering search suggestions and menus
+• Fixed Shorts toggle cross-interference (homepage vs search)
+• Enhanced livestream compatibility with new video renderer detection
 
 IMPROVEMENTS:
-• Enhanced feed hiding
-• Better search filtering
-• Optimized images (86% smaller)
-• Improved UI organization
-
-BUG FIXES:
-• Fixed homepage feed visibility
-• Fixed search recommendations
-• Fixed meme positioning
+• Strengthened sidebar hiding logic for livestreams
+• Improved page-type detection for reliable toggle behavior
+• Better mobile support and layout detection
+• Comprehensive container hiding for all livestream types
 ```
 
 ---
 
-## 🔍 What Changed in v1.0.6
+## 🔍 What Changed in v1.0.75
 
-### New Features (5)
-1. ✨ Hide Comments
-2. ✨ Hide Search Recommendations  
-3. ✨ Hide "More From YouTube"
-4. ✨ Split Shorts hiding (homepage + search)
-5. ✨ Motivational memes display
+### Bug Fixes
+1. 🐛 Fixed livestream sidebar recommendations not hiding
+2. 🐛 Fixed meme overlay z-index issues
+3. 🐛 Fixed Shorts toggle cross-page interference
+4. 🐛 Enhanced ytd-compact-autoplay-renderer detection
 
-### UI Changes
+### Technical Improvements
 - 🎨 4 logical groups with thread-line design
 - 📱 Compact footer with links
 - 🔢 Auto-version display
@@ -81,33 +72,31 @@ BUG FIXES:
 
 ## ⚠️ Important Notes
 
-✅ **Extension tested** - All features working
+✅ **Extension tested** - All features working including livestreams
 ✅ **Documentation updated** - README, CHANGELOG, etc.
-✅ **Version synced** - manifest.json = 1.0.6
-✅ **Build verified** - 192 KB output
-✅ **Source ready** - 1.4 MB archive
+✅ **Version synced** - manifest.json = 1.0.75
+✅ **Build verified** - 193 KB output
+✅ **Source ready** - 3.9 MB archive
 
 ---
 
 ## 📞 If Mozilla Asks Questions
 
 **Source Code Request:**
-- Upload `lockedin-source-1.0.6.zip`
-- See DEPLOYMENT_1.0.6.md for build instructions
-
-**Why file size increased:**
-- Added 5 motivational meme images (compressed JPEGs)
-- Previous: 60 KB → Current: 192 KB
-- Images are optimized (was 1.7 MB, compressed to 134 KB)
+- Upload `lockedin-source-1.0.75.zip`
+- See BUILDING.md for build instructions
 
 **What changed:**
-- See full changelog in DEPLOYMENT_1.0.6.md
-- Major UI redesign + new features
+- Fixed critical livestream sidebar bug
+- Enhanced mobile support and page detection
+- Improved toggle reliability across different page types
+- See full changelog in CHANGELOG.md
 
 ---
 
 **Status:** ✅ READY FOR DEPLOYMENT
-**Date:** October 31, 2025
+**Date:** November 15, 2025
 **Next Step:** Upload to Mozilla Add-ons Developer Hub
 
 🎉 Good luck with the deployment!
+

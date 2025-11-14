@@ -260,9 +260,11 @@ function hideSidebar(shouldHide) {
       '#secondary ytd-compact-video-renderer',
       '#secondary ytd-compact-movie-renderer',
       '#secondary ytd-compact-radio-renderer',
+      '#secondary ytd-compact-autoplay-renderer',
       'ytd-watch-next-secondary-results-renderer ytd-compact-video-renderer',
       'ytd-watch-next-secondary-results-renderer ytd-compact-movie-renderer',
-      'ytd-watch-next-secondary-results-renderer ytd-compact-radio-renderer'
+      'ytd-watch-next-secondary-results-renderer ytd-compact-radio-renderer',
+      'ytd-watch-next-secondary-results-renderer ytd-compact-autoplay-renderer'
     ];
     recommendationSelectors.forEach(selector => {
       document.querySelectorAll(selector).forEach(el => {
@@ -279,12 +281,20 @@ function hideSidebar(shouldHide) {
       'ytd-watch-next-secondary-results-renderer',
       '#related',
       '#secondary #items',
-      'ytd-item-section-renderer'
+      'ytd-item-section-renderer',
+      'ytd-continuation-item-renderer'
     ];
     recommendationContainers.forEach(containerSel => {
       document.querySelectorAll(`#secondary ${containerSel}`).forEach(container => {
         if (playlistPanel && container.contains(playlistPanel)) return;
-        if (!container.hasAttribute('data-lockedin-hidden')) {
+        // Special handling for livestream continuation containers
+        const isLivestreamContainer = container.querySelector('ytd-compact-video-renderer, ytd-compact-autoplay-renderer');
+        if (isLivestreamContainer || container.tagName.toLowerCase() === 'ytd-continuation-item-renderer') {
+          if (!container.hasAttribute('data-lockedin-hidden')) {
+            container.style.display = 'none';
+            container.setAttribute('data-lockedin-hidden', 'sidebar-recommendation');
+          }
+        } else if (!container.hasAttribute('data-lockedin-hidden')) {
           container.style.display = 'none';
           container.setAttribute('data-lockedin-hidden', 'sidebar-recommendation');
         }
@@ -294,7 +304,42 @@ function hideSidebar(shouldHide) {
     toggleElement('#secondary', false);
     toggleElement('#secondary-inner', false);
   } else {
-    // No current playlist: hide entire sidebar
+    // No current playlist: hide entire sidebar and all recommendation renderers
+    // First hide all individual video renderers (including livestream recommendations)
+    const allVideoRenderers = [
+      'ytd-compact-video-renderer',
+      'ytd-compact-movie-renderer',
+      'ytd-compact-radio-renderer',
+      'ytd-compact-autoplay-renderer',
+      'ytd-video-renderer'
+    ];
+    allVideoRenderers.forEach(selector => {
+      document.querySelectorAll(`#secondary ${selector}`).forEach(el => {
+        if (!el.hasAttribute('data-lockedin-hidden')) {
+          el.style.display = 'none';
+          el.setAttribute('data-lockedin-hidden', 'sidebar-recommendation');
+        }
+      });
+    });
+    
+    // Hide all container sections
+    const allContainers = [
+      'ytd-watch-next-secondary-results-renderer',
+      'ytd-item-section-renderer',
+      'ytd-continuation-item-renderer',
+      '#related',
+      '#items'
+    ];
+    allContainers.forEach(selector => {
+      document.querySelectorAll(`#secondary ${selector}`).forEach(el => {
+        if (!el.hasAttribute('data-lockedin-hidden')) {
+          el.style.display = 'none';
+          el.setAttribute('data-lockedin-hidden', 'sidebar-recommendation');
+        }
+      });
+    });
+    
+    // Finally hide the entire sidebar
     toggleElement('#secondary', true);
     toggleElement('#secondary-inner', true);
     const flexyContainer = document.querySelector('ytd-watch-flexy');
