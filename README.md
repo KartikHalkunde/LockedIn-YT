@@ -78,6 +78,13 @@ Simple toggle switches for each feature. Settings are saved instantly and synced
 
 ## Changelog
 
+### Version 1.0.75 (November 15, 2025)
+- **Livestream Fix**: Fixed sidebar recommendations not hiding on YouTube livestream pages
+- **UI Layer Fix**: Improved meme overlay z-index to prevent covering search suggestions
+- **Toggle Independence**: Fixed Shorts toggle cross-interference between homepage and search
+- **Enhanced Detection**: Better livestream video renderer detection (ytd-compact-autoplay-renderer)
+- **Stability**: Strengthened sidebar hiding logic and improved page-type detection
+
 ### Version 1.0.7 (November 5, 2025)
 - **Smart Sidebar**: Improved video page sidebar controls
   - New toggle to show/hide playlists separately
