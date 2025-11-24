@@ -55,3 +55,11 @@ __pycache__/
 
 # Git
 .git/
+
+# Experimental/testing UI
+testingpopup/
+
+# Build directories and deployment files
+lockedin-1.0.*/
+DEPLOYMENT_*.md
+
