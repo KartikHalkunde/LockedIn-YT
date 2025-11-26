@@ -85,6 +85,7 @@ Simple toggle switches for each feature. Settings are saved instantly and synced
 - **Custom Feed Pause**: The custom image uploader is intentionally disabled with a "coming soon" notice to prevent half-baked galleries while the feature is rebuilt.
 - **Cleaner Sub-Toggles**: Redirect-to-Subscriptions only appears while Hide Feed is enabled, keeping the popup compact and preventing accidental redirects.
 - **Navigation Hygiene**: New instant CSS hides Home/Shorts tabs in the sidebar and chips before YouTube finishes rendering, eliminating the previous blink.
+- **Light mode toggle**: Added a light mode toggle option for the users who prefer getting flashbanged.
 
 ### Version 1.0.75 (November 15, 2025)
 - **Livestream Fix**: Fixed sidebar recommendations not hiding on YouTube livestream pages

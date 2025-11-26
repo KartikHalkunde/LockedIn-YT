@@ -11,8 +11,7 @@
     "alarms"
   ],
   "background": {
-    "scripts": ["background.js"],
-    "persistent": false
+    "scripts": ["background.js"]
   },
   "host_permissions": [
     "*://www.youtube.com/*"
