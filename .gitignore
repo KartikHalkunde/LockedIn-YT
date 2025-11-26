@@ -3,13 +3,7 @@
 lockedin-*.zip
 lockedin-source-*.zip
 
-# Release snapshot directories (keep source tree clean)
-/lockedin-*/
-/lockedin-source-*/
 
-# Compressed/optimized images (generated during build)
-homepage/*.jpg
-homepage/*.jpeg
 
 # Mozilla submission documentation (private - not for GitHub)
 PACKAGE_SUMMARY.md
@@ -64,12 +58,11 @@ __pycache__/
 testingpopup/
 
 # Build directories and deployment files
-DEPLOYMENT_*.md
+lockedin-1.0.*/
 
-DEPLOY_*.md
-PRIVACY.md
-RELEASE_NOTES_*.md
-RELEASE_NOTES_1.0.75.md
 RELEASE_NOTES_1.0.82.md
+DEPLOYMENT_1.0.82.md
+DEPLOY_NOW.md
 
+DEPLOYMENT_*.md
 
