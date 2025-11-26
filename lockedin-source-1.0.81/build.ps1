@@ -4,12 +4,12 @@
 $ErrorActionPreference = "Stop"
 
 Write-Host "=========================================" -ForegroundColor Cyan
-Write-Host "Building LockedIn Firefox Extension v1.0.82" -ForegroundColor Cyan
+Write-Host "Building LockedIn Firefox Extension v1.0.81" -ForegroundColor Cyan
 Write-Host "=========================================" -ForegroundColor Cyan
 Write-Host ""
 
 # Define output filename
-$outputFile = "lockedin-1.0.82.zip"
+$outputFile = "lockedin-1.0.81.zip"
 
 # Remove existing build if present
 if (Test-Path $outputFile) {
@@ -22,7 +22,6 @@ Write-Host "Verifying source files..." -ForegroundColor White
 $requiredFiles = @(
     "manifest.json",
     "content.js",
-    "background.js",
     "icons/icon48.png",
     "popup/popup.html",
     "popup/popup.css",
@@ -44,7 +43,6 @@ Write-Host "Creating ZIP package..." -ForegroundColor White
 $filesToZip = @(
     "manifest.json",
     "content.js",
-    "background.js",
     "icons",
     "popup",
     "homepage"

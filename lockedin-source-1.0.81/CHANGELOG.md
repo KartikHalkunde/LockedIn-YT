@@ -2,20 +2,21 @@
 
 All notable changes to the LockedIn extension will be documented in this file.
 
-## [1.0.82] - 2025-11-26
+## [1.0.81] - 2025-11-26
 ### Added
-- Background alarm + messaging pipeline for Take a Break so timers keep running even if the popup or browser is closed and every YouTube tab knows when focus mode is back on.
-- High-contrast “Time’s Up” overlay that flashes across each YouTube tab and force-redirects back to `youtube.com` the moment a break ends.
+- Custom Feed Images section that lets users upload up to five memes with in-popup previews and deletion controls
+- Stats dashboard (time saved, Shorts avoided, days active) with animated counters and menu integration
+- “Take a Break” timer that automatically re-enables the extension after 5/10/15 minutes
 
 ### Changed
-- Take a Break UI now revolves around 5/10/15 minute presets, shows a live countdown in the header, and automatically restores the normal logo when the timer expires.
-- Redirect-to-Subscriptions and Hide Playlists sub-toggles only appear while their parent toggles are enabled, keeping the popup compact and preventing stray redirects.
-- Instant CSS now hides Home/Shorts navigation targets in both the full guide and mini guide as soon as the page loads, eliminating the previous “blink” of distraction.
+- Refined light-mode palette and header logo handling so the LightOff variant appears whenever the extension is disabled
+- Improved popup menu flow with redirect-to-subs sub-toggle visibility, break timer messaging, and stats animation trigger
+- Homepage placeholder now prioritizes custom uploads and uses blob URLs to stay compatible with stricter CSPs
 
 ### Fixed
-- Break timers could get stuck disabled if the popup closed mid-session; the new background alarm + overlay flow clears the state reliably.
-- Break countdown text sometimes lingered after returning to focus; it now resets the header instantly.
-- Custom feed uploader is temporarily disabled with a Coming Soon notice to prevent partially uploaded galleries from corrupting the homepage placeholder.
+- Addressed custom meme upload race conditions so previews render instantly and gallery updates even if storage briefly fails
+- Ensured custom image data loads on YouTube by converting data URLs to blob URLs with cleanup
+- Resolved cases where power state toggles failed to update icons or reapply hideFeed logic across tabs
 
 ## [1.0.75] - 2025-11-15
 ### Fixed

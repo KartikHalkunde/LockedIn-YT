@@ -82,6 +82,23 @@
           </div>
         </div>
 
+        <!-- Custom Meme -->
+        <div class="menu-group">
+          <div class="menu-group-box">
+            <div class="menu-setting-item">
+              <div class="menu-setting-content">
+                <span class="menu-setting-title">Custom Feed image(Experimental)</span>
+                <span class="menu-setting-desc">Add up to 5 custom images that will be shown instead of the default images when Homepage feed is hidden. Supports PNG, JPG, GIF, and WebP formats. Each image must be under 500KB.</span>
+              </div>
+              <label class="browse-button" for="customMemeInput">Browse</label>
+              <input type="file" id="customMemeInput" accept="image/png,image/jpeg,image/gif,image/webp" multiple hidden>
+            </div>
+            <div class="custom-meme-gallery" id="customMemeGallery">
+              <!-- Images will be dynamically added here -->
+            </div>
+          </div>
+        </div>
+
         <!-- Take a Break -->
         <div class="menu-group">
           <div class="menu-group-box">
@@ -99,23 +116,6 @@
               <button class="break-time-btn" data-time="5">5 min</button>
               <button class="break-time-btn" data-time="10">10 min</button>
               <button class="break-time-btn" data-time="15">15 min</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Custom Meme (Coming Soon) -->
-        <div class="menu-group coming-soon">
-          <div class="menu-group-box coming-soon-box">
-            <div class="menu-setting-item disabled-feature">
-              <div class="menu-setting-content">
-                <span class="menu-setting-title">Custom Feed Image (Coming Soon)</span>
-                <span class="menu-setting-desc">Uploads are temporarily locked while we polish the experience. Check back soon for custom placeholders.</span>
-              </div>
-              <button class="browse-button disabled" type="button" aria-disabled="true">Browse</button>
-              <input type="file" id="customMemeInput" accept="image/png,image/jpeg,image/gif,image/webp" multiple hidden disabled data-disabled="true">
-            </div>
-            <div class="custom-meme-gallery disabled" id="customMemeGallery">
-              <span class="coming-soon-hint">Custom images are not available yet.</span>
             </div>
           </div>
         </div>
@@ -189,8 +189,7 @@
                 <span class="toggle-slider"></span>
               </label>
             </div>
-            <div class="sub-toggle-row" id="hidePlaylistsRow">
-              <div class="sub-toggle-line"></div>
+            <div class="setting-row">
               <span class="setting-label">Hide Playlists</span>
               <label class="toggle-switch">
                 <input type="checkbox" data-setting="hidePlaylists">

@@ -177,23 +177,11 @@ let breakInterval = null;
 
 function setupBreakTimer() {
   const breakTimeButtons = document.querySelectorAll('.break-time-btn');
-  const getButtonDuration = (btn) => {
-    if (btn.dataset.time) {
-      const minutes = parseFloat(btn.dataset.time);
-      return Number.isFinite(minutes) ? minutes : null;
-    }
-    if (btn.dataset.seconds) {
-      const seconds = parseFloat(btn.dataset.seconds);
-      return Number.isFinite(seconds) ? seconds / 60 : null;
-    }
-    return null;
-  };
   
   browser.storage.sync.get('breakDuration', (result) => {
-    const duration = typeof result.breakDuration === 'number' ? result.breakDuration : 5;
+    const duration = result.breakDuration || 5;
     breakTimeButtons.forEach(btn => {
-      const btnDuration = getButtonDuration(btn);
-      if (btnDuration !== null && Math.abs(btnDuration - duration) < 0.001) {
+      if (parseInt(btn.dataset.time) === duration) {
         btn.classList.add('selected');
       }
     });
@@ -204,7 +192,7 @@ function setupBreakTimer() {
       breakTimeButtons.forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       
-      const duration = getButtonDuration(btn) ?? 5;
+      const duration = parseInt(btn.dataset.time);
       browser.storage.sync.set({ breakDuration: duration });
     });
   });
@@ -237,10 +225,19 @@ function startBreakCountdown(startTime, duration) {
     if (remaining <= 0) {
       clearInterval(breakInterval);
       breakTimerText.textContent = 'Back in 0:00';
-      breakTimerText.style.display = 'none';
-      updatePowerState(true);
-      browser.runtime.sendMessage({ action: 'completeBreak' }).catch(() => {
-        browser.storage.sync.set({ extensionEnabled: true, breakStartTime: null });
+      browser.storage.sync.set({ extensionEnabled: true, breakStartTime: null }, () => {
+        updatePowerState(true);
+        breakTimerText.style.display = 'none';
+        browser.tabs.query({}, (tabs) => {
+          tabs.forEach((tab) => {
+            if (tab.url && tab.url.includes('youtube.com')) {
+              browser.tabs.sendMessage(tab.id, {
+                action: 'powerStateChanged',
+                enabled: true
+              }).catch(() => {});
+            }
+          });
+        });
       });
       return;
     }
@@ -259,11 +256,6 @@ function setupCustomMemeUpload() {
   
   if (!fileInput || !gallery) {
     console.error('LockedIn: Custom meme elements not found');
-    return;
-  }
-  
-  if (fileInput.disabled || fileInput.dataset.disabled === 'true') {
-    console.info('LockedIn: Custom meme upload is disabled (coming soon)');
     return;
   }
   
@@ -619,14 +611,6 @@ function loadSettings() {
       if (currentSettings.hideFeed) {
         redirectToSubsRow.classList.add('visible');
       }
-      const hidePlaylistsRow = document.getElementById('hidePlaylistsRow');
-      if (hidePlaylistsRow) {
-        if (!currentSettings.hideSidebar) {
-          hidePlaylistsRow.classList.add('visible');
-        } else {
-          hidePlaylistsRow.classList.remove('visible');
-        }
-      }
       
       resolve();
     });
@@ -688,16 +672,6 @@ function setupToggleListeners() {
           if (redirectToggle && redirectToggle.checked) {
             redirectToggle.checked = false;
             browser.storage.sync.set({ redirectToSubs: false });
-          }
-        }
-      }
-      if (settingId === 'hideSidebar') {
-        const hidePlaylistsRow = document.getElementById('hidePlaylistsRow');
-        if (hidePlaylistsRow) {
-          if (!isChecked) {
-            hidePlaylistsRow.classList.add('visible');
-          } else {
-            hidePlaylistsRow.classList.remove('visible');
           }
         }
       }

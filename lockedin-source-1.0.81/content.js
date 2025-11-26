@@ -96,58 +96,6 @@ html[data-lockedin-hide-shorts-tab="true"] ytm-pivot-bar-item-renderer:has([data
 `;
 (document.head || document.documentElement).appendChild(navHideStyle);
 
-const timesUpOverlayStyle = document.createElement('style');
-timesUpOverlayStyle.id = 'lockedin-timesup-style';
-timesUpOverlayStyle.textContent = `
-#lockedin-timesup-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(255, 255, 255, 0);
-  backdrop-filter: blur(0px);
-  -webkit-backdrop-filter: blur(0px);
-  z-index: 2147483646;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.15s ease-out, backdrop-filter 0.2s ease-out;
-}
-
-#lockedin-timesup-overlay.visible {
-  opacity: 1;
-  background: rgba(255, 255, 255, 0.97);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  pointer-events: all;
-  transition: opacity 0.25s ease-in, backdrop-filter 0.3s ease-in;
-}
-
-#lockedin-timesup-overlay .lockedin-timesup-image {
-  position: absolute;
-  top: 200px;
-  left: 50%;
-  transform: translate(-50%, -20px);
-  width: 120px;
-  height: 120px;
-  max-width: 120px;
-  max-height: 120px;
-  border-radius: 8px;
-  object-fit: contain;
-  filter: drop-shadow(0 12px 25px rgba(0, 0, 0, 0.25));
-  opacity: 0;
-  transition: opacity 0.25s ease-out;
-}
-
-#lockedin-timesup-overlay.show-image .lockedin-timesup-image {
-  opacity: 1;
-}
-
-@media (max-width: 700px) {
-  #lockedin-timesup-overlay .lockedin-timesup-image {
-    top: 120px;
-  }
-}
-`;
-(document.head || document.documentElement).appendChild(timesUpOverlayStyle);
-
 // Function to enable/disable instant CSS hiding
 function setInstantHiding(hideHomepage, hideSearch, hideGlobally = false) {
   const style = document.getElementById('lockedin-instant-hide');
@@ -299,71 +247,6 @@ function setRootFlag(flag, enabled) {
   } else {
     root.removeAttribute(flag);
   }
-}
-
-let timesUpOverlayTimeout = null;
-let breakRedirectTimeout = null;
-
-function showTimesUpOverlay() {
-  try {
-    const existing = document.getElementById('lockedin-timesup-overlay');
-    if (existing) {
-      existing.remove();
-    }
-    const overlay = document.createElement('div');
-    overlay.id = 'lockedin-timesup-overlay';
-
-    const img = document.createElement('img');
-    img.className = 'lockedin-timesup-image';
-    img.alt = 'Time is up!';
-    img.src = browser.runtime.getURL('homepage/timesUp.jpg');
-    img.onerror = () => {
-      img.remove();
-      const fallback = document.createElement('div');
-      fallback.className = 'lockedin-timesup-image';
-      fallback.style.display = 'flex';
-      fallback.style.alignItems = 'center';
-      fallback.style.justifyContent = 'center';
-      fallback.style.fontSize = '20px';
-      fallback.style.fontWeight = '600';
-      fallback.style.color = '#0f0f0f';
-      fallback.textContent = 'Time\'s up!';
-      overlay.appendChild(fallback);
-    };
-    overlay.appendChild(img);
-
-    (document.body || document.documentElement).appendChild(overlay);
-
-    requestAnimationFrame(() => {
-      overlay.classList.add('visible');
-      requestAnimationFrame(() => overlay.classList.add('show-image'));
-    });
-
-    clearTimeout(timesUpOverlayTimeout);
-    timesUpOverlayTimeout = setTimeout(() => {
-      overlay.classList.remove('visible');
-      overlay.addEventListener('transitionend', () => overlay.remove(), { once: true });
-    }, 3000);
-  } catch (error) {
-    console.error('LockedIn: Failed to show times up overlay', error);
-  }
-}
-
-function handleBreakEnded() {
-  showTimesUpOverlay();
-  clearTimeout(breakRedirectTimeout);
-  breakRedirectTimeout = setTimeout(() => {
-    try {
-      if (window.location.hostname && window.location.hostname.includes('youtube.com')) {
-        const targetUrl = 'https://www.youtube.com/';
-        if (window.location.href !== targetUrl) {
-          window.location.replace(targetUrl);
-        }
-      }
-    } catch (error) {
-      console.error('LockedIn: Failed to redirect after break', error);
-    }
-  }, 600);
 }
 
 // ===== DEBOUNCE UTILITY =====
@@ -2299,7 +2182,5 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
         hideFeed(true);
       }
     });
-  } else if (message.action === 'breakEnded') {
-    handleBreakEnded();
   }
 });

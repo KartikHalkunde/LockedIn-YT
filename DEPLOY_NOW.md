@@ -1,20 +1,20 @@
-# 🚀 READY TO DEPLOY - Version 1.0.75
+# 🚀 READY TO DEPLOY - Version 1.0.82
 
 ## ✅ All Files Ready
 
 ### Extension Package
-📦 **lockedin-1.0.75.zip** (193 KB)
+📦 **lockedin-1.0.82.zip** (235 KB)
 - Upload this to Mozilla Add-ons
 
 ### Source Code (if requested)
-📄 **lockedin-source-1.0.75.zip** (3.9 MB)
-- Provide only if Mozilla reviewers request it
+📄 **lockedin-source-1.0.82.zip** (4.2 MB)
+- Provide if Mozilla reviewers request the source archive
 
 ### Documentation
-📋 **DEPLOYMENT_1.0.6.md**
+📋 **DEPLOYMENT_1.0.82.md**
 - Complete deployment guide
 - Release notes
-- Build instructions
+- Build instructions (no toolchain required)
 
 ---
 
@@ -24,7 +24,7 @@
 2. **Login** with your Mozilla account
 3. **Find LockedIn** in "My Submissions"
 4. **Click** "Upload New Version"
-5. **Upload** `lockedin-1.0.75.zip`
+5. **Upload** `lockedin-1.0.82.zip`
 6. **Fill in** version info (see below)
 7. **Submit** for review
 
@@ -33,69 +33,61 @@
 ## 📝 Release Notes (Copy-Paste Ready)
 
 ```
-Version 1.0.75 - Livestream Sidebar & Mobile Fixes
+Version 1.0.82 - Break Timer Overhaul
 
-FIXES:
-• Fixed sidebar recommendations not hiding on YouTube livestreams
-• Fixed meme overlay covering search suggestions and menus
-• Fixed Shorts toggle cross-interference (homepage vs search)
-• Enhanced livestream compatibility with new video renderer detection
+NEW:
+• Take a Break now runs via a background alarm so it always flips the extension back on when the countdown expires.
+• Every YouTube tab shows a bright “Time’s Up” overlay and instantly redirects to youtube.com as soon as a break ends.
+• Popup housekeeping: redirect-to-subs only appears when Hide Feed is active and the custom feed uploader now shows a Coming Soon card.
 
 IMPROVEMENTS:
-• Strengthened sidebar hiding logic for livestreams
-• Improved page-type detection for reliable toggle behavior
-• Better mobile support and layout detection
-• Comprehensive container hiding for all livestream types
+• Instant CSS hides Home/Shorts navigation targets before YouTube fully renders, eliminating the distracting blink.
+• Break countdown text resets automatically and logo states stay in sync after each timer.
+• Custom feed uploader disabled client-side to avoid corrupting the homepage placeholder.
 ```
 
 ---
 
-## 🔍 What Changed in v1.0.75
+## 🔍 What Changed in v1.0.82
 
-### Bug Fixes
-1. 🐛 Fixed livestream sidebar recommendations not hiding
-2. 🐛 Fixed meme overlay z-index issues
-3. 🐛 Fixed Shorts toggle cross-page interference
-4. 🐛 Enhanced ytd-compact-autoplay-renderer detection
+### Feature Additions
+1. 🚨 Background-managed Take a Break timer that survives popup closes and reenables focus mode automatically.
+2. ⚡ “Time’s Up” flash overlay and forced redirect on every YouTube tab when a break ends.
+3. 💤 Custom feed uploader intentionally paused with a Coming Soon card while the feature is rebuilt.
 
-### Technical Improvements
-- 🎨 4 logical groups with thread-line design
-- 📱 Compact footer with links
-- 🔢 Auto-version display
-
-### Technical
-- 🐛 Fixed feed hiding bugs
-- 🖼️ Compressed images (PNG→JPEG)
-- 📏 Extension size: 192 KB (optimized)
+### Polish & Reliability
+- 🧭 Instant CSS hides Home/Shorts navigation tabs and chips as soon as pages load.
+- 🧱 Redirect-to-Subscriptions sub-toggle only shows while Hide Feed is enabled, preventing stray redirects.
+- 🔁 Break countdown header text/logo reset immediately after each timer.
 
 ---
 
 ## ⚠️ Important Notes
 
-✅ **Extension tested** - All features working including livestreams
-✅ **Documentation updated** - README, CHANGELOG, etc.
-✅ **Version synced** - manifest.json = 1.0.75
-✅ **Build verified** - 193 KB output
-✅ **Source ready** - 3.9 MB archive
+✅ **Extension tested** - Break overlay, forced redirect, nav hiding, and legacy toggles verified
+✅ **Documentation updated** - README, CHANGELOG, DEPLOYMENT_1.0.82
+✅ **Version synced** - manifest.json = 1.0.82
+✅ **Build verified** - lockedin-1.0.82.zip (235 KB)
+✅ **Source ready** - lockedin-source-1.0.82.zip (4.2 MB)
 
 ---
 
 ## 📞 If Mozilla Asks Questions
 
 **Source Code Request:**
-- Upload `lockedin-source-1.0.75.zip`
+- Upload `lockedin-source-1.0.82.zip`
 - See BUILDING.md for build instructions
 
 **What changed:**
-- Fixed critical livestream sidebar bug
-- Enhanced mobile support and page detection
-- Improved toggle reliability across different page types
+- Background-managed Take a Break timer plus “Time’s Up” overlay and forced redirect
+- Redirect-to-Subscriptions sub-toggle gating + instant Home/Shorts nav hiding
+- Custom feed uploader temporarily disabled (Coming Soon) to keep placeholders stable
 - See full changelog in CHANGELOG.md
 
 ---
 
 **Status:** ✅ READY FOR DEPLOYMENT
-**Date:** November 15, 2025
+**Date:** November 26, 2025
 **Next Step:** Upload to Mozilla Add-ons Developer Hub
 
 🎉 Good luck with the deployment!

@@ -6,12 +6,12 @@
 set -e  # Exit on any error
 
 echo "========================================="
-echo "Building LockedIn Firefox Extension v1.0.82"
+echo "Building LockedIn Firefox Extension v1.0.81"
 echo "========================================="
 echo ""
 
 # Define output filename
-OUTPUT_FILE="lockedin-1.0.82.zip"
+OUTPUT_FILE="lockedin-1.0.81.zip"
 
 # Remove existing build if present
 if [ -f "$OUTPUT_FILE" ]; then
@@ -24,7 +24,6 @@ echo "Verifying source files..."
 required_files=(
     "manifest.json"
     "content.js"
-    "background.js"
     "icons/icon48.png"
     "popup/popup.html"
     "popup/popup.css"
@@ -47,7 +46,6 @@ echo "Creating ZIP package..."
 if command -v zip &> /dev/null; then
     # Use system zip command
     zip -r "$OUTPUT_FILE" \
-        background.js \
         manifest.json \
         content.js \
         icons/ \
@@ -80,7 +78,7 @@ with zipfile.ZipFile(output_file, 'w', zipfile.ZIP_DEFLATED) as zipf:
             arcname = file_path[2:] if file_path.startswith('./') else file_path
             
             # Only include extension files
-                if arcname in ['manifest.json', 'content.js', 'background.js'] or \
+            if arcname in ['manifest.json', 'content.js'] or \
                arcname.startswith('icons/') or arcname.startswith('popup/') or arcname.startswith('homepage/'):
                 zipf.write(file_path, arcname)
                 print(f"  Adding: {arcname}")

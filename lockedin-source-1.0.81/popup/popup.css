@@ -316,27 +316,6 @@ body {
   background: hsl(0, 0%, 38%);
 }
 
-.browse-button.disabled {
-  background: hsla(0, 0%, 25%, 0.7);
-  color: hsla(0, 0%, 65%, 0.9);
-  cursor: not-allowed;
-  pointer-events: none;
-}
-
-.menu-group.coming-soon .menu-group-box {
-  background: hsla(0, 0%, 100%, 0.015);
-  border: 1px dashed hsla(0, 0%, 100%, 0.15);
-  opacity: 0.7;
-}
-
-.menu-group.coming-soon .menu-setting-title {
-  color: hsla(0, 0%, 85%, 0.8);
-}
-
-.menu-group.coming-soon .menu-setting-desc {
-  color: hsla(0, 0%, 65%, 0.7);
-}
-
 /* Custom Meme Gallery */
 .custom-meme-gallery {
   display: none;
@@ -351,21 +330,6 @@ body {
 
 .custom-meme-gallery.visible {
   display: flex;
-}
-
-.custom-meme-gallery.disabled {
-  display: block;
-  background: hsla(0, 0%, 100%, 0.02);
-  color: hsla(0, 0%, 70%, 0.8);
-  text-align: center;
-  font-size: 11px;
-  letter-spacing: 0.2px;
-}
-
-.coming-soon-hint {
-  display: inline-block;
-  padding: 4px 0;
-  opacity: 0.8;
 }
 
 .gallery-item {
@@ -903,18 +867,6 @@ body {
 
 .popup-container.light-mode .browse-button:hover {
   background: hsl(6, 82%, 52%);
-.popup-container.light-mode .browse-button.disabled {
-  background: hsla(210, 20%, 80%, 0.8);
-  color: hsla(210, 25%, 55%, 0.8);
-}
-.popup-container.light-mode .menu-group.coming-soon .menu-group-box {
-  background: hsla(210, 45%, 96%, 0.7);
-  border-color: hsla(210, 35%, 65%, 0.6);
-}
-.popup-container.light-mode .custom-meme-gallery.disabled {
-  background: hsla(210, 30%, 90%, 0.9);
-  color: hsla(210, 20%, 40%, 0.8);
-}
 }
 
 /* Light mode custom meme gallery */

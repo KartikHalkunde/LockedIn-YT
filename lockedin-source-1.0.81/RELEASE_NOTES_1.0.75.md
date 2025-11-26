@@ -181,7 +181,7 @@ Testing performed:
 
 File changes:
 - content.js: Enhanced selectors and page detection logic
-- manifest.json: Version bump only (1.0.7 → 1.0.82)
+- manifest.json: Version bump only (1.0.7 → 1.0.81)
 
 Total package size: 193 KB (1 KB increase due to code additions)
 ```

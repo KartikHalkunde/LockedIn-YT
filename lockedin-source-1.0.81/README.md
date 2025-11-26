@@ -6,7 +6,7 @@
   [![Firefox Add-ons](https://img.shields.io/badge/Firefox-Available-orange?logo=firefox-browser&logoColor=white)](https://addons.mozilla.org/firefox/addon/lockedin-yt/)
   [![Edge Add-ons](https://img.shields.io/badge/Edge-Available-blue?logo=microsoft-edge&logoColor=white)](https://microsoftedge.microsoft.com/addons/detail/hibjbjgfbmhpiaapeccnfddnpabnlklj)
   [![Chrome Web Store](https://img.shields.io/badge/Chrome-Coming%20Soon-lightgrey?logo=google-chrome&logoColor=white)](#)
-  [![Version](https://img.shields.io/badge/version-1.0.82-green.svg)](https://github.com/KartikHalkunde/LockedIn-YT/releases)
+  [![Version](https://img.shields.io/badge/version-1.0.81-green.svg)](https://github.com/KartikHalkunde/LockedIn-YT/releases)
   [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
   
 </div>
@@ -30,7 +30,6 @@ LockedIn is an open-source browser extension that helps you focus on YouTube by 
 -  Disable Autoplay
 -  New organized UI with 4 logical groups
 -  Power button to quickly toggle entire extension
--  "Take a Break" mode that temporarily disables the extension, flashes a warning when time is up, and auto-redirects you back to the homepage
 
 **Privacy:** Zero data collection. No external network requests. All processing happens locally in your browser.
 
@@ -79,12 +78,12 @@ Simple toggle switches for each feature. Settings are saved instantly and synced
 
 ## Changelog
 
-### Version 1.0.82 (November 26, 2025)
-- **Break Timer Overhaul**: Take a Break now runs through a background alarm, survives popup closures, and re-enables the extension the second the timer expires.
-- **"Time's Up" Flash Overlay**: When a break ends every open YouTube tab flashes a full-screen warning card and immediately redirects to youtube.com so you can't linger in rabbit holes.
-- **Custom Feed Pause**: The custom image uploader is intentionally disabled with a "coming soon" notice to prevent half-baked galleries while the feature is rebuilt.
-- **Cleaner Sub-Toggles**: Redirect-to-Subscriptions only appears while Hide Feed is enabled, keeping the popup compact and preventing accidental redirects.
-- **Navigation Hygiene**: New instant CSS hides Home/Shorts tabs in the sidebar and chips before YouTube finishes rendering, eliminating the previous blink.
+### Version 1.0.81 (November 26, 2025)
+- **Custom Feed Images**: Upload up to 5 personalized memes to replace the default placeholder when the homepage feed is hidden, complete with an in-popup gallery and delete controls.
+- **Stats Dashboard**: New optional stats section in the menu that animates time saved, Shorts avoided, and days active using the latest tracking data.
+- **Take a Break Timer**: Temporarily disable the extension for 5/10/15 minutes and let it automatically re-enable itself when the break expires.
+- **Light Mode Polish**: Updated palette plus LightOff header icon ensure the popup looks crisp and consistent whenever the extension is disabled.
+- **Reliability Fixes**: Custom uploads now preview instantly, homepage placeholders respect uploaded images via blob URLs, and redirect-to-subs logic triggers immediately.
 
 ### Version 1.0.75 (November 15, 2025)
 - **Livestream Fix**: Fixed sidebar recommendations not hiding on YouTube livestream pages
