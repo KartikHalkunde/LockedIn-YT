@@ -3,10 +3,6 @@
 lockedin-*.zip
 lockedin-source-*.zip
 
-# Release snapshot directories (keep source tree clean)
-/lockedin-*/
-/lockedin-source-*/
-
 # Compressed/optimized images (generated during build)
 homepage/*.jpg
 homepage/*.jpeg
@@ -64,5 +60,6 @@ __pycache__/
 testingpopup/
 
 # Build directories and deployment files
+lockedin-1.0.*/
 DEPLOYMENT_*.md
 
