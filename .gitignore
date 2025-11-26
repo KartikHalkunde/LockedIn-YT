@@ -5,11 +5,14 @@ lockedin-source-*.zip
 
 
 
-# Mozilla submission documentation (private - not for GitHub)
+# Mozilla submission / deployment docs (keep local only)
 PACKAGE_SUMMARY.md
 SOURCE_SUBMISSION.md
 SUBMISSION_GUIDE.md
 CHECKLIST.md
+DEPLOYMENT_*.md
+DEPLOY_NOW.md
+RELEASE_NOTES_*.md
 
 # OS-specific files
 .DS_Store
