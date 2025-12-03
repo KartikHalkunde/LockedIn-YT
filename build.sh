@@ -6,12 +6,12 @@
 set -e  # Exit on any error
 
 echo "========================================="
-echo "Building LockedIn Firefox Extension v1.0.82"
+echo "Building LockedIn Firefox Extension v1.0.85"
 echo "========================================="
 echo ""
 
 # Define output filename
-OUTPUT_FILE="lockedin-1.0.82.zip"
+OUTPUT_FILE="lockedin-1.0.85.zip"
 
 # Remove existing build if present
 if [ -f "$OUTPUT_FILE" ]; then

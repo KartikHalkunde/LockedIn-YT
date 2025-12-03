@@ -12,6 +12,8 @@ const DEFAULT_SETTINGS = {
   hideShortsGlobally: false,
   redirectShorts: false,
   hideSidebar: false,
+  hideRecommended: false,
+  hideSidebarShorts: false,
   hideLiveChat: false,
   hideEndCards: false,
   hideComments: false,
@@ -57,6 +59,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupToggleListeners();
   setupPowerButton();
   setupMenuButton();
+  setupFeedbackButton();
+  setupSponsorButton();
   setupCustomMemeUpload();
   setupBreakTimer();
   displayVersion();
@@ -96,6 +100,44 @@ function triggerStatsAnimation() {
     browser.storage.local.get('stats', (result) => {
       const stats = { ...DEFAULT_STATS, ...result.stats };
       updateStatsDisplay(stats, true);
+    });
+  }
+}
+
+// ===== FEEDBACK BUTTON =====
+function setupFeedbackButton() {
+  const feedbackButton = document.getElementById('feedbackButton');
+  const closeFeedbackButton = document.getElementById('closeFeedbackButton');
+  const feedbackPage = document.getElementById('feedbackPage');
+
+  if (feedbackButton && feedbackPage) {
+    feedbackButton.addEventListener('click', () => {
+      feedbackPage.classList.add('open');
+    });
+  }
+
+  if (closeFeedbackButton && feedbackPage) {
+    closeFeedbackButton.addEventListener('click', () => {
+      feedbackPage.classList.remove('open');
+    });
+  }
+}
+
+// ===== SPONSOR BUTTON =====
+function setupSponsorButton() {
+  const sponsorButton = document.getElementById('sponsorButton');
+  const closeSponsorButton = document.getElementById('closeSponsorButton');
+  const sponsorPage = document.getElementById('sponsorPage');
+
+  if (sponsorButton && sponsorPage) {
+    sponsorButton.addEventListener('click', () => {
+      sponsorPage.classList.add('open');
+    });
+  }
+
+  if (closeSponsorButton && sponsorPage) {
+    closeSponsorButton.addEventListener('click', () => {
+      sponsorPage.classList.remove('open');
     });
   }
 }
@@ -619,13 +661,12 @@ function loadSettings() {
       if (currentSettings.hideFeed) {
         redirectToSubsRow.classList.add('visible');
       }
-      const hidePlaylistsRow = document.getElementById('hidePlaylistsRow');
-      if (hidePlaylistsRow) {
-        if (!currentSettings.hideSidebar) {
-          hidePlaylistsRow.classList.add('visible');
-        } else {
-          hidePlaylistsRow.classList.remove('visible');
-        }
+      const sidebarSubToggles = document.getElementById('sidebarSubToggles');
+      
+      if (!currentSettings.hideSidebar) {
+        if (sidebarSubToggles) sidebarSubToggles.classList.add('visible');
+      } else {
+        if (sidebarSubToggles) sidebarSubToggles.classList.remove('visible');
       }
       
       resolve();
@@ -692,12 +733,29 @@ function setupToggleListeners() {
         }
       }
       if (settingId === 'hideSidebar') {
-        const hidePlaylistsRow = document.getElementById('hidePlaylistsRow');
-        if (hidePlaylistsRow) {
-          if (!isChecked) {
-            hidePlaylistsRow.classList.add('visible');
-          } else {
-            hidePlaylistsRow.classList.remove('visible');
+        const sidebarSubToggles = document.getElementById('sidebarSubToggles');
+        
+        if (!isChecked) {
+          if (sidebarSubToggles) sidebarSubToggles.classList.add('visible');
+        } else {
+          if (sidebarSubToggles) sidebarSubToggles.classList.remove('visible');
+          
+          // Turn off sub-toggles when parent is enabled
+          const hideRecommendedToggle = document.querySelector('input[data-setting="hideRecommended"]');
+          const hideSidebarShortsToggle = document.querySelector('input[data-setting="hideSidebarShorts"]');
+          const hidePlaylistsToggle = document.querySelector('input[data-setting="hidePlaylists"]');
+          
+          if (hideRecommendedToggle && hideRecommendedToggle.checked) {
+            hideRecommendedToggle.checked = false;
+            browser.storage.sync.set({ hideRecommended: false });
+          }
+          if (hideSidebarShortsToggle && hideSidebarShortsToggle.checked) {
+            hideSidebarShortsToggle.checked = false;
+            browser.storage.sync.set({ hideSidebarShorts: false });
+          }
+          if (hidePlaylistsToggle && hidePlaylistsToggle.checked) {
+            hidePlaylistsToggle.checked = false;
+            browser.storage.sync.set({ hidePlaylists: false });
           }
         }
       }

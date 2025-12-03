@@ -126,7 +126,7 @@ body {
 }
 
 .settings-menu-title {
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
   color: hsl(0, 0%, 88%);
 }
@@ -565,47 +565,58 @@ body {
   padding-left: 2px;
 }
 
-/* Sub-toggle row (child toggle of parent toggle) */
-.sub-toggle-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 0;
-  padding-left: 14px;
+/* Sub-toggles container (wrapper for multiple sub-toggles with single vertical line) */
+.sub-toggles-container {
+  display: none;
+  flex-direction: column;
   position: relative;
   margin-left: 6px;
+  padding-left: 14px;
   overflow: hidden;
-  max-height: 0;
-  opacity: 0;
-  pointer-events: none;
-  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1), 
-              opacity 0.25s ease,
-              padding 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-              margin 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sub-toggles-container.visible {
+  display: flex;
+}
+
+.sub-toggles-line {
+  position: absolute;
+  left: 0;
+  top: 4px;
+  bottom: 4px;
+  width: 2px;
+  background: hsla(0, 0%, 100%, 0.15);
+}
+
+/* Sub-toggle row (child toggle of parent toggle) - standalone version */
+.sub-toggle-row {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+  padding-left: 14px;
+  margin-left: 6px;
+  position: relative;
 }
 
 .sub-toggle-row.visible {
-  max-height: 40px;
-  opacity: 1;
-  padding: 4px 0;
-  padding-left: 14px;
-  pointer-events: auto;
+  display: flex;
+}
+
+/* Sub-toggle row inside container doesn't need margin/padding (container handles it) */
+.sub-toggles-container .sub-toggle-row {
+  display: flex;
+  padding-left: 0;
+  margin-left: 0;
 }
 
 .sub-toggle-line {
   position: absolute;
   left: 0;
-  top: -12px;
-  bottom: -8px;
+  top: 0;
+  bottom: 0;
   width: 2px;
   background: hsla(0, 0%, 100%, 0.15);
-  transform-origin: top;
-  transform: scaleY(0);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.sub-toggle-row.visible .sub-toggle-line {
-  transform: scaleY(1);
 }
 
 .setting-label {
@@ -680,26 +691,51 @@ body {
 .footer-divider {
   border: none;
   border-top: 1px solid hsla(0, 0%, 100%, 0.1);
-  margin: 0 0 6px 0;
+  margin: 0 0 8px 0;
 }
 
 .footer-content {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
+  padding: 0 20px 2px 20px;
 }
 
 .footer-link {
-  color: hsla(0, 0%, 100%, 0.6);
+  color: hsla(0, 0%, 100%, 0.75);
   text-decoration: none;
-  font-size: 11px;
+  font-size: 12px;
+  font-weight: 500;
   transition: color 0.2s ease;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .footer-link:hover {
-  color: hsla(0, 0%, 100%, 0.9);
+  color: hsla(0, 0%, 100%, 1);
+}
+
+.coffee-icon {
+  width: 14px;
+  height: 14px;
+  animation: shake 2s ease-in-out infinite;
+}
+
+@keyframes shake {
+  0%, 100% { transform: rotate(0deg); }
+  10% { transform: rotate(-8deg); }
+  20% { transform: rotate(8deg); }
+  30% { transform: rotate(-8deg); }
+  40% { transform: rotate(8deg); }
+  50% { transform: rotate(0deg); }
+}
+
+.footer-button {
+  background: transparent;
+  border: none;
+  font-family: inherit;
 }
 
 .version {
@@ -709,6 +745,267 @@ body {
   color: hsla(0, 0%, 100%, 0.6);
   font-weight: 600;
   padding: 0;
+}
+
+/* ===== FEEDBACK PAGE ===== */
+.feedback-page {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: hsla(220, 20%, 5%, 0.98);
+  backdrop-filter: blur(20px);
+  z-index: 200;
+  display: none;
+  flex-direction: column;
+}
+
+.feedback-page.open {
+  display: flex;
+}
+
+.feedback-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid hsla(0, 0%, 100%, 0.1);
+  flex-shrink: 0;
+}
+
+.feedback-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: hsl(0, 0%, 88%);
+  margin: 0;
+}
+
+.close-feedback-button {
+  background: transparent;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-feedback-button svg {
+  width: 20px;
+  height: 20px;
+  color: hsl(0, 0%, 60%);
+  transition: color 0.15s ease;
+}
+
+.close-feedback-button:hover svg {
+  color: hsl(0, 0%, 80%);
+}
+
+.feedback-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.feedback-section {
+  padding: 0;
+}
+
+.feedback-subtitle {
+  font-size: 17px;
+  font-weight: 600;
+  color: hsl(0, 0%, 92%);
+  margin: 0 0 8px 0;
+  letter-spacing: -0.2px;
+}
+
+.feedback-text {
+  font-size: 15px;
+  color: hsl(0, 0%, 72%);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.feedback-link-red {
+  color: hsl(6, 82%, 55%);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.feedback-link-red:hover {
+  color: hsl(6, 82%, 65%);
+  text-decoration: underline;
+}
+
+/* ===== SPONSOR PAGE ===== */
+.sponsor-page {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: hsla(220, 20%, 5%, 0.98);
+  backdrop-filter: blur(20px);
+  z-index: 200;
+  display: none;
+  flex-direction: column;
+}
+
+.sponsor-page.open {
+  display: flex;
+}
+
+.sponsor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid hsla(0, 0%, 100%, 0.1);
+  flex-shrink: 0;
+}
+
+.sponsor-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: hsl(0, 0%, 88%);
+  margin: 0;
+}
+
+.close-sponsor-button {
+  background: transparent;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-sponsor-button svg {
+  width: 20px;
+  height: 20px;
+  color: hsl(0, 0%, 60%);
+  transition: color 0.15s ease;
+}
+
+.close-sponsor-button:hover svg {
+  color: hsl(0, 0%, 80%);
+}
+
+.sponsor-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.sponsor-text {
+  font-size: 16px;
+  color: hsl(0, 0%, 80%);
+  line-height: 1.8;
+  margin: 0;
+}
+
+.sponsor-text-secondary {
+  font-size: 15px;
+  color: hsl(0, 0%, 68%);
+  line-height: 1.7;
+}
+
+.sponsor-link {
+  color: hsl(0, 80%, 60%);
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sponsor-link:hover {
+  color: hsl(0, 80%, 70%);
+  text-decoration: underline;
+}
+
+.heart-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: hsl(330, 80%, 65%);
+  margin-left: 3px;
+}
+
+/* Light mode sponsor page */
+.popup-container.light-mode .sponsor-page {
+  background: linear-gradient(180deg, hsl(210, 45%, 99%) 0%, hsl(210, 40%, 96%) 100%);
+}
+
+.popup-container.light-mode .sponsor-header {
+  border-bottom: 1px solid hsla(210, 35%, 65%, 0.35);
+}
+
+.popup-container.light-mode .sponsor-title {
+  color: hsl(210, 20%, 20%);
+}
+
+.popup-container.light-mode .close-sponsor-button svg {
+  color: hsl(210, 30%, 40%);
+}
+
+.popup-container.light-mode .close-sponsor-button:hover svg {
+  color: hsl(210, 30%, 25%);
+}
+
+.popup-container.light-mode .sponsor-text {
+  color: hsl(210, 15%, 35%);
+}
+
+.popup-container.light-mode .sponsor-text-secondary {
+  color: hsl(210, 15%, 45%);
+}
+
+.popup-container.light-mode .sponsor-link {
+  color: hsl(0, 75%, 50%);
+}
+
+.popup-container.light-mode .sponsor-link:hover {
+  color: hsl(0, 75%, 40%);
+}
+
+/* Light mode feedback page */
+.popup-container.light-mode .feedback-page {
+  background: linear-gradient(180deg, hsl(210, 45%, 99%) 0%, hsl(210, 40%, 96%) 100%);
+}
+
+.popup-container.light-mode .feedback-header {
+  border-bottom: 1px solid hsla(210, 35%, 65%, 0.35);
+}
+
+.popup-container.light-mode .feedback-title {
+  color: hsl(210, 20%, 20%);
+}
+
+.popup-container.light-mode .close-feedback-button svg {
+  color: hsl(210, 30%, 40%);
+}
+
+.popup-container.light-mode .close-feedback-button:hover svg {
+  color: hsl(210, 30%, 25%);
+}
+
+.popup-container.light-mode .feedback-subtitle {
+  color: hsl(210, 20%, 25%);
+}
+
+.popup-container.light-mode .feedback-text {
+  color: hsl(210, 15%, 40%);
 }
 
 /* ===== LIGHT MODE STYLES ===== */

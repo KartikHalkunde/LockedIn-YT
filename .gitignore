@@ -63,8 +63,8 @@ testingpopup/
 # Build directories and deployment files
 lockedin-1.0.*/
 
-RELEASE_NOTES_1.0.82.md
-DEPLOYMENT_1.0.82.md
+RELEASE_NOTES_1.0.85.md
+DEPLOYMENT_1.0.85.md
 DEPLOY_NOW.md
 
 DEPLOYMENT_*.md

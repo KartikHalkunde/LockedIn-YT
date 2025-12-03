@@ -6,7 +6,7 @@
   [![Firefox Add-ons](https://img.shields.io/badge/Firefox-Available-orange?logo=firefox-browser&logoColor=white)](https://addons.mozilla.org/firefox/addon/lockedin-yt/)
   [![Edge Add-ons](https://img.shields.io/badge/Edge-Available-blue?logo=microsoft-edge&logoColor=white)](https://microsoftedge.microsoft.com/addons/detail/hibjbjgfbmhpiaapeccnfddnpabnlklj)
   [![Chrome Web Store](https://img.shields.io/badge/Chrome-Coming%20Soon-lightgrey?logo=google-chrome&logoColor=white)](#)
-  [![Version](https://img.shields.io/badge/version-1.0.82-green.svg)](https://github.com/KartikHalkunde/LockedIn-YT/releases)
+  [![Version](https://img.shields.io/badge/version-1.0.85-green.svg)](https://github.com/KartikHalkunde/LockedIn-YT/releases)
   [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
   
 </div>
@@ -79,13 +79,13 @@ Simple toggle switches for each feature. Settings are saved instantly and synced
 
 ## Changelog
 
-### Version 1.0.82 (November 26, 2025)
-- **Break Timer Overhaul**: Take a Break now runs through a background alarm, survives popup closures, and re-enables the extension the second the timer expires.
-- **"Time's Up" Flash Overlay**: When a break ends every open YouTube tab flashes a full-screen warning card and immediately redirects to youtube.com so you can't linger in rabbit holes.
-- **Custom Feed Pause**: The custom image uploader is intentionally disabled with a "coming soon" notice to prevent half-baked galleries while the feature is rebuilt.
-- **Cleaner Sub-Toggles**: Redirect-to-Subscriptions only appears while Hide Feed is enabled, keeping the popup compact and preventing accidental redirects.
-- **Navigation Hygiene**: New instant CSS hides Home/Shorts tabs in the sidebar and chips before YouTube finishes rendering, eliminating the previous blink.
-- **Light mode toggle**: Added a light mode toggle option for the users who prefer getting flashbanged.
+### Version 1.0.85 (December 3, 2025)
+- **Granular Video Sidebar Controls**: New sub-toggles for Hide Recommended Videos, Hide Shorts, and Hide Playlists
+- **Feedback & Sponsor Pages**: New overlay pages accessible from popup footer for feedback and sponsorship options
+- **UPI Payment Page**: Dedicated payment page with modern glassmorphism design
+- **Enhanced Shorts Detection**: Improved sidebar Shorts detection using URL patterns, overlay badges, and metadata
+- **Search Shorts Fix**: CSS now properly scoped to search pages only, preventing sidebar Shorts from being hidden
+- **Sidebar Restore Fix**: Fixed issue where sidebar wouldn't reappear after turning off Video Sidebar toggle
 
 ### Version 1.0.75 (November 15, 2025)
 - **Livestream Fix**: Fixed sidebar recommendations not hiding on YouTube livestream pages

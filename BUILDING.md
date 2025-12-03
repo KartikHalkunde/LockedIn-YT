@@ -27,7 +27,7 @@ chmod +x build.sh
 ### Firefox:
 - Navigate to `about:debugging#/runtime/this-firefox`
 - Click "Load Temporary Add-on"
-- Select the generated `lockedin-1.0.82.zip` file
+- Select the generated `lockedin-1.0.85.zip` file
 
 ### Edge/Chrome:
 - Go to `edge://extensions/` (Edge) or `chrome://extensions/` (Chrome)
@@ -97,7 +97,7 @@ cd LockedIn-YT
 # Build (just creates a zip file)
 ./build.sh
 
-# The resulting lockedin-1.0.82.zip contains the exact same code
+# The resulting lockedin-1.0.85.zip contains the exact same code
 # you see in the repository - no compilation or transformation
 ```
 

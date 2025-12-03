@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Support LockedIn via UPI - Scan QR code to donate">
+    <title>Support LockedIn - UPI Payment</title>
+    <link rel="icon" type="image/png" href="assets/icon.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #FF0000;
+            --dark-bg: #0F0F0F;
+            --card-bg: rgba(26, 26, 26, 0.4);
+            --text-primary: #FFFFFF;
+            --text-secondary: #AAAAAA;
+            --border-color: rgba(255, 255, 255, 0.08);
+            --success: #4ade80;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--dark-bg);
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            color: var(--text-primary);
+        }
+
+        /* Animated gradient background */
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            background: 
+                radial-gradient(ellipse 80% 50% at 50% -20%, rgba(255, 0, 0, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse 60% 40% at 100% 100%, rgba(255, 0, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse 50% 30% at 0% 100%, rgba(255, 50, 50, 0.08) 0%, transparent 50%),
+                var(--dark-bg);
+        }
+
+        /* Floating particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(255, 0, 0, 0.3);
+            border-radius: 50%;
+            animation: rise 15s infinite ease-in;
+        }
+
+        .particle:nth-child(1) { left: 10%; animation-delay: 0s; animation-duration: 12s; }
+        .particle:nth-child(2) { left: 20%; animation-delay: 2s; animation-duration: 14s; width: 3px; height: 3px; }
+        .particle:nth-child(3) { left: 35%; animation-delay: 4s; animation-duration: 11s; }
+        .particle:nth-child(4) { left: 50%; animation-delay: 1s; animation-duration: 16s; width: 5px; height: 5px; }
+        .particle:nth-child(5) { left: 65%; animation-delay: 3s; animation-duration: 13s; }
+        .particle:nth-child(6) { left: 80%; animation-delay: 5s; animation-duration: 15s; width: 3px; height: 3px; }
+        .particle:nth-child(7) { left: 90%; animation-delay: 2.5s; animation-duration: 12s; }
+        .particle:nth-child(8) { left: 5%; animation-delay: 6s; animation-duration: 14s; width: 2px; height: 2px; }
+        .particle:nth-child(9) { left: 45%; animation-delay: 7s; animation-duration: 11s; }
+        .particle:nth-child(10) { left: 75%; animation-delay: 4.5s; animation-duration: 13s; width: 4px; height: 4px; }
+
+        @keyframes rise {
+            0% {
+                bottom: -10px;
+                opacity: 0;
+                transform: translateX(0);
+            }
+            10% {
+                opacity: 0.6;
+            }
+            90% {
+                opacity: 0.6;
+            }
+            100% {
+                bottom: 100vh;
+                opacity: 0;
+                transform: translateX(30px);
+            }
+        }
+
+        /* Grid overlay */
+        .bg-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+            background-size: 60px 60px;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .upi-page {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            position: relative;
+            z-index: 3;
+        }
+
+        .upi-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-radius: 20px;
+            padding: 40px 44px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            box-shadow: 
+                0 0 0 1px rgba(255, 255, 255, 0.03),
+                0 16px 40px -8px rgba(0, 0, 0, 0.4);
+            animation: fadeInUp 0.5s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .upi-header {
+            margin-bottom: 20px;
+        }
+
+        .upi-logo {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            margin-bottom: 14px;
+        }
+
+        .upi-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+            letter-spacing: -0.3px;
+        }
+
+        .upi-subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .qr-wrapper {
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 16px;
+            margin: 24px 0 20px 0;
+            display: inline-block;
+        }
+
+        .qr-code {
+            width: 200px;
+            height: 200px;
+            display: block;
+            border-radius: 6px;
+        }
+
+        .secure-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 4px;
+            padding: 6px 14px;
+            background: rgba(74, 222, 128, 0.08);
+            border: 1px solid rgba(74, 222, 128, 0.15);
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--success);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .secure-badge svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 20px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 13px;
+            transition: all 0.2s ease;
+            padding: 6px 12px;
+            border-radius: 6px;
+        }
+
+        .back-link:hover {
+            color: var(--primary-color);
+        }
+
+        .back-link svg {
+            width: 15px;
+            height: 15px;
+            transition: transform 0.2s ease;
+        }
+
+        .back-link:hover svg {
+            transform: translateX(-2px);
+        }
+
+        @media (max-width: 480px) {
+            .upi-container {
+                padding: 28px 24px;
+            }
+
+            .qr-code {
+                width: 160px;
+                height: 160px;
+            }
+
+            .upi-title {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background -->
+    <div class="bg-gradient"></div>
+    <div class="particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+    <div class="bg-grid"></div>
+
+    <main class="upi-page">
+        <div class="upi-container">
+            <div class="upi-header">
+                <img src="assets/icon.png" alt="LockedIn Logo" class="upi-logo">
+                <h1 class="upi-title">Support LockedIn</h1>
+                <p class="upi-subtitle">Scan with any UPI app to donate</p>
+            </div>
+
+            <div class="qr-wrapper">
+                <img src="assets/upi.png" alt="UPI QR Code" class="qr-code">
+            </div>
+
+            <div class="secure-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    <polyline points="9 12 11 14 15 10"/>
+                </svg>
+                <span>Secure Payment</span>
+            </div>
+
+            <a href="index.html" class="back-link">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
+                LockedIn Homepage
+            </a>
+        </div>
+    </main>
+</body>
+</html>

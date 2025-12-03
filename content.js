@@ -266,21 +266,27 @@ function setInstantHiding(hideHomepage, hideSearch, hideGlobally = false) {
     // Add search-specific CSS if hideSearch is enabled
     if (hideSearch) {
       css += `
-  /* Hide Shorts shelf containers on search page */
-  ytd-reel-shelf-renderer:not([data-lockedin-hidden]),
-  ytd-rich-shelf-renderer:has([href^="/shorts/"]):not([data-lockedin-hidden]),
-  ytd-rich-section-renderer:has([href^="/shorts/"]):not([data-lockedin-hidden]),
-  grid-shelf-view-model:not([data-lockedin-hidden]) {
+  /* Hide Shorts shelf containers on search page ONLY */
+  ytd-search ytd-reel-shelf-renderer:not([data-lockedin-hidden]),
+  ytd-search ytd-rich-shelf-renderer:has([href^="/shorts/"]):not([data-lockedin-hidden]),
+  ytd-search ytd-rich-section-renderer:has([href^="/shorts/"]):not([data-lockedin-hidden]),
+  ytd-search grid-shelf-view-model:not([data-lockedin-hidden]),
+  [page-subtype="search"] ytd-reel-shelf-renderer:not([data-lockedin-hidden]),
+  [page-subtype="search"] ytd-rich-shelf-renderer:has([href^="/shorts/"]):not([data-lockedin-hidden]),
+  [page-subtype="search"] ytd-rich-section-renderer:has([href^="/shorts/"]):not([data-lockedin-hidden]),
+  [page-subtype="search"] grid-shelf-view-model:not([data-lockedin-hidden]) {
     display: none;
   }
   
-  /* Hide video renderers that link to Shorts on search page */
-  ytd-video-renderer:has([href^="/shorts/"]):not([data-lockedin-hidden]) {
+  /* Hide video renderers that link to Shorts on search page ONLY */
+  ytd-search ytd-video-renderer:has([href^="/shorts/"]):not([data-lockedin-hidden]),
+  [page-subtype="search"] ytd-video-renderer:has([href^="/shorts/"]):not([data-lockedin-hidden]) {
     display: none;
   }
   
-  /* Hide Shorts overlay badge items on search page */
-  ytd-video-renderer:has(ytd-thumbnail-overlay-time-status-renderer[overlay-style="SHORTS"]):not([data-lockedin-hidden]) {
+  /* Hide Shorts overlay badge items on search page ONLY */
+  ytd-search ytd-video-renderer:has(ytd-thumbnail-overlay-time-status-renderer[overlay-style="SHORTS"]):not([data-lockedin-hidden]),
+  [page-subtype="search"] ytd-video-renderer:has(ytd-thumbnail-overlay-time-status-renderer[overlay-style="SHORTS"]):not([data-lockedin-hidden]) {
     display: none;
   }
 `;
@@ -388,6 +394,8 @@ const DEFAULT_SETTINGS = {
   hideShortsGlobally: false,
   redirectShorts: false,
   hideSidebar: false,
+  hideRecommended: false,
+  hideSidebarShorts: false,
   hideLiveChat: false,
   hideEndCards: false,
   hideComments: false,
@@ -1050,11 +1058,311 @@ function hidePlaylists(shouldHide) {
   collapseSidebarIfEmpty();
 }
 
+function hideRecommendedVideos(shouldHide) {
+  if (!window.location.href.includes('/watch')) {
+    return;
+  }
+  
+  if (!shouldHide) {
+    // Restore all hidden sidebar content (videos, shorts, etc.) except playlists
+    document.querySelectorAll('[data-lockedin-hidden="sidebar-recommended"]').forEach(el => {
+      el.style.display = '';
+      el.removeAttribute('data-lockedin-hidden');
+    });
+    collapseSidebarIfEmpty();
+    return;
+  }
+  
+  // Hide ALL sidebar content except playlists
+  // This includes recommended videos, shorts, autoplay, movies, chips, etc.
+  const sidebar = document.querySelector('#secondary');
+  if (!sidebar) return;
+  
+  // Hide chip cloud (the "All", "From The Office", etc. chips)
+  sidebar.querySelectorAll('yt-chip-cloud-renderer, yt-related-chip-cloud-renderer').forEach(el => {
+    if (!el.hasAttribute('data-lockedin-hidden')) {
+      el.style.display = 'none';
+      el.setAttribute('data-lockedin-hidden', 'sidebar-recommended');
+    }
+  });
+  
+  // Target all video/content renderers in sidebar
+  const contentSelectors = [
+    'ytd-compact-video-renderer',
+    'ytd-compact-movie-renderer',
+    'ytd-compact-radio-renderer',
+    'ytd-compact-autoplay-renderer',
+    'ytd-reel-item-renderer',
+    'ytd-video-renderer'
+  ];
+  
+  let recsCount = 0;
+  contentSelectors.forEach(selector => {
+    sidebar.querySelectorAll(selector).forEach(el => {
+      // Skip if already hidden
+      if (el.hasAttribute('data-lockedin-hidden')) return;
+      
+      // Don't hide if it's part of a playlist panel
+      if (el.closest('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model')) return;
+      
+      // Hide everything else
+      el.style.display = 'none';
+      el.setAttribute('data-lockedin-hidden', 'sidebar-recommended');
+      recsCount++;
+    });
+  });
+  
+  // Track hidden recommendations
+  if (recsCount > 0) {
+    trackStat('recs', recsCount);
+  }
+  
+  // Also hide recommendation containers (but NOT if they contain playlists)
+  sidebar.querySelectorAll('ytd-item-section-renderer, ytd-continuation-item-renderer').forEach(container => {
+    // Skip if it contains a playlist
+    if (container.querySelector('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model')) return;
+    
+    if (!container.hasAttribute('data-lockedin-hidden')) {
+      container.style.display = 'none';
+      container.setAttribute('data-lockedin-hidden', 'sidebar-recommended');
+    }
+  });
+  
+  // Hide the main watch-next results container and #related (but preserve playlists)
+  const watchNextResults = sidebar.querySelector('ytd-watch-next-secondary-results-renderer');
+  if (watchNextResults && !watchNextResults.hasAttribute('data-lockedin-hidden')) {
+    // Check if it contains a playlist - if so, only hide the #items inside, not the whole thing
+    const hasPlaylist = watchNextResults.querySelector('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model');
+    if (hasPlaylist) {
+      // Hide only the items container, not the playlist
+      const itemsContainer = watchNextResults.querySelector('#items');
+      if (itemsContainer && !itemsContainer.hasAttribute('data-lockedin-hidden')) {
+        // Hide individual items in #items that aren't playlists
+        itemsContainer.querySelectorAll(':scope > *').forEach(item => {
+          if (!item.matches('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model') && 
+              !item.querySelector('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model') &&
+              !item.hasAttribute('data-lockedin-hidden')) {
+            item.style.display = 'none';
+            item.setAttribute('data-lockedin-hidden', 'sidebar-recommended');
+          }
+        });
+      }
+    } else {
+      // No playlist, hide the whole container
+      watchNextResults.style.display = 'none';
+      watchNextResults.setAttribute('data-lockedin-hidden', 'sidebar-recommended');
+    }
+  }
+  
+  // Also target #related if it exists
+  const relatedContainer = sidebar.querySelector('#related');
+  if (relatedContainer && !relatedContainer.hasAttribute('data-lockedin-hidden')) {
+    const hasPlaylist = relatedContainer.querySelector('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model');
+    if (!hasPlaylist) {
+      relatedContainer.style.display = 'none';
+      relatedContainer.setAttribute('data-lockedin-hidden', 'sidebar-recommended');
+    }
+  }
+  
+  collapseSidebarIfEmpty();
+}
+
+// hideAll function - hides everything in sidebar including playlists
+function hideAll(shouldHide) {
+  if (!window.location.href.includes('/watch')) {
+    return;
+  }
+  
+  if (!shouldHide) {
+    // Restore all hidden sidebar content
+    document.querySelectorAll('[data-lockedin-hidden="sidebar-all"]').forEach(el => {
+      el.style.display = '';
+      el.removeAttribute('data-lockedin-hidden');
+    });
+    // Also restore sidebar container visibility
+    toggleElement('#secondary', false);
+    toggleElement('#secondary-inner', false);
+    const flexyContainerRestore = document.querySelector('ytd-watch-flexy');
+    if (flexyContainerRestore) {
+      flexyContainerRestore.style.removeProperty('--ytd-watch-flexy-sidebar-width');
+    }
+    // Restore Up Next overlays
+    toggleAllElements('.ytp-upnext, .ytp-upnext-container, .ytp-suggestion-set', false);
+    return;
+  }
+  
+  const sidebar = document.querySelector('#secondary');
+  if (!sidebar) return;
+  
+  // Hide chip cloud
+  sidebar.querySelectorAll('yt-chip-cloud-renderer, yt-related-chip-cloud-renderer').forEach(el => {
+    if (!el.hasAttribute('data-lockedin-hidden')) {
+      el.style.display = 'none';
+      el.setAttribute('data-lockedin-hidden', 'sidebar-all');
+    }
+  });
+  
+  // Target all video/content renderers in sidebar (including those in playlists)
+  const contentSelectors = [
+    'ytd-compact-video-renderer',
+    'ytd-compact-movie-renderer',
+    'ytd-compact-radio-renderer',
+    'ytd-compact-autoplay-renderer',
+    'ytd-reel-item-renderer',
+    'ytd-video-renderer'
+  ];
+  
+  let recsCount = 0;
+  contentSelectors.forEach(selector => {
+    sidebar.querySelectorAll(selector).forEach(el => {
+      if (!el.hasAttribute('data-lockedin-hidden')) {
+        el.style.display = 'none';
+        el.setAttribute('data-lockedin-hidden', 'sidebar-all');
+        recsCount++;
+      }
+    });
+  });
+  
+  // Track hidden recommendations
+  if (recsCount > 0) {
+    trackStat('recs', recsCount);
+  }
+  
+  // Hide recommendation containers
+  sidebar.querySelectorAll('ytd-item-section-renderer, ytd-continuation-item-renderer').forEach(container => {
+    if (!container.hasAttribute('data-lockedin-hidden')) {
+      container.style.display = 'none';
+      container.setAttribute('data-lockedin-hidden', 'sidebar-all');
+    }
+  });
+  
+  // Hide playlist panels
+  sidebar.querySelectorAll('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model, #playlist').forEach(el => {
+    if (!el.hasAttribute('data-lockedin-hidden')) {
+      el.style.display = 'none';
+      el.setAttribute('data-lockedin-hidden', 'sidebar-all');
+    }
+  });
+  
+  // Hide all container sections
+  const allContainers = [
+    'ytd-watch-next-secondary-results-renderer',
+    '#related',
+    '#items'
+  ];
+  allContainers.forEach(selector => {
+    sidebar.querySelectorAll(selector).forEach(el => {
+      if (!el.hasAttribute('data-lockedin-hidden')) {
+        el.style.display = 'none';
+        el.setAttribute('data-lockedin-hidden', 'sidebar-all');
+      }
+    });
+  });
+  
+  // Hide the entire sidebar
+  toggleElement('#secondary', true);
+  toggleElement('#secondary-inner', true);
+  const flexyContainer = document.querySelector('ytd-watch-flexy');
+  if (flexyContainer) {
+    flexyContainer.style.setProperty('--ytd-watch-flexy-sidebar-width', '0px', 'important');
+  }
+  
+  // Hide player Up Next overlays
+  toggleAllElements('.ytp-upnext, .ytp-upnext-container, .ytp-suggestion-set', true);
+}
+
+function hideSidebarShorts(shouldHide) {
+  if (!window.location.href.includes('/watch')) {
+    return;
+  }
+  
+  if (!shouldHide) {
+    // Restore shorts in sidebar
+    document.querySelectorAll('[data-lockedin-hidden="sidebar-shorts"]').forEach(el => {
+      el.style.display = '';
+      el.removeAttribute('data-lockedin-hidden');
+    });
+    collapseSidebarIfEmpty();
+    return;
+  }
+  
+  const sidebar = document.querySelector('#secondary');
+  if (!sidebar) return;
+  
+  let shortsCount = 0;
+  
+  // Hide shorts-specific renderers
+  const shortsSelectors = [
+    'ytd-compact-video-renderer[is-shorts]',
+    'ytd-reel-item-renderer',
+    'ytd-reel-shelf-renderer'
+  ];
+  
+  shortsSelectors.forEach(selector => {
+    sidebar.querySelectorAll(selector).forEach(el => {
+      // Don't hide if it's part of a playlist
+      if (el.closest('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model')) return;
+      
+      if (!el.hasAttribute('data-lockedin-hidden')) {
+        el.style.display = 'none';
+        el.setAttribute('data-lockedin-hidden', 'sidebar-shorts');
+        shortsCount++;
+      }
+    });
+  });
+  
+  // Check all compact-video-renderer elements for shorts
+  sidebar.querySelectorAll('ytd-compact-video-renderer').forEach(el => {
+    if (el.hasAttribute('data-lockedin-hidden')) return;
+    
+    // Don't hide if it's part of a playlist
+    if (el.closest('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model')) return;
+    
+    // Check if it's a short by URL
+    const shortsLink = el.querySelector('a[href*="/shorts/"]');
+    // Check if it's a short by overlay badge
+    const shortsOverlay = el.querySelector('ytd-thumbnail-overlay-time-status-renderer[overlay-style="SHORTS"]');
+    // Check for shorts badge in metadata
+    const shortsBadge = el.querySelector('[aria-label*="Shorts" i], [title*="Shorts" i]');
+    
+    if (shortsLink || shortsOverlay || shortsBadge) {
+      el.style.display = 'none';
+      el.setAttribute('data-lockedin-hidden', 'sidebar-shorts');
+      shortsCount++;
+    }
+  });
+  
+  // Also check ytd-video-renderer in sidebar (sometimes used)
+  sidebar.querySelectorAll('ytd-video-renderer').forEach(el => {
+    if (el.hasAttribute('data-lockedin-hidden')) return;
+    if (el.closest('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model')) return;
+    
+    const shortsLink = el.querySelector('a[href*="/shorts/"]');
+    const shortsOverlay = el.querySelector('ytd-thumbnail-overlay-time-status-renderer[overlay-style="SHORTS"]');
+    
+    if (shortsLink || shortsOverlay) {
+      el.style.display = 'none';
+      el.setAttribute('data-lockedin-hidden', 'sidebar-shorts');
+      shortsCount++;
+    }
+  });
+  
+  // Track hidden shorts
+  if (shortsCount > 0) {
+    trackStat('shorts', shortsCount);
+  }
+  
+  collapseSidebarIfEmpty();
+}
+
 function collapseSidebarIfEmpty() {
   const sidebar = document.querySelector('#secondary');
   if (!sidebar) return;
   const hasVisible = Array.from(sidebar.querySelectorAll('*')).some(el => {
-    return el.offsetParent !== null && el.getAttribute('data-lockedin-hidden') !== 'sidebar-recommendation' && el.getAttribute('data-lockedin-hidden') !== 'current-playlist-panel';
+    return el.offsetParent !== null && 
+           el.getAttribute('data-lockedin-hidden') !== 'sidebar-recommended' && 
+           el.getAttribute('data-lockedin-hidden') !== 'sidebar-all' &&
+           el.getAttribute('data-lockedin-hidden') !== 'current-playlist-panel';
   });
   if (!hasVisible) {
     sidebar.style.display = 'none';
@@ -2050,7 +2358,18 @@ function runAll() {
     
     // Video Page group
     hideSidebar(currentSettings.hideSidebar);
-    hidePlaylists(currentSettings.hidePlaylists);
+    // If hideSidebar is enabled, use hideAll to hide everything including playlists
+    // Otherwise, restore everything first, then apply individual sub-toggles
+    if (currentSettings.hideSidebar) {
+      hideAll(true);
+    } else {
+      // First restore everything that hideAll may have hidden
+      hideAll(false);
+      // Then apply individual sub-toggles
+      hideRecommendedVideos(currentSettings.hideRecommended);
+      hideSidebarShorts(currentSettings.hideSidebarShorts);
+      hidePlaylists(currentSettings.hidePlaylists);
+    }
     hideLiveChat(currentSettings.hideLiveChat);
     hideEndCards(currentSettings.hideEndCards);
     hideComments(currentSettings.hideComments);
@@ -2091,7 +2410,18 @@ function runAll() {
     hideCommunityPosts(currentSettings.hideCommunityPosts);
     
     hideSidebar(currentSettings.hideSidebar);
-    hidePlaylists(currentSettings.hidePlaylists);
+    // If hideSidebar is enabled, use hideAll to hide everything including playlists
+    // Otherwise, restore everything first, then apply individual sub-toggles
+    if (currentSettings.hideSidebar) {
+      hideAll(true);
+    } else {
+      // First restore everything that hideAll may have hidden
+      hideAll(false);
+      // Then apply individual sub-toggles
+      hideRecommendedVideos(currentSettings.hideRecommended);
+      hideSidebarShorts(currentSettings.hideSidebarShorts);
+      hidePlaylists(currentSettings.hidePlaylists);
+    }
     hideLiveChat(currentSettings.hideLiveChat);
     hideEndCards(currentSettings.hideEndCards);
     hideComments(currentSettings.hideComments);
@@ -2118,6 +2448,9 @@ function restoreAllElements() {
   setupShortsLinkInterception(false);
   
   hideSidebar(false);
+  hideAll(false);  // Also restore elements that hideAll may have hidden
+  hideRecommendedVideos(false);
+  hideSidebarShorts(false);
   hidePlaylists(false);
   hideLiveChat(false);
   hideEndCards(false);
