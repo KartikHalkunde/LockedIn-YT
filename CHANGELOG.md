@@ -2,6 +2,11 @@
 
 All notable changes to the LockedIn extension will be documented in this file.
 
+## [1.0.92] - 2025-12-11
+### Fixed
+- Popup sponsor and feedback texts now render HTML translations properly (no more raw markup shown)
+- Carried forward localization robustness for Explore/More from YouTube/Subscriptions and transcript auto-unhide observer improvements
+
 ## [1.0.91] - 2025-12-11
 ### Added
 - Expanded localization coverage and URL-based detection for Explore/Trending/More from YouTube/Subscriptions so toggles work across all YouTube languages

@@ -520,6 +520,8 @@ function applyTranslations(languageCode) {
     if (!value) return;
     if (attr) {
       el.setAttribute(attr, value);
+    } else if (el.dataset.i18nType === 'html') {
+      el.innerHTML = value;
     } else {
       el.textContent = value;
     }
