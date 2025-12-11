@@ -361,36 +361,48 @@ function setInstantRecsHiding(hideRecommended, hideSidebar) {
   if (hideRecommended || hideSidebar) {
     css = `
   /* ===== INSTANT RECOMMENDED VIDEOS HIDING ===== */
-  /* Hide chip cloud */
+  /* Hide chip cloud (sidebar only) */
   #secondary yt-chip-cloud-renderer,
-  #secondary yt-related-chip-cloud-renderer,
-  #below yt-chip-cloud-renderer,
-  #below yt-related-chip-cloud-renderer {
+  #secondary yt-related-chip-cloud-renderer {
     display: none !important;
   }
   
-  /* Hide video renderers in sidebar and below-video area */
+  /* Hide video renderers in sidebar only */
   #secondary ytd-compact-video-renderer:not([data-lockedin-hidden]),
   #secondary ytd-compact-movie-renderer:not([data-lockedin-hidden]),
   #secondary ytd-compact-radio-renderer:not([data-lockedin-hidden]),
   #secondary ytd-compact-autoplay-renderer:not([data-lockedin-hidden]),
   #secondary ytd-reel-item-renderer:not([data-lockedin-hidden]),
-  #secondary ytd-video-renderer:not([data-lockedin-hidden]),
-  #below ytd-compact-video-renderer:not([data-lockedin-hidden]),
-  #below ytd-compact-movie-renderer:not([data-lockedin-hidden]),
-  #below ytd-compact-radio-renderer:not([data-lockedin-hidden]),
-  #below ytd-compact-autoplay-renderer:not([data-lockedin-hidden]),
-  #below ytd-reel-item-renderer:not([data-lockedin-hidden]),
-  #below ytd-video-renderer:not([data-lockedin-hidden]) {
+  #secondary ytd-video-renderer:not([data-lockedin-hidden]) {
     display: none !important;
   }
-  
-  /* Hide recommendation containers */
-  #secondary ytd-item-section-renderer:not([data-lockedin-hidden]),
-  #secondary ytd-continuation-item-renderer:not([data-lockedin-hidden]),
-  #below ytd-item-section-renderer:not([data-lockedin-hidden]),
-  #below ytd-continuation-item-renderer:not([data-lockedin-hidden]) {
-    display: none !important;
+
+  /* Hide recommendation containers that don't host transcript/engagement panels */
+  #secondary ytd-item-section-renderer:not([data-lockedin-hidden]):not(:has(ytd-engagement-panel-section-list-renderer)):not(:has(ytd-transcript-segment-list-renderer)),
+  #secondary ytd-continuation-item-renderer:not([data-lockedin-hidden]):not(:has(ytd-engagement-panel-section-list-renderer)):not(:has(ytd-transcript-segment-list-renderer)),
+  #secondary ytd-watch-next-secondary-results-renderer:not([data-lockedin-hidden]):not(:has(ytd-engagement-panel-section-list-renderer)):not(:has(ytd-transcript-segment-list-renderer)),
+  #secondary #related:not([data-lockedin-hidden]):not(:has(ytd-engagement-panel-section-list-renderer)):not(:has(ytd-transcript-segment-list-renderer)) {
+    visibility: hidden !important;
+    pointer-events: none !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  /* If a container hosts transcript/engagement panels, keep it visible */
+  #secondary ytd-item-section-renderer:has(ytd-engagement-panel-section-list-renderer),
+  #secondary ytd-item-section-renderer:has(ytd-transcript-segment-list-renderer),
+  #secondary ytd-continuation-item-renderer:has(ytd-engagement-panel-section-list-renderer),
+  #secondary ytd-continuation-item-renderer:has(ytd-transcript-segment-list-renderer),
+  #secondary ytd-watch-next-secondary-results-renderer:has(ytd-engagement-panel-section-list-renderer),
+  #secondary ytd-watch-next-secondary-results-renderer:has(ytd-transcript-segment-list-renderer),
+  #secondary #related:has(ytd-engagement-panel-section-list-renderer),
+  #secondary #related:has(ytd-transcript-segment-list-renderer) {
+    visibility: visible !important;
+    pointer-events: auto !important;
+    min-height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
   }
 `;
   }
@@ -447,6 +459,9 @@ const DEFAULT_SETTINGS = {
 };
 
 let latestSyncedSettings = { ...DEFAULT_SETTINGS };
+let sidebarObserver = null;
+let secondaryObserver = null;
+let sidebarHideRetryTimers = [];
 const GUIDE_HIDE_ATTR = 'data-lockedin-guide';
 const GUIDE_HOME_SELECTORS = [
   'ytd-guide-entry-renderer a[href="/"]',
@@ -493,6 +508,84 @@ function applyRedirectStateFromCache() {
   const shouldRedirect =
     latestSyncedSettings.hideFeed && latestSyncedSettings.redirectToSubs;
   redirectToSubscriptions(shouldRedirect);
+}
+
+function ensureSidebarObserver(active) {
+  if (!active) {
+    if (sidebarObserver) {
+      sidebarObserver.disconnect();
+      sidebarObserver = null;
+    }
+    if (secondaryObserver) {
+      secondaryObserver.disconnect();
+      secondaryObserver = null;
+    }
+    sidebarHideRetryTimers.forEach(clearTimeout);
+    sidebarHideRetryTimers = [];
+    return;
+  }
+
+  if (sidebarObserver) return;
+
+  const sidebarCallback = debounce(() => {
+    if (latestSyncedSettings.extensionEnabled === false) return;
+    if (latestSyncedSettings.hideSidebar) {
+      hideAll(true);
+    } else if (latestSyncedSettings.hideRecommended) {
+      hideRecommendedVideos(true);
+      hideSidebarShorts(latestSyncedSettings.hideSidebarShorts);
+    }
+    ensureTranscriptPanelVisible();
+  }, 80);
+
+  sidebarObserver = new MutationObserver(sidebarCallback);
+  sidebarObserver.observe(document.body, { childList: true, subtree: true });
+  sidebarCallback();
+
+  // Targeted observer for #secondary so new recs added after refresh are hidden immediately
+  const attachSecondaryObserver = () => {
+    const secondary = document.querySelector('#secondary');
+    if (!secondary) return false;
+    const secondaryCallback = debounce(() => {
+      if (latestSyncedSettings.extensionEnabled === false) return;
+      if (latestSyncedSettings.hideSidebar) {
+        hideAll(true);
+      } else if (latestSyncedSettings.hideRecommended) {
+        hideRecommendedVideos(true);
+        hideSidebarShorts(latestSyncedSettings.hideSidebarShorts);
+      }
+      ensureTranscriptPanelVisible();
+    }, 50);
+    secondaryObserver = new MutationObserver(secondaryCallback);
+    secondaryObserver.observe(secondary, { childList: true, subtree: true });
+    secondaryCallback();
+    return true;
+  };
+
+  // Try immediately; if not present yet, retry shortly
+  if (!attachSecondaryObserver()) {
+    setTimeout(attachSecondaryObserver, 300);
+    setTimeout(attachSecondaryObserver, 900);
+  }
+}
+
+function scheduleSidebarHideRetries(settings) {
+  sidebarHideRetryTimers.forEach(clearTimeout);
+  sidebarHideRetryTimers = [];
+  if (settings.hideSidebar || settings.hideRecommended) {
+    const actions = () => {
+      if (settings.hideSidebar) {
+        hideAll(true);
+      } else if (settings.hideRecommended) {
+        hideRecommendedVideos(true);
+        hideSidebarShorts(settings.hideSidebarShorts);
+      }
+      ensureTranscriptPanelVisible();
+    };
+    [250, 800, 1800, 3200].forEach((ms) => {
+      sidebarHideRetryTimers.push(setTimeout(actions, ms));
+    });
+  }
 }
 
 function toggleGuideSelectors(selectors, marker, shouldHide) {
@@ -961,6 +1054,7 @@ function hideSidebar(shouldHide) {
   
   const playlistPanel = document.querySelector('#secondary ytd-playlist-panel-renderer, ytd-playlist-panel-renderer, ytd-playlist-panel-view-model, #playlist');
   const hasPlaylistPanel = !!playlistPanel;
+  const hasTranscript = !!document.querySelector('ytd-engagement-panel-section-list-renderer, ytd-transcript-segment-list-renderer');
   
   // Helper to check if element is or contains transcript/engagement panels
   const isEngagementPanel = (el) => {
@@ -987,6 +1081,7 @@ function hideSidebar(shouldHide) {
     }
     // Restore Up Next overlays
     toggleAllElements('.ytp-upnext, .ytp-upnext-container, .ytp-suggestion-set', false);
+    ensureCommentsVisible();
     return;
   }
   
@@ -1086,16 +1181,24 @@ function hideSidebar(shouldHide) {
     });
     
     // Don't hide the entire sidebar container to keep transcripts accessible
-    // Instead, just shrink the flexy width to minimize visual space
+    // Instead, just shrink the flexy width to minimize visual space (only if no transcript open)
     // Keep #secondary visible but recommendations hidden
     const flexyContainer = document.querySelector('ytd-watch-flexy');
     if (flexyContainer) {
-      flexyContainer.style.setProperty('--ytd-watch-flexy-sidebar-width', '0px', 'important');
+      // Keep a minimal sidebar width so transcript/engagement panels can initialize
+      const widthValue = hasTranscript ? '' : '240px';
+      if (widthValue) {
+        flexyContainer.style.setProperty('--ytd-watch-flexy-sidebar-width', widthValue, 'important');
+      } else {
+        flexyContainer.style.removeProperty('--ytd-watch-flexy-sidebar-width');
+      }
     }
   }
   
   // Hide player Up Next overlays when hiding recommendations or sidebar
   toggleAllElements('.ytp-upnext, .ytp-upnext-container, .ytp-suggestion-set', true);
+  ensureCommentsVisible();
+  ensureTranscriptPanelVisible();
 }
 
 function hidePlaylists(shouldHide) {
@@ -1125,8 +1228,8 @@ function hidePlaylists(shouldHide) {
 }
 
 function hideSubscriptions(shouldHide) {
-  // Target the subscriptions section in the sidebar (ytd-guide-section-renderer that contains subscription channels)
-  const subscriptionsSection = document.querySelector('ytd-guide-section-renderer:has(#sections ytd-guide-collapsible-entry-renderer)');
+  // Target the subscriptions section via its header link (structural, not keyword-based)
+  const subscriptionsSection = document.querySelector('ytd-guide-section-renderer:has(a#endpoint[href^="/feed/subscriptions"])');
   
   if (!shouldHide) {
     // Restore subscriptions
@@ -1135,7 +1238,7 @@ function hideSubscriptions(shouldHide) {
       subscriptionsSection.removeAttribute('data-lockedin-hidden');
     }
     // Also restore individual subscription entries
-    document.querySelectorAll('ytd-guide-entry-renderer[data-lockedin-hidden="subscription"]').forEach(el => {
+    (subscriptionsSection ? subscriptionsSection.querySelectorAll('ytd-guide-entry-renderer[data-lockedin-hidden="subscription"]') : document.querySelectorAll('ytd-guide-entry-renderer[data-lockedin-hidden="subscription"]')).forEach(el => {
       el.style.display = '';
       el.removeAttribute('data-lockedin-hidden');
     });
@@ -1149,7 +1252,7 @@ function hideSubscriptions(shouldHide) {
   }
   
   // Also hide individual subscription channel entries as a fallback
-  document.querySelectorAll('ytd-guide-entry-renderer:has(#endpoint[href^="/@"]), ytd-guide-entry-renderer:has(#endpoint[href^="/channel/"]), ytd-guide-entry-renderer:has(#endpoint[href^="/c/"])').forEach(el => {
+  (subscriptionsSection ? subscriptionsSection.querySelectorAll('ytd-guide-entry-renderer:has(#endpoint[href^="/@"]), ytd-guide-entry-renderer:has(#endpoint[href^="/channel/"]), ytd-guide-entry-renderer:has(#endpoint[href^="/c/"])') : document.querySelectorAll('ytd-guide-entry-renderer:has(#endpoint[href^="/@"]), ytd-guide-entry-renderer:has(#endpoint[href^="/channel/"]), ytd-guide-entry-renderer:has(#endpoint[href^="/c/"])')).forEach(el => {
     // Make sure we're not hiding Home, Shorts, or other non-subscription items
     const link = el.querySelector('a[href^="/@"], a[href^="/channel/"], a[href^="/c/"]');
     if (link && !el.hasAttribute('data-lockedin-hidden')) {
@@ -1163,136 +1266,78 @@ function hideRecommendedVideos(shouldHide) {
   if (!window.location.href.includes('/watch')) {
     return;
   }
-  
-  if (!shouldHide) {
-    // Restore all hidden sidebar content (videos, shorts, etc.) except playlists
-    document.querySelectorAll('[data-lockedin-hidden="sidebar-recommended"]').forEach(el => {
-      el.style.display = '';
-      el.removeAttribute('data-lockedin-hidden');
-    });
-    // Restore below-video recommendations (live chat layout)
-    document.querySelectorAll('[data-lockedin-hidden="below-video-recommended"]').forEach(el => {
-      el.style.display = '';
-      el.removeAttribute('data-lockedin-hidden');
-    });
-    collapseSidebarIfEmpty();
+
+  const sidebar = document.querySelector('#secondary');
+  const isLivestreamVideo = () => {
+    return !!document.querySelector(
+      'ytd-live-chat-frame, #chat, .ytp-live-badge, meta[itemprop="isLiveBroadcast"][content="True" i], ytd-thumbnail-overlay-time-status-renderer[overlay-style="LIVE"]'
+    );
+  };
+
+    if (!shouldHide) {
+      // Restore all hidden sidebar content
+      document.querySelectorAll('[data-lockedin-hidden="sidebar-recommended"]').forEach(el => {
+        el.style.display = '';
+        el.removeAttribute('data-lockedin-hidden');
+      });
+    }
+
+  if (!sidebar) return;
+
+  // If sidebar is moved below the player AND it's a livestream layout, skip hiding to avoid chat/comments
+  if (sidebar.closest('#below') && isLivestreamVideo()) {
     return;
   }
-  
-  // Hide ALL sidebar content except playlists
-  // This includes recommended videos, shorts, autoplay, movies, chips, etc.
-  const sidebar = document.querySelector('#secondary');
-  
-  // Also target below-video area for live chat layout
-  const belowVideo = document.querySelector('#below');
-  
-  const containers = [sidebar, belowVideo].filter(Boolean);
-  
-  if (containers.length === 0) return;
-  
+
+  const hiddenAttr = 'sidebar-recommended';
   let recsCount = 0;
-  
-  containers.forEach(container => {
-    const isBelowVideo = container.id === 'below';
-    const hiddenAttr = isBelowVideo ? 'below-video-recommended' : 'sidebar-recommended';
-    
-    // Hide chip cloud (the "All", "From The Office", etc. chips)
-    container.querySelectorAll('yt-chip-cloud-renderer, yt-related-chip-cloud-renderer').forEach(el => {
-      if (!el.hasAttribute('data-lockedin-hidden')) {
-        el.style.display = 'none';
-        el.setAttribute('data-lockedin-hidden', hiddenAttr);
-      }
-    });
-  
-    // Target all video/content renderers
-    const contentSelectors = [
-      'ytd-compact-video-renderer',
-      'ytd-compact-movie-renderer',
-      'ytd-compact-radio-renderer',
-      'ytd-compact-autoplay-renderer',
-      'ytd-reel-item-renderer',
-      'ytd-video-renderer'
-    ];
-  
-    contentSelectors.forEach(selector => {
-      container.querySelectorAll(selector).forEach(el => {
-        // Skip if already hidden
-        if (el.hasAttribute('data-lockedin-hidden')) return;
-        
-        // Don't hide if it's part of a playlist panel
-        if (el.closest('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model')) return;
-        
-        // Don't hide if it's an engagement panel (transcript, etc.)
-        if (el.closest('ytd-engagement-panel-section-list-renderer') || 
-            el.hasAttribute('target-id') || 
-            el.closest('[target-id]')) return;
-        
-        // Hide everything else
-        el.style.display = 'none';
-        el.setAttribute('data-lockedin-hidden', hiddenAttr);
-        recsCount++;
-      });
-    });
-  
-    // Also hide recommendation containers (but NOT if they contain playlists)
-    container.querySelectorAll('ytd-item-section-renderer, ytd-continuation-item-renderer').forEach(containerEl => {
-      // Skip if it contains a playlist
-      if (containerEl.querySelector('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model')) return;
-      
-      // Don't hide if it's an engagement panel
-      if (containerEl.closest('ytd-engagement-panel-section-list-renderer') || 
-          containerEl.hasAttribute('target-id') || 
-          containerEl.closest('[target-id]')) return;
-      
-      if (!containerEl.hasAttribute('data-lockedin-hidden')) {
-        containerEl.style.display = 'none';
-        containerEl.setAttribute('data-lockedin-hidden', hiddenAttr);
-      }
-    });
-  
-    // Hide the main watch-next results container and #related (but preserve playlists)
-    const watchNextResults = container.querySelector('ytd-watch-next-secondary-results-renderer');
-    if (watchNextResults && !watchNextResults.hasAttribute('data-lockedin-hidden')) {
-      // Check if it contains a playlist - if so, only hide the #items inside, not the whole thing
-      const hasPlaylist = watchNextResults.querySelector('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model');
-      if (hasPlaylist) {
-        // Hide only the items container, not the playlist
-        const itemsContainer = watchNextResults.querySelector('#items');
-        if (itemsContainer && !itemsContainer.hasAttribute('data-lockedin-hidden')) {
-          // Hide individual items in #items that aren't playlists
-          itemsContainer.querySelectorAll(':scope > *').forEach(item => {
-            if (!item.matches('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model') && 
-                !item.querySelector('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model') &&
-                !item.hasAttribute('data-lockedin-hidden')) {
-              item.style.display = 'none';
-              item.setAttribute('data-lockedin-hidden', hiddenAttr);
-            }
-          });
-        }
-      } else {
-        // No playlist, hide the whole container
-        watchNextResults.style.display = 'none';
-        watchNextResults.setAttribute('data-lockedin-hidden', hiddenAttr);
-      }
-    }
-  
-    // Also target #related if it exists
-    const relatedContainer = container.querySelector('#related');
-    if (relatedContainer && !relatedContainer.hasAttribute('data-lockedin-hidden')) {
-      const hasPlaylist = relatedContainer.querySelector('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model');
-      if (!hasPlaylist) {
-        relatedContainer.style.display = 'none';
-        relatedContainer.setAttribute('data-lockedin-hidden', hiddenAttr);
-      }
+
+  // Hide chip cloud (the "All", "From The Office", etc. chips)
+  sidebar.querySelectorAll('yt-chip-cloud-renderer, yt-related-chip-cloud-renderer').forEach(el => {
+    if (!el.hasAttribute('data-lockedin-hidden')) {
+      el.style.display = 'none';
+      el.setAttribute('data-lockedin-hidden', hiddenAttr);
     }
   });
-  
+
+  // Target all video/content renderers
+  const contentSelectors = [
+    'ytd-compact-video-renderer',
+    'ytd-compact-movie-renderer',
+    'ytd-compact-radio-renderer',
+    'ytd-compact-autoplay-renderer',
+    'ytd-reel-item-renderer',
+    'ytd-video-renderer'
+  ];
+
+  contentSelectors.forEach(selector => {
+    sidebar.querySelectorAll(selector).forEach(el => {
+      // Skip if already hidden
+      if (el.hasAttribute('data-lockedin-hidden')) return;
+      
+      // Don't hide if it's part of a playlist panel
+      if (el.closest('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model')) return;
+      
+      // Don't hide if it's an engagement panel (transcript, etc.)
+      if (el.closest('ytd-engagement-panel-section-list-renderer') || 
+          el.hasAttribute('target-id') || 
+          el.closest('[target-id]')) return;
+      
+      // Hide everything else
+      el.style.display = 'none';
+      el.setAttribute('data-lockedin-hidden', hiddenAttr);
+      recsCount++;
+    });
+  });
+
   // Track hidden recommendations
   if (recsCount > 0) {
     trackStat('recs', recsCount);
   }
-  
+
   collapseSidebarIfEmpty();
+  ensureCommentsVisible();
+  ensureTranscriptPanelVisible();
 }
 
 // hideAll function - hides everything in sidebar including playlists
@@ -1344,6 +1389,8 @@ function hideAll(shouldHide) {
   contentSelectors.forEach(selector => {
     sidebar.querySelectorAll(selector).forEach(el => {
       if (!el.hasAttribute('data-lockedin-hidden')) {
+        // Skip transcript/engagement panels
+        if (el.closest('ytd-engagement-panel-section-list-renderer') || el.hasAttribute('target-id') || el.closest('[target-id]')) return;
         el.style.display = 'none';
         el.setAttribute('data-lockedin-hidden', 'sidebar-all');
         recsCount++;
@@ -1380,6 +1427,8 @@ function hideAll(shouldHide) {
   ];
   allContainers.forEach(selector => {
     sidebar.querySelectorAll(selector).forEach(el => {
+      // Skip transcript/engagement panels
+      if (el.closest('ytd-engagement-panel-section-list-renderer') || el.hasAttribute('target-id') || el.closest('[target-id]')) return;
       if (!el.hasAttribute('data-lockedin-hidden')) {
         el.style.display = 'none';
         el.setAttribute('data-lockedin-hidden', 'sidebar-all');
@@ -1486,16 +1535,102 @@ function hideSidebarShorts(shouldHide) {
 function collapseSidebarIfEmpty() {
   const sidebar = document.querySelector('#secondary');
   if (!sidebar) return;
+  const transcriptPanel = document.querySelector('ytd-engagement-panel-section-list-renderer, ytd-transcript-segment-list-renderer');
+  if (transcriptPanel) {
+    ensureTranscriptPanelVisible();
+    return;
+  }
   const hasVisible = Array.from(sidebar.querySelectorAll('*')).some(el => {
     return el.offsetParent !== null && 
            el.getAttribute('data-lockedin-hidden') !== 'sidebar-recommended' && 
            el.getAttribute('data-lockedin-hidden') !== 'sidebar-all' &&
            el.getAttribute('data-lockedin-hidden') !== 'current-playlist-panel';
   });
-  if (!hasVisible) {
-    sidebar.style.display = 'none';
-  } else {
+  const flexyContainer = document.querySelector('ytd-watch-flexy');
+  sidebar.style.display = '';
+  if (flexyContainer) {
+    if (!hasVisible) {
+      // Leave a minimal width so transcript/engagement panels can initialize
+      flexyContainer.style.setProperty('--ytd-watch-flexy-sidebar-width', '240px', 'important');
+    } else {
+      flexyContainer.style.removeProperty('--ytd-watch-flexy-sidebar-width');
+    }
+  }
+}
+
+// Ensure comments area is never hidden by sidebar/recommendation toggles
+function ensureCommentsVisible() {
+  const comments = document.querySelector('#comments, ytd-comments');
+  if (comments) {
+    comments.style.display = '';
+    comments.removeAttribute('hidden');
+  }
+}
+
+// Ensure transcript/engagement panels remain visible even when recommendations are hidden
+function ensureTranscriptPanelVisible() {
+  const transcriptPanel = document.querySelector('ytd-engagement-panel-section-list-renderer, ytd-transcript-segment-list-renderer');
+  if (!transcriptPanel) return;
+
+  const sidebar = document.querySelector('#secondary');
+  if (sidebar) {
     sidebar.style.display = '';
+    sidebar.removeAttribute('hidden');
+  }
+
+  const flexyContainer = document.querySelector('ytd-watch-flexy');
+  if (flexyContainer) {
+    flexyContainer.style.removeProperty('--ytd-watch-flexy-sidebar-width');
+  }
+
+  restoreTranscriptVisibility();
+}
+
+// Unhide transcript/engagement panels and their ancestor containers
+function restoreTranscriptVisibility() {
+  const panels = document.querySelectorAll('ytd-engagement-panel-section-list-renderer, ytd-transcript-segment-list-renderer');
+  panels.forEach(panel => {
+    panel.style.display = '';
+    panel.removeAttribute('hidden');
+    let parent = panel.parentElement;
+    while (parent && parent !== document.body) {
+      parent.style.display = '';
+      parent.removeAttribute('hidden');
+      if (parent.id === 'secondary' || parent.id === 'secondary-inner') {
+        // Ensure sidebar stays visible for panels
+        const flexyContainer = document.querySelector('ytd-watch-flexy');
+        if (flexyContainer) {
+          flexyContainer.style.removeProperty('--ytd-watch-flexy-sidebar-width');
+        }
+      }
+      parent = parent.parentElement;
+    }
+  });
+}
+
+let transcriptObserver = null;
+
+function startTranscriptObserver() {
+  if (transcriptObserver) return;
+  transcriptObserver = new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+      for (const node of mutation.addedNodes) {
+        if (!(node instanceof Element)) continue;
+        if (node.matches('ytd-engagement-panel-section-list-renderer, ytd-transcript-segment-list-renderer') ||
+            node.querySelector('ytd-engagement-panel-section-list-renderer, ytd-transcript-segment-list-renderer')) {
+          ensureTranscriptPanelVisible();
+          return;
+        }
+      }
+    }
+  });
+  transcriptObserver.observe(document.body || document.documentElement, { childList: true, subtree: true });
+}
+
+function stopTranscriptObserver() {
+  if (transcriptObserver) {
+    transcriptObserver.disconnect();
+    transcriptObserver = null;
   }
 }
 
@@ -1599,52 +1734,41 @@ function hideEndCards(shouldHide) {
 }
 
 function hideExplore(shouldHide) {
-  // Multi-layered detection: URL-based (primary), structure-based (fallback), text-based (last resort)
-  const explorePaths = [
-    '/feed/explore',
-    '/feed/trending', 
-    '/channel/UC-9-kyTW8ZkZNDHQJ6FgpwQ', // Music
-    '/feed/storefront?bp=', // Gaming, Movies, etc (storefront)
-    '/results?search_query=', // Live may redirect here
+  const exploreTitles = [
+    'explore', 'erkunden', 'entdecken', 'explorer', 'explorar', 'esplora', '탐색', '探索', '探索', 'ανακάλυψε', 'explorar', 'explorar',
+    'explorar', 'अन्वेषण', 'استكشاف', 'अनुसंधान करें', '탐험', 'разное', 'обзор', 'descobrir', 'explorar', 'exploare', 'explorar',
+    'felfedezés', 'utforsk', 'utforska', 'opdag', 'utforska', 'utforsking'
   ];
-  
-  // Common text patterns across languages (fallback only)
-  const exploreTexts = ['explore', 'erkunden', 'explorer', 'explorar', 'esplora', 'استكشف', 'keşfet', '탐색', '探索'];
-  const trendingTexts = ['trending', 'im trend', 'tendances', 'tendencias', 'di tendenza', 'الشائع', 'trendler', '인기', '發燒影片'];
-  
-  function isExploreElement(entry) {
-    let confidence = 0;
-    
-    // Method 1: URL-based detection (most reliable, language-independent)
-    const link = entry.querySelector('a');
-    const href = link?.getAttribute('href') || '';
-    const isExplorePath = explorePaths.some(path => href.includes(path));
-    const isBrowseEndpoint = href.includes('/feed/') && 
-      !href.includes('/feed/subscriptions') && 
-      !href.includes('/feed/you') && 
-      !href.includes('/feed/history') && 
-      !href.includes('/feed/library');
-    
-    if (isExplorePath || isBrowseEndpoint) confidence += 2; // Strong indicator
-    
-    // Method 2: Text content (works across languages)
-    const text = entry.textContent?.toLowerCase() || '';
-    const hasExploreText = exploreTexts.some(t => text.includes(t));
-    const hasTrendingText = trendingTexts.some(t => text.includes(t));
-    if (hasExploreText || hasTrendingText) confidence += 1;
-    
-    // Method 3: Structure-based (position in second guide section)
-    const parentSection = entry.closest('ytd-guide-section-renderer');
-    const allSections = Array.from(document.querySelectorAll('ytd-guide-section-renderer'));
-    const sectionIndex = allSections.indexOf(parentSection);
-    if (sectionIndex === 1 || sectionIndex === 2) confidence += 1; // Usually in 2nd or 3rd section
-    
-    return confidence >= 2; // Require at least 2 matching indicators
-  }
-  
-  document.querySelectorAll('ytd-guide-entry-renderer').forEach(entry => {
-    if (isExploreElement(entry)) {
-      entry.style.display = shouldHide ? 'none' : '';
+  const exploreHrefs = [
+    '/feed/explore', '/feed/trending', '/feed/storefront',
+    '/channel/UC-9-kyTW8ZkZNDHQJ6FgpwQ', // Music
+    '/channel/UCq-Fj5jknLsUf-MWSy4_brA', // Gaming
+    '/channel/UClgRkhTL3_hImCAmdLfDE4g', // Movies
+    '/channel/UCiGm_E4ZwYSHV3bcW1pnSeQ'  // News
+  ];
+  const youTitles = [
+    'you', 'du', 'dir', 'dich', 'vous', 'toi', 'usted', 'tú', 'vos', 'você', 'tu', 'sei', 'tuo', 'voi', 'আপনি', 'আপনার', 'आप',
+    'आपका', 'तुम', 'तुम्हारा', 'آپ', 'آپ کا', 'ты', 'тебе', 'вас', 'ваши', 'あなた', '君', '당신', '너', 'anda', 'kamu', 'anda',
+    'você', 'vous', 'usted', 'vous', 'ты', 'вы', 'तपाईं', 'ਤੁਸੀਂ', 'คุณ', 'เธอ', 'তুমি', 'तुम', 'ты', 'siz', 'sen', 'voi'
+  ];
+  const youHrefs = [
+    '/feed/you', '/feed/library', '/feed/history', '/feed/subscriptions', '/playlist?list=WL', '/account', '/paid_memberships'
+  ];
+
+  document.querySelectorAll('ytd-guide-section-renderer').forEach(section => {
+    const title = section.querySelector('#guide-section-title');
+    const titleText = title?.textContent?.trim().toLowerCase() || '';
+    const hasTitleMatch = exploreTitles.includes(titleText);
+    const hasExploreLink = Array.from(section.querySelectorAll('a[href]')).some((a) => exploreHrefs.some((h) => a.getAttribute('href')?.startsWith(h)));
+    const isYouSection = youTitles.includes(titleText) || Array.from(section.querySelectorAll('a[href]')).some((a) => youHrefs.some((h) => a.getAttribute('href')?.startsWith(h)));
+    if ((hasTitleMatch || hasExploreLink) && !isYouSection) {
+      if (shouldHide) {
+        section.style.display = 'none';
+        section.setAttribute('data-lockedin-hidden', 'explore-section');
+      } else if (section.getAttribute('data-lockedin-hidden') === 'explore-section') {
+        section.style.display = '';
+        section.removeAttribute('data-lockedin-hidden');
+      }
     }
   });
 }
@@ -1868,39 +1992,45 @@ function hideMoreFromYT(shouldHide) {
       el.style.display = '';
       el.removeAttribute('data-lockedin-hidden');
     });
+    document.querySelectorAll('[data-lockedin-hidden="more-from-yt-spacer"]').forEach(el => {
+      el.style.display = '';
+      el.removeAttribute('data-lockedin-hidden');
+    });
     return;
   }
-  
-  // Multi-layered detection for "More From YouTube" section
-  function isMoreFromYTSection(section) {
-    let confidence = 0;
-    
-    // Method 1: URL patterns (primary, language-independent)
-    const exploreLinks = section.querySelectorAll('a[href*="/feed/storefront"], a[href*="/channel/"], a[href*="/feed/trending"], a[href*="/feed/explore"]');
-    if (exploreLinks.length > 0) confidence += 2;
-    
-    // Method 2: Exclusion check - NOT the main subscription section
-    const hasSubscriptions = section.querySelector('a[href*="/feed/subscriptions"]');
-    const hasHome = section.querySelector('a[href*="/"][href$="/"]');
-    if (!hasSubscriptions && !hasHome) confidence += 1;
-    
-    // Method 3: Position-based (usually 3rd or 4th section)
-    const allSections = Array.from(document.querySelectorAll('ytd-guide-section-renderer'));
-    const sectionIndex = allSections.indexOf(section);
-    if (sectionIndex >= 2 && sectionIndex <= 4) confidence += 1;
-    
-    // Method 4: Text content fallback (multi-language)
-    const text = section.textContent?.toLowerCase() || '';
-    const moreFromYTTexts = ['more from youtube', 'mehr von youtube', 'plus de youtube', 'más de youtube', 'altro da youtube', 'المزيد من youtube', 'youtube\'tan daha fazla', 'youtube에서 더보기', '來自 youtube'];
-    if (moreFromYTTexts.some(t => text.includes(t))) confidence += 1;
-    
-    return confidence >= 3; // Require strong confidence
-  }
-  
+
+  const moreTitles = [
+    'more from youtube', 'mehr von youtube', 'plus de youtube', 'más de youtube', 'altro da youtube', 'mais do youtube', 'plus de youtube',
+    ' المزيد من youtube', 'youtube’dan daha fazla', 'youtube에서 더보기', '來自 youtube', '更多內容來自 youtube', 'youtube からのおすすめ',
+    'youtubeから', 'więcej z youtube', 'עוד מיוטיוב', 'עוד מ- youtube', 'עוד מ-youtube', 'больше от youtube', 'більше від youtube'
+  ];
+  const moreHrefs = [
+    '/premium', 'studio.youtube.com', 'music.youtube.com', 'youtubekids.com', '/gaming', '/fashion', '/shopping', '/podcasts', '/news'
+  ];
+  const youTitles = [
+    'you', 'du', 'dir', 'dich', 'vous', 'toi', 'usted', 'tú', 'vos', 'você', 'tu', 'sei', 'tuo', 'voi', 'আপনি', 'আপনার', 'आप',
+    'आपका', 'तुम', 'तुम्हारा', 'آپ', 'آپ کا', 'ты', 'тебе', 'вас', 'ваши', 'あなた', '君', '당신', '너', 'anda', 'kamu', 'anda',
+    'você', 'vous', 'usted', 'vous', 'ты', 'вы', 'तपाईं', 'ਤੁਸੀਂ', 'คุณ', 'เธอ', 'তুমি', 'तुम', 'ты', 'siz', 'sen', 'voi'
+  ];
+  const youHrefs = ['/feed/you', '/feed/library', '/feed/history', '/feed/subscriptions', '/playlist?list=WL', '/account', '/paid_memberships'];
+
   document.querySelectorAll('ytd-guide-section-renderer').forEach(section => {
-    if (isMoreFromYTSection(section) && !section.hasAttribute('data-lockedin-hidden')) {
-      section.setAttribute('hidden', '');
-      section.setAttribute('data-lockedin-hidden', 'more-from-yt');
+    const title = section.querySelector('#guide-section-title');
+    const titleText = title?.textContent?.trim().toLowerCase() || '';
+    const hasTitleMatch = moreTitles.includes(titleText);
+    const hasMoreLink = Array.from(section.querySelectorAll('a[href]')).some((a) => moreHrefs.some((h) => a.getAttribute('href')?.includes(h)));
+    const hasYouIndicator = youTitles.includes(titleText) || Array.from(section.querySelectorAll('a[href]')).some((a) => youHrefs.some((h) => a.getAttribute('href')?.startsWith(h) || a.getAttribute('href')?.includes(h)));
+    if ((hasTitleMatch || hasMoreLink) && !hasYouIndicator) {
+      if (!section.hasAttribute('data-lockedin-hidden')) {
+        section.setAttribute('hidden', '');
+        section.setAttribute('data-lockedin-hidden', 'more-from-yt');
+        section.style.display = 'none';
+      }
+      const next = section.nextElementSibling;
+      if (next && next.tagName && next.tagName.toLowerCase() === 'ytd-guide-collapsible-entry-renderer') {
+        next.style.display = 'none';
+        next.setAttribute('data-lockedin-hidden', 'more-from-yt-spacer');
+      }
     }
   });
 }
@@ -2505,11 +2635,13 @@ function runAll() {
     latestSyncedSettings = currentSettings;
     observeGuideContainers();
     updateGuideVisibility();
+    startTranscriptObserver();
     
     // Check if extension is enabled
     if (!currentSettings.extensionEnabled) {
       // Restore all elements if extension is disabled
       restoreAllElements();
+      stopTranscriptObserver();
       setInstantHiding(false, false, false); // Disable CSS hiding for homepage, search, and global
       setInstantRecsHiding(false, false); // Disable instant recs hiding
       return;
@@ -2559,6 +2691,10 @@ function runAll() {
       hideSidebarShorts(currentSettings.hideSidebarShorts);
       hidePlaylists(currentSettings.hidePlaylists);
     }
+    ensureSidebarObserver(currentSettings.hideSidebar || currentSettings.hideRecommended);
+    scheduleSidebarHideRetries(currentSettings);
+    scheduleSidebarHideRetries(currentSettings);
+    ensureSidebarObserver(currentSettings.hideSidebar || currentSettings.hideRecommended);
     hideLiveChat(currentSettings.hideLiveChat);
     hideEndCards(currentSettings.hideEndCards);
     hideComments(currentSettings.hideComments);
@@ -2711,6 +2847,10 @@ browser.storage.sync.get(null).then((settings) => {
 // ===== RUN ON PAGE LOAD =====
 runAll();
 
+// Re-run shortly after load to catch late-rendered sidebar on hard refresh
+setTimeout(runAll, 400);
+setTimeout(runAll, 1200);
+
 // Run immediately on URL changes (for navigation between pages)
 let lastUrl = location.href;
 new MutationObserver(() => {
@@ -2757,6 +2897,48 @@ function attachSpaEventListeners() {
 
 attachSpaEventListeners();
 observeGuideContainers();
+
+function forceSidebarRehide() {
+  if (latestSyncedSettings.extensionEnabled === false) return;
+  applyInstantRecsCssFromCache();
+  if (latestSyncedSettings.hideSidebar) {
+    hideAll(true);
+  } else if (latestSyncedSettings.hideRecommended) {
+    hideRecommendedVideos(true);
+    hideSidebarShorts(latestSyncedSettings.hideSidebarShorts);
+  }
+  ensureTranscriptPanelVisible();
+  ensureSidebarObserver(latestSyncedSettings.hideSidebar || latestSyncedSettings.hideRecommended);
+  scheduleSidebarHideRetries(latestSyncedSettings);
+  runAll();
+}
+
+function forcePopupEquivalent() {
+  browser.storage.sync.get(null).then((settings) => {
+    latestSyncedSettings = { ...DEFAULT_SETTINGS, ...settings };
+    if (latestSyncedSettings.extensionEnabled === false) return;
+    applyInstantRecsCssFromCache();
+    runAll();
+  }).catch(() => {
+    // On failure, still attempt a rerun with cached settings
+    if (latestSyncedSettings.extensionEnabled === false) return;
+    applyInstantRecsCssFromCache();
+    runAll();
+  });
+}
+
+window.addEventListener('load', () => {
+  forceSidebarRehide();
+  setTimeout(forceSidebarRehide, 400);
+  setTimeout(forceSidebarRehide, 1200);
+  setTimeout(forcePopupEquivalent, 150);
+  setTimeout(forcePopupEquivalent, 700);
+});
+window.addEventListener('pageshow', () => {
+  forceSidebarRehide();
+  setTimeout(forceSidebarRehide, 400);
+  setTimeout(forcePopupEquivalent, 150);
+});
 
 // ===== LISTEN FOR SETTINGS CHANGES =====
 browser.storage.onChanged.addListener((changes, area) => {

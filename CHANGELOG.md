@@ -2,6 +2,14 @@
 
 All notable changes to the LockedIn extension will be documented in this file.
 
+## [1.0.91] - 2025-12-11
+### Added
+- Expanded localization coverage and URL-based detection for Explore/Trending/More from YouTube/Subscriptions so toggles work across all YouTube languages
+
+### Fixed
+- Transcript and engagement panels now auto-unhide in any language via a global observer, keeping the sidebar visible when transcripts load
+- Prevented the “You” section from being hidden by the More from YouTube toggle and hardened sidebar section matching
+
 ## [1.0.90] - 2025-12-10
 ### Added
 - **Hide Subscriptions Toggle**: New toggle in YouTube Sidebar section to hide subscription recommendations
