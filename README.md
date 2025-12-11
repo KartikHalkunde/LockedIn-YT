@@ -81,13 +81,23 @@ Simple toggle switches for each feature. Settings are saved instantly and synced
 
 ## Changelog
 
-### Version 1.0.86 (December 3, 2025)
-- **Granular Video Sidebar Controls**: New sub-toggles for Hide Recommended Videos, Hide Shorts, and Hide Playlists
-- **Feedback & Sponsor Pages**: New overlay pages accessible from popup footer for feedback and sponsorship options
-- **UPI Payment Page**: Dedicated payment page with modern glassmorphism design
-- **Enhanced Shorts Detection**: Improved sidebar Shorts detection using URL patterns, overlay badges, and metadata
-- **Search Shorts Fix**: CSS now properly scoped to search pages only, preventing sidebar Shorts from being hidden
-- **Sidebar Restore Fix**: Fixed issue where sidebar wouldn't reappear after turning off Video Sidebar toggle
+### Version 1.0.90 (December 11, 2025)
+- **Multi-Language Popup Support**: Extension popup now supports 9+ languages (English, German, French, Spanish, Italian, Arabic, Turkish, Korean, Chinese)
+- **Automatic Theme Detection**: Popup automatically switches between light/dark mode based on browser theme
+- **Hide Subscriptions Toggle**: New toggle to hide the Subscriptions section from YouTube sidebar
+- **Language-Independent Detection**: Multi-layered detection system for Explore/Trending/MoreFromYT toggles
+- **URL-Based Primary Detection**: Works across all languages using URL patterns as primary identifier
+- **Confidence Scoring System**: Combines URL, text (9+ languages), and structural position detection
+- **Dynamic Sidebar Monitoring**: MutationObserver continuously applies hiding rules when sidebar updates
+- **Firefox Compliance**: Removed service_worker field and all innerHTML usage for Mozilla security requirements
+
+### Version 1.0.82 (November 27, 2025)
+- **Menu Tab**: New menu interface with enhanced navigation and controls
+- **Light Mode Theme**: Optional light theme for better visibility
+- **Take a Break Feature**: Background alarm-based timer with auto-redirect and flash notifications
+- **Instant CSS Hiding**: Pre-render hiding eliminates distraction flicker
+- **Context-Aware Toggles**: Parent/child toggles appear only when relevant
+- **Popup Refinements**: Improved layout spacing and clearer section dividers
 
 ### Version 1.0.75 (November 15, 2025)
 - **Livestream Fix**: Fixed sidebar recommendations not hiding on YouTube livestream pages
