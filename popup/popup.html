@@ -9,27 +9,39 @@
 <body>
   <div class="popup-container">
     <div class="popup-header">
-      <button id="menuButton" class="menu-button" title="Menu">
+      <button id="menuButton" class="menu-button" title="Menu" data-i18n-key="tooltip.menu" data-i18n-attr="title">
         <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <line x1="3" y1="6" x2="21" y2="6"></line>
           <line x1="3" y1="12" x2="21" y2="12"></line>
           <line x1="3" y1="18" x2="21" y2="18"></line>
         </svg>
-      </button>
-      <img src="../icons/iconFull.png" alt="LockedIn" class="header-logo">
-      <button id="powerButton" class="power-button" title="Toggle Extension">
-        <svg class="power-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 3v9"></path>
-          <path d="M18.364 5.636A9 9 0 1 1 5.636 5.636"></path>
+        <svg class="menu-close-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+          <line x1="18" y1="6" x2="6" y2="18"></line>
         </svg>
       </button>
+      <img src="../icons/iconFull.png" alt="LockedIn" class="header-logo">
+      <div class="power-button-container">
+        <button id="powerButton" class="power-button" title="Toggle Extension" data-i18n-key="tooltip.power" data-i18n-attr="title">
+          <svg class="power-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 3v9"></path>
+            <path d="M18.364 5.636A9 9 0 1 1 5.636 5.636"></path>
+          </svg>
+        </button>
+        <div class="power-dropdown" id="powerDropdown">
+          <button class="power-dropdown-option" data-duration="0" data-i18n-key="power.instant">Turn Off Now</button>
+          <button class="power-dropdown-option" data-duration="10" data-i18n-key="power.ten">Turn Off for 10 min</button>
+          <button class="power-dropdown-option" data-duration="20" data-i18n-key="power.twenty">Turn Off for 20 min</button>
+          <button class="power-dropdown-option" data-duration="30" data-i18n-key="power.thirty">Turn Off for 30 min</button>
+        </div>
+      </div>
     </div>
 
     <!-- Slide-out Menu -->
     <div class="settings-menu" id="settingsMenu">
       <div class="settings-menu-header">
-        <h2 class="settings-menu-title">Menu</h2>
-        <button id="closeMenuButton" class="close-menu-button" title="Close">
+        <h2 class="settings-menu-title" data-i18n-key="menu.title">MENU</h2>
+        <button id="closeMenuButton" class="close-menu-button" title="Close" data-i18n-key="tooltip.close" data-i18n-attr="title">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -42,80 +54,72 @@
         <div class="stats-bar" id="statsSection">
           <div class="stat-item time-saved">
             <span class="stat-value" id="statTimeSaved">0</span>
-            <span class="stat-label" id="statTimeLabel">Min Saved</span>
+            <span class="stat-label" id="statTimeLabel" data-i18n-key="stats.minSaved">Min Saved</span>
           </div>
           <div class="stat-divider"></div>
           <div class="stat-item shorts-blocked">
             <span class="stat-value" id="statShortsBlocked">0</span>
-            <span class="stat-label">Shorts Avoided</span>
+            <span class="stat-label" data-i18n-key="stats.shortsAvoided">Shorts Avoided</span>
           </div>
           <div class="stat-divider"></div>
           <div class="stat-item">
             <span class="stat-value" id="statDaysActive">1</span>
-            <span class="stat-label">Days Focused</span>
+            <span class="stat-label" data-i18n-key="stats.daysFocused">Days Focused</span>
           </div>
         </div>
 
-        <!-- Display Options -->
-        <div class="menu-group">
-          <div class="menu-group-box">
-            <div class="menu-setting-item">
-              <div class="menu-setting-content">
-                <span class="menu-setting-title">Show Stats</span>
-                <span class="menu-setting-desc">Show your lockedin statistics at the top of the menu. Track time saved, yt-shorts avoided, and days active.</span>
+        <!-- Menu Options -->
+        <div class="menu-options-list">
+          <!-- Show Stats -->
+          <div class="menu-option-row">
+            <span class="menu-option-label" data-i18n-key="menu.option.showStats">Show Stats</span>
+            <label class="toggle-switch">
+              <input type="checkbox" data-setting="showStats">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          
+          <div class="menu-option-divider"></div>
+          
+          <!-- Extension Appearance -->
+          <div class="menu-option-row">
+            <span class="menu-option-label" data-i18n-key="menu.option.appearance">Extension Appearance</span>
+            <div class="menu-dropdown-container">
+              <button class="menu-inline-trigger" type="button" id="appearanceDropdownTrigger" data-menu-dropdown-trigger data-menu-dropdown-target="appearanceDropdownPanel" aria-expanded="false">
+                <span class="menu-inline-value" id="appearanceDropdownValue">Auto</span>
+                <svg class="menu-inline-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
+              <div class="menu-inline-dropdown" id="appearanceDropdownPanel" data-dropdown-type="appearance">
+                <button type="button" class="menu-inline-option" data-value="auto" data-i18n-key="appearance.option.auto">Auto</button>
+                <button type="button" class="menu-inline-option" data-value="light" data-i18n-key="appearance.option.light">Light</button>
+                <button type="button" class="menu-inline-option" data-value="dark" data-i18n-key="appearance.option.dark">Dark</button>
               </div>
-              <label class="toggle-switch">
-                <input type="checkbox" data-setting="showStats">
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-            <div class="menu-setting-item">
-              <div class="menu-setting-content">
-                <span class="menu-setting-title">Light Mode</span>
-                <span class="menu-setting-desc">If you're a light mode guy.</span>
-              </div>
-              <label class="toggle-switch">
-                <input type="checkbox" data-setting="lightMode">
-                <span class="toggle-slider"></span>
-              </label>
             </div>
           </div>
-        </div>
-
-        <!-- Take a Break -->
-        <div class="menu-group">
-          <div class="menu-group-box">
-            <div class="menu-setting-item">
-              <div class="menu-setting-content">
-                <span class="menu-setting-title">Take a break</span>
-                <span class="menu-setting-desc">This mode when you turn this extension off, will Temporarily disable the extension for a set duration. The extension will automatically re-enable itself when the timer ends, so you can get back to being productive.</span>
+          
+          <div class="menu-option-divider"></div>
+          
+          <!-- Extension Language -->
+          <div class="menu-option-row">
+            <span class="menu-option-label" data-i18n-key="menu.option.language">Extension Language</span>
+            <div class="menu-dropdown-container">
+              <button class="menu-inline-trigger" type="button" id="languageDropdownTrigger" data-menu-dropdown-trigger data-menu-dropdown-target="languageDropdownPanel" aria-expanded="false">
+                <span class="menu-inline-value" id="languageDropdownValue">Auto</span>
+                <svg class="menu-inline-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
+              <div class="menu-inline-dropdown" id="languageDropdownPanel" data-dropdown-type="language">
+                <button type="button" class="menu-inline-option" data-value="auto" data-i18n-key="language.option.auto">Auto</button>
+                <button type="button" class="menu-inline-option" data-value="en">English</button>
+                <button type="button" class="menu-inline-option" data-value="es">Español</button>
+                <button type="button" class="menu-inline-option" data-value="hi">हिन्दी</button>
+                <button type="button" class="menu-inline-option" data-value="pt">Português</button>
+                <button type="button" class="menu-inline-option" data-value="fr">Français</button>
+                <button type="button" class="menu-inline-option" data-value="de">Deutsch</button>
               </div>
-              <label class="toggle-switch">
-                <input type="checkbox" data-setting="takeBreak">
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-            <div class="break-time-options">
-              <button class="break-time-btn" data-time="5">5 min</button>
-              <button class="break-time-btn" data-time="10">10 min</button>
-              <button class="break-time-btn" data-time="15">15 min</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Custom Meme (Coming Soon) -->
-        <div class="menu-group coming-soon">
-          <div class="menu-group-box coming-soon-box">
-            <div class="menu-setting-item disabled-feature">
-              <div class="menu-setting-content">
-                <span class="menu-setting-title">Custom Feed Image (Coming Soon)</span>
-                <span class="menu-setting-desc">Uploads are temporarily locked while we polish the experience. Check back soon for custom placeholders.</span>
-              </div>
-              <button class="browse-button disabled" type="button" aria-disabled="true">Browse</button>
-              <input type="file" id="customMemeInput" accept="image/png,image/jpeg,image/gif,image/webp" multiple hidden disabled data-disabled="true">
-            </div>
-            <div class="custom-meme-gallery disabled" id="customMemeGallery">
-              <span class="coming-soon-hint">Custom images are not available yet.</span>
             </div>
           </div>
         </div>
@@ -125,10 +129,10 @@
     <div class="settings-scroll-area" id="settingsArea">
       <div class="settings-container">
         <div class="settings-group">
-          <h2 class="group-title">Homepage</h2>
+          <h2 class="group-title" data-i18n-key="group.homepage">Homepage</h2>
           <div class="settings-list">
             <div class="setting-row">
-              <span class="setting-label">Hide Homepage Feed</span>
+              <span class="setting-label" data-i18n-key="setting.hideFeed">Hide Homepage Feed</span>
               <label class="toggle-switch">
                 <input type="checkbox" data-setting="hideFeed">
                 <span class="toggle-slider"></span>
@@ -136,21 +140,21 @@
             </div>
             <div class="sub-toggle-row" id="redirectToSubsRow">
               <div class="sub-toggle-line"></div>
-              <span class="setting-label">Redirect to Subscriptions</span>
+              <span class="setting-label" data-i18n-key="setting.redirectToSubs">Redirect to Subscriptions</span>
               <label class="toggle-switch">
                 <input type="checkbox" data-setting="redirectToSubs">
                 <span class="toggle-slider"></span>
               </label>
             </div>
             <div class="setting-row">
-              <span class="setting-label">Hide YouTube Shorts</span>
+              <span class="setting-label" data-i18n-key="setting.hideShortsHomepage">Hide YouTube Shorts</span>
               <label class="toggle-switch">
                 <input type="checkbox" data-setting="hideShortsHomepage">
                 <span class="toggle-slider"></span>
               </label>
             </div>
             <div class="setting-row">
-              <span class="setting-label">Hide Community Posts</span>
+              <span class="setting-label" data-i18n-key="setting.hideCommunityPosts">Hide Community Posts</span>
               <label class="toggle-switch">
                 <input type="checkbox" data-setting="hideCommunityPosts">
                 <span class="toggle-slider"></span>
@@ -160,17 +164,17 @@
         </div>
 
         <div class="settings-group">
-          <h2 class="group-title">YouTube Shorts</h2>
+          <h2 class="group-title" data-i18n-key="group.shorts">YouTube Shorts</h2>
           <div class="settings-list">
             <div class="setting-row">
-              <span class="setting-label">Hide Shorts (All Pages)</span>
+              <span class="setting-label" data-i18n-key="setting.hideShortsGlobal">Hide Shorts (All Pages)</span>
               <label class="toggle-switch">
                 <input type="checkbox" data-setting="hideShortsGlobally">
                 <span class="toggle-slider"></span>
               </label>
             </div>
             <div class="setting-row">
-              <span class="setting-label">Redirect Shorts</span>
+              <span class="setting-label" data-i18n-key="setting.redirectShorts">Redirect Shorts</span>
               <label class="toggle-switch">
                 <input type="checkbox" data-setting="redirectShorts">
                 <span class="toggle-slider"></span>
@@ -180,10 +184,10 @@
         </div>
 
         <div class="settings-group">
-          <h2 class="group-title">Video Page</h2>
+          <h2 class="group-title" data-i18n-key="group.video">Video Page</h2>
           <div class="settings-list">
             <div class="setting-row">
-              <span class="setting-label">Hide Video Sidebar</span>
+              <span class="setting-label" data-i18n-key="setting.hideSidebar">Hide Video Sidebar</span>
               <label class="toggle-switch">
                 <input type="checkbox" data-setting="hideSidebar">
                 <span class="toggle-slider"></span>
@@ -192,21 +196,21 @@
             <div class="sub-toggles-container" id="sidebarSubToggles">
               <div class="sub-toggles-line"></div>
               <div class="sub-toggle-row" id="hideRecommendedRow">
-                <span class="setting-label">Hide Recommended Videos</span>
+                <span class="setting-label" data-i18n-key="setting.hideRecommended">Hide Recommended Videos</span>
                 <label class="toggle-switch">
                   <input type="checkbox" data-setting="hideRecommended">
                   <span class="toggle-slider"></span>
                 </label>
               </div>
               <div class="sub-toggle-row" id="hideSidebarShortsRow">
-                <span class="setting-label">Hide YouTube Shorts</span>
+                <span class="setting-label" data-i18n-key="setting.hideSidebarShorts">Hide YouTube Shorts</span>
                 <label class="toggle-switch">
                   <input type="checkbox" data-setting="hideSidebarShorts">
                   <span class="toggle-slider"></span>
                 </label>
               </div>
               <div class="sub-toggle-row" id="hidePlaylistsRow">
-                <span class="setting-label">Hide Playlists</span>
+                <span class="setting-label" data-i18n-key="setting.hidePlaylists">Hide Playlists</span>
                 <label class="toggle-switch">
                   <input type="checkbox" data-setting="hidePlaylists">
                   <span class="toggle-slider"></span>
@@ -214,28 +218,28 @@
               </div>
             </div>
             <div class="setting-row">
-              <span class="setting-label">Hide End Screen Cards</span>
+              <span class="setting-label" data-i18n-key="setting.hideEndCards">Hide End Screen Cards</span>
               <label class="toggle-switch">
                 <input type="checkbox" data-setting="hideEndCards">
                 <span class="toggle-slider"></span>
               </label>
             </div>
             <div class="setting-row">
-              <span class="setting-label">Hide Comments</span>
+              <span class="setting-label" data-i18n-key="setting.hideComments">Hide Comments</span>
               <label class="toggle-switch">
                 <input type="checkbox" data-setting="hideComments">
                 <span class="toggle-slider"></span>
               </label>
             </div>
             <div class="setting-row">
-              <span class="setting-label">Hide Live Chat</span>
+              <span class="setting-label" data-i18n-key="setting.hideLiveChat">Hide Live Chat</span>
               <label class="toggle-switch">
                 <input type="checkbox" data-setting="hideLiveChat">
                 <span class="toggle-slider"></span>
               </label>
             </div>
             <div class="setting-row">
-              <span class="setting-label">Disable Autoplay</span>
+              <span class="setting-label" data-i18n-key="setting.disableAutoplay">Disable Autoplay</span>
               <label class="toggle-switch">
                 <input type="checkbox" data-setting="disableAutoplay">
                 <span class="toggle-slider"></span>
@@ -245,17 +249,17 @@
         </div>
 
         <div class="settings-group">
-          <h2 class="group-title">Search Results</h2>
+          <h2 class="group-title" data-i18n-key="group.search">Search Results</h2>
           <div class="settings-list">
             <div class="setting-row">
-              <span class="setting-label">Hide Recommended Videos</span>
+              <span class="setting-label" data-i18n-key="setting.hideRecommended">Hide Recommended Videos</span>
               <label class="toggle-switch">
                 <input type="checkbox" data-setting="hideSearchRecommended">
                 <span class="toggle-slider"></span>
               </label>
             </div>
             <div class="setting-row">
-              <span class="setting-label">Hide YouTube Shorts</span>
+              <span class="setting-label" data-i18n-key="setting.hideShortsSearch">Hide YouTube Shorts</span>
               <label class="toggle-switch">
                 <input type="checkbox" data-setting="hideShortsSearch">
                 <span class="toggle-slider"></span>
@@ -265,19 +269,26 @@
         </div>
 
         <div class="settings-group">
-          <h2 class="group-title">YouTube Sidebar</h2>
+          <h2 class="group-title" data-i18n-key="group.sidebar">YouTube Sidebar</h2>
           <div class="settings-list">
             <div class="setting-row">
-              <span class="setting-label">Hide Explore & Trending</span>
+              <span class="setting-label" data-i18n-key="setting.hideExplore">Hide Explore & Trending</span>
               <label class="toggle-switch">
                 <input type="checkbox" data-setting="hideExplore">
                 <span class="toggle-slider"></span>
               </label>
             </div>
             <div class="setting-row">
-              <span class="setting-label">Hide More From YouTube</span>
+              <span class="setting-label" data-i18n-key="setting.hideMoreFromYT">Hide More From YouTube</span>
               <label class="toggle-switch">
                 <input type="checkbox" data-setting="hideMoreFromYT">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <span class="setting-label" data-i18n-key="setting.hideSubscriptions">Hide Subscriptions</span>
+              <label class="toggle-switch">
+                <input type="checkbox" data-setting="hideSubscriptions">
                 <span class="toggle-slider"></span>
               </label>
             </div>
@@ -288,11 +299,8 @@
 
     <div class="disabled-message" id="disabledMessage">
       <div class="disabled-content">
-        <svg class="disabled-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M12 3v9"></path>
-          <path d="M18.364 5.636A9 9 0 1 1 5.636 5.636"></path>
-        </svg>
-        <p class="disabled-text">LockedIn is off</p>
+        <div class="disabled-icon">:(</div>
+        <p class="disabled-text" data-i18n-key="state.lockedinOff">LockedIn is off</p>
         <p class="break-timer-text" id="breakTimerText" style="display: none;"></p>
       </div>
     </div>
@@ -301,8 +309,8 @@
     <!-- Sponsor Page -->
     <div class="sponsor-page" id="sponsorPage">
       <div class="sponsor-header">
-        <h2 class="sponsor-title">Support LockedIn</h2>
-        <button id="closeSponsorButton" class="close-sponsor-button" title="Close">
+        <h2 class="sponsor-title" data-i18n-key="sponsor.title">Support LockedIn</h2>
+        <button id="closeSponsorButton" class="close-sponsor-button" title="Close" data-i18n-key="tooltip.close" data-i18n-attr="title">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -310,16 +318,16 @@
         </button>
       </div>
       <div class="sponsor-content">
-        <p class="sponsor-text">Donate via <a href="https://github.com/sponsors/KartikHalkunde" target="_blank" class="sponsor-link">GitHub Sponsors<svg class="heart-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M4.25 2.5c-1.336 0-2.75 1.164-2.75 3 0 2.15 1.58 4.144 3.365 5.682A20.565 20.565 0 008 13.393a20.561 20.561 0 003.135-2.211C12.92 9.644 14.5 7.65 14.5 5.5c0-1.836-1.414-3-2.75-3-1.373 0-2.609.986-3.029 2.456a.75.75 0 01-1.442 0C6.859 3.486 5.623 2.5 4.25 2.5zM8 14.25l-.345.666-.002-.001-.006-.003-.018-.01a7.643 7.643 0 01-.31-.17 22.075 22.075 0 01-3.434-2.414C2.045 10.731 0 8.35 0 5.5 0 2.836 2.086 1 4.25 1 5.797 1 7.153 1.802 8 3.02 8.847 1.802 10.203 1 11.75 1 13.914 1 16 2.836 16 5.5c0 2.85-2.045 5.231-3.885 6.818a22.08 22.08 0 01-3.744 2.584l-.018.01-.006.003h-.002L8 14.25zm0 0l.345.666a.752.752 0 01-.69 0L8 14.25z"/></svg></a> or <a href="https://kartikhalkunde.github.io/LockedIn-YT/upi.html" target="_blank" class="sponsor-link">UPI</a> to support my work.</p>
-        <p class="sponsor-text sponsor-text-secondary">If you can't contribute financially, I would appreciate if you could share LockedIn with friends or leave a review on <a href="https://addons.mozilla.org/en-US/firefox/addon/lockedin-yt/?utm_source=addons.mozilla.org&utm_medium=referral&utm_content=search" target="_blank" class="sponsor-link">Firefox</a><br>or <a href="https://microsoftedge.microsoft.com/addons/detail/lockedin/hibjbjgfbmhpiaapeccnfddnpabnlklj" target="_blank" class="sponsor-link">MS Edge</a>.</p>
+        <p class="sponsor-text" data-i18n-key="sponsor.body" data-i18n-type="html">Donate via <a href="https://github.com/sponsors/KartikHalkunde" target="_blank" class="sponsor-link">GitHub Sponsors<svg class="heart-icon" viewBox="0 0 16 16" fill="currentColor"><path d="M4.25 2.5c-1.336 0-2.75 1.164-2.75 3 0 2.15 1.58 4.144 3.365 5.682A20.565 20.565 0 008 13.393a20.561 20.561 0 003.135-2.211C12.92 9.644 14.5 7.65 14.5 5.5c0-1.836-1.414-3-2.75-3-1.373 0-2.609.986-3.029 2.456a.75.75 0 01-1.442 0C6.859 3.486 5.623 2.5 4.25 2.5zM8 14.25l-.345.666-.002-.001-.006-.003-.018-.01a7.643 7.643 0 01-.31-.17 22.075 22.075 0 01-3.434-2.414C2.045 10.731 0 8.35 0 5.5 0 2.836 2.086 1 4.25 1 5.797 1 7.153 1.802 8 3.02 8.847 1.802 10.203 1 11.75 1 13.914 1 16 2.836 16 5.5c0 2.85-2.045 5.231-3.885 6.818a22.08 22.08 0 01-3.744 2.584l-.018.01-.006.003h-.002L8 14.25zm0 0l.345.666a.752.752 0 01-.69 0L8 14.25z"/></svg></a> or <a href="https://kartikhalkunde.github.io/LockedIn-YT/upi.html" target="_blank" class="sponsor-link">UPI</a> to support my work.</p>
+        <p class="sponsor-text sponsor-text-secondary" data-i18n-key="sponsor.bodySecondary">If you can't contribute financially, I would appreciate if you could share LockedIn with friends or leave a review on <a href="https://addons.mozilla.org/en-US/firefox/addon/lockedin-yt/?utm_source=addons.mozilla.org&utm_medium=referral&utm_content=search" target="_blank" class="sponsor-link">Firefox</a><br>or <a href="https://microsoftedge.microsoft.com/addons/detail/lockedin/hibjbjgfbmhpiaapeccnfddnpabnlklj" target="_blank" class="sponsor-link">MS Edge</a>.</p>
       </div>
     </div>
 
     <!-- Feedback Page -->
     <div class="feedback-page" id="feedbackPage">
       <div class="feedback-header">
-        <h2 class="feedback-title">Feedback</h2>
-        <button id="closeFeedbackButton" class="close-feedback-button" title="Close">
+        <h2 class="feedback-title" data-i18n-key="feedback.title">Feedback</h2>
+        <button id="closeFeedbackButton" class="close-feedback-button" title="Close" data-i18n-key="tooltip.close" data-i18n-attr="title">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
@@ -328,12 +336,12 @@
       </div>
       <div class="feedback-content">
         <div class="feedback-section">
-          <h3 class="feedback-subtitle">Request a Feature</h3>
-          <p class="feedback-text">Have an idea to make LockedIn even better? <a href="https://forms.gle/sPsfwB6C16Yx299f9" target="_blank" class="feedback-link-red">Request it here.</a></p>
+          <h3 class="feedback-subtitle" data-i18n-key="feedback.requestHeading">Request a Feature</h3>
+          <p class="feedback-text" data-i18n-key="feedback.requestText">Have an idea to make LockedIn even better? <a href="https://forms.gle/sPsfwB6C16Yx299f9" target="_blank" class="feedback-link-red">Request it here.</a></p>
         </div>
         <div class="feedback-section">
-          <h3 class="feedback-subtitle">Found a Bug?</h3>
-          <p class="feedback-text">YouTube constantly keeps updating the layout. If you found a bug, <a href="https://forms.gle/9zPoc7yQpDcKD4kP9" target="_blank" class="feedback-link-red">report it here.</a></p>
+          <h3 class="feedback-subtitle" data-i18n-key="feedback.bugHeading">Found a Bug?</h3>
+          <p class="feedback-text" data-i18n-key="feedback.bugText">YouTube constantly keeps updating the layout. If you found a bug, <a href="https://forms.gle/9zPoc7yQpDcKD4kP9" target="_blank" class="feedback-link-red">report it here.</a></p>
         </div>
       </div>
     </div>
@@ -341,9 +349,9 @@
     <div class="popup-footer">
       <hr class="footer-divider">
       <div class="footer-content">
-        <button id="sponsorButton" class="footer-link footer-button">Sponsor<svg class="coffee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg></button>
+        <button id="sponsorButton" class="footer-link footer-button"><span data-i18n-key="footer.sponsor">Sponsor</span><svg class="coffee-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/></svg></button>
         <div class="version"></div>
-        <button id="feedbackButton" class="footer-link footer-button">Feedback</button>
+        <button id="feedbackButton" class="footer-link footer-button" data-i18n-key="footer.feedback">Feedback</button>
       </div>
     </div>
   </div>

@@ -2,6 +2,38 @@
 
 All notable changes to the LockedIn extension will be documented in this file.
 
+## [1.0.90] - 2025-12-10
+### Added
+- **Hide Subscriptions Toggle**: New toggle in YouTube Sidebar section to hide subscription recommendations
+- **Instant CSS Hiding**: Implemented CSS-based instant hiding for recommendations to eliminate 0.5-1s delay
+- **Live Chat Support**: Extended recommendations hiding to work properly in live chat layout (#below container)
+- **Engagement Panel Protection**: Transcripts and other engagement panels now properly excluded from sidebar hiding
+- **Menu Page UI Enhancements**: Improved spacing, backgrounds, shadows, and overall visual polish
+- **Compact Power Dropdown**: Redesigned power dropdown with rounded corners, better positioning, and refined colors
+- **Break Timer Update**: Changed timer text from "Back in" to "See you in"
+- **Disabled State Icon**: Changed from power icon to ":( " emoticon in red
+- **Show Stats Toggle Resize**: Made Show Stats toggle match main page toggle size for consistency
+- **Translation Updates**: Added full translations for all new features across 6 languages (English, Spanish, Hindi, Portuguese, French, German)
+
+### Changed
+- **Power Dropdown Styling**: More compact design with 96px min-width, repositioned to top-right, rounded corners
+- **Menu Header Behavior**: Header now stays visible behind menu with z-index instead of hiding completely
+- **Menu Title Styling**: Updated to match feedback page font style (17.5px Segoe UI Semibold)
+- **Footer Sizing**: Optimized footer padding and text sizes for better visual balance
+- **Hover Colors**: Updated power dropdown hover to lighter grey (rgba 255,255,255,0.85)
+
+### Fixed
+- **Transcript Visibility**: Transcripts now always visible regardless of sidebar/recommendations toggles
+- **Live Chat Recommendations**: Fixed recommendations not hiding in live chat layout
+- **Element Hiding Delay**: Eliminated 0.5-1 second delay when hiding recommendations
+- **Stats Accuracy**: Verified and confirmed stats tracking logic is accurate and properly gated by page activity
+
+### Technical
+- Added `isEngagementPanel()` helper function to exclude engagement panels from hiding
+- Implemented `setInstantRecsHiding()` with dynamic CSS injection for instant hiding
+- Extended `hideRecommendedVideos()` to handle #below container for live chat
+- Updated all translation dictionaries with new keys
+
 ## [1.0.85] - 2025-12-03
 ### Added
 - **Granular Video Sidebar Controls**: New sub-toggles under Video Sidebar for Hide Recommended Videos, Hide Shorts, and Hide Playlists

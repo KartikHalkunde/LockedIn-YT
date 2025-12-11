@@ -53,6 +53,12 @@ instantHideStyle.textContent = '';
 // Inject the style immediately (before anything loads)
 (document.head || document.documentElement).appendChild(instantHideStyle);
 
+// Instant CSS hiding for recommended videos
+const instantRecsHideStyle = document.createElement('style');
+instantRecsHideStyle.id = 'lockedin-instant-recs-hide';
+instantRecsHideStyle.textContent = '';
+(document.head || document.documentElement).appendChild(instantRecsHideStyle);
+
 const navHideStyle = document.createElement('style');
 navHideStyle.id = 'lockedin-nav-hide';
 navHideStyle.textContent = `
@@ -96,57 +102,104 @@ html[data-lockedin-hide-shorts-tab="true"] ytm-pivot-bar-item-renderer:has([data
 `;
 (document.head || document.documentElement).appendChild(navHideStyle);
 
-const timesUpOverlayStyle = document.createElement('style');
-timesUpOverlayStyle.id = 'lockedin-timesup-style';
-timesUpOverlayStyle.textContent = `
-#lockedin-timesup-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(255, 255, 255, 0);
-  backdrop-filter: blur(0px);
-  -webkit-backdrop-filter: blur(0px);
-  z-index: 2147483646;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.15s ease-out, backdrop-filter 0.2s ease-out;
+// ===== LOCALIZATION (CONTENT SCRIPT) =====
+const SUPPORTED_LANGUAGES = ['en', 'es', 'hi', 'pt', 'fr', 'de'];
+const FALLBACK_LANGUAGE = 'en';
+
+const I18N_STRINGS = {
+  en: {
+    'placeholder.alt': 'Stay Focused!'
+  },
+  es: {
+    'placeholder.alt': '¡Concéntrate!'
+  },
+  hi: {
+    'placeholder.alt': 'ध्यान केंद्रित रखें!'
+  },
+  pt: {
+    'placeholder.alt': 'Mantenha o foco!'
+  },
+  fr: {
+    'placeholder.alt': 'Reste concentré !'
+  },
+  de: {
+    'placeholder.alt': 'Bleib fokussiert!'
+  }
+};
+
+let activeLanguage = FALLBACK_LANGUAGE;
+
+function formatTemplate(template, replacements) {
+  if (!template || !replacements) return template;
+  return Object.keys(replacements).reduce((result, key) => {
+    const value = replacements[key];
+    return result.replace(new RegExp(`{${key}}`, 'g'), value);
+  }, template);
 }
 
-#lockedin-timesup-overlay.visible {
-  opacity: 1;
-  background: rgba(255, 255, 255, 0.97);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-  pointer-events: all;
-  transition: opacity 0.25s ease-in, backdrop-filter 0.3s ease-in;
+function getBrowserLanguage() {
+  try {
+    if (browser && browser.i18n && typeof browser.i18n.getUILanguage === 'function') {
+      return browser.i18n.getUILanguage();
+    }
+  } catch (error) {
+    console.debug('LockedIn: Unable to detect browser language', error);
+  }
+  if (typeof navigator !== 'undefined' && navigator.language) {
+    return navigator.language;
+  }
+  return FALLBACK_LANGUAGE;
 }
 
-#lockedin-timesup-overlay .lockedin-timesup-image {
-  position: absolute;
-  top: 200px;
-  left: 50%;
-  transform: translate(-50%, -20px);
-  width: 120px;
-  height: 120px;
-  max-width: 120px;
-  max-height: 120px;
-  border-radius: 8px;
-  object-fit: contain;
-  filter: drop-shadow(0 12px 25px rgba(0, 0, 0, 0.25));
-  opacity: 0;
-  transition: opacity 0.25s ease-out;
+function resolveLanguagePreference(preferred) {
+  if (preferred && preferred !== 'auto' && SUPPORTED_LANGUAGES.includes(preferred)) {
+    return preferred;
+  }
+  const browserLang = (getBrowserLanguage() || '').toLowerCase();
+  const exactMatch = SUPPORTED_LANGUAGES.find((code) => browserLang === code);
+  if (exactMatch) {
+    return exactMatch;
+  }
+  const partialMatch = SUPPORTED_LANGUAGES.find((code) => browserLang.startsWith(`${code}-`));
+  return partialMatch || FALLBACK_LANGUAGE;
 }
 
-#lockedin-timesup-overlay.show-image .lockedin-timesup-image {
-  opacity: 1;
+function setActiveLanguage(languageCode) {
+  activeLanguage = SUPPORTED_LANGUAGES.includes(languageCode) ? languageCode : FALLBACK_LANGUAGE;
 }
 
-@media (max-width: 700px) {
-  #lockedin-timesup-overlay .lockedin-timesup-image {
-    top: 120px;
+function translate(key, replacements = null, languageCode = activeLanguage) {
+  if (!key) {
+    return '';
+  }
+  const languagePack = I18N_STRINGS[languageCode] || I18N_STRINGS[FALLBACK_LANGUAGE] || {};
+  let template = languagePack[key];
+  if (template === undefined) {
+    const fallbackPack = I18N_STRINGS[FALLBACK_LANGUAGE] || {};
+    template = fallbackPack[key] || '';
+  }
+  if (!template) {
+    return '';
+  }
+  return replacements ? formatTemplate(template, replacements) : template;
+}
+
+async function initLocalization() {
+  try {
+    const stored = await browser.storage.sync.get('language');
+    const preferred = stored.language || 'auto';
+    setActiveLanguage(resolveLanguagePreference(preferred));
+  } catch (error) {
+    console.debug('LockedIn: Unable to initialize localization', error);
+    setActiveLanguage(FALLBACK_LANGUAGE);
   }
 }
-`;
-(document.head || document.documentElement).appendChild(timesUpOverlayStyle);
+
+function handleLanguagePreferenceChange(preferred) {
+  setActiveLanguage(resolveLanguagePreference(preferred || 'auto'));
+}
+
+initLocalization();
 
 // Function to enable/disable instant CSS hiding
 function setInstantHiding(hideHomepage, hideSearch, hideGlobally = false) {
@@ -297,6 +350,54 @@ function setInstantHiding(hideHomepage, hideSearch, hideGlobally = false) {
   style.textContent = css;
 }
 
+// Function to set instant CSS hiding for recommended videos
+function setInstantRecsHiding(hideRecommended, hideSidebar) {
+  const style = document.getElementById('lockedin-instant-recs-hide');
+  if (!style) return;
+  
+  let css = '';
+  
+  // Only apply instant hiding if either hideRecommended or hideSidebar is enabled
+  if (hideRecommended || hideSidebar) {
+    css = `
+  /* ===== INSTANT RECOMMENDED VIDEOS HIDING ===== */
+  /* Hide chip cloud */
+  #secondary yt-chip-cloud-renderer,
+  #secondary yt-related-chip-cloud-renderer,
+  #below yt-chip-cloud-renderer,
+  #below yt-related-chip-cloud-renderer {
+    display: none !important;
+  }
+  
+  /* Hide video renderers in sidebar and below-video area */
+  #secondary ytd-compact-video-renderer:not([data-lockedin-hidden]),
+  #secondary ytd-compact-movie-renderer:not([data-lockedin-hidden]),
+  #secondary ytd-compact-radio-renderer:not([data-lockedin-hidden]),
+  #secondary ytd-compact-autoplay-renderer:not([data-lockedin-hidden]),
+  #secondary ytd-reel-item-renderer:not([data-lockedin-hidden]),
+  #secondary ytd-video-renderer:not([data-lockedin-hidden]),
+  #below ytd-compact-video-renderer:not([data-lockedin-hidden]),
+  #below ytd-compact-movie-renderer:not([data-lockedin-hidden]),
+  #below ytd-compact-radio-renderer:not([data-lockedin-hidden]),
+  #below ytd-compact-autoplay-renderer:not([data-lockedin-hidden]),
+  #below ytd-reel-item-renderer:not([data-lockedin-hidden]),
+  #below ytd-video-renderer:not([data-lockedin-hidden]) {
+    display: none !important;
+  }
+  
+  /* Hide recommendation containers */
+  #secondary ytd-item-section-renderer:not([data-lockedin-hidden]),
+  #secondary ytd-continuation-item-renderer:not([data-lockedin-hidden]),
+  #below ytd-item-section-renderer:not([data-lockedin-hidden]),
+  #below ytd-continuation-item-renderer:not([data-lockedin-hidden]) {
+    display: none !important;
+  }
+`;
+  }
+  
+  style.textContent = css;
+}
+
 function setRootFlag(flag, enabled) {
   const root = document.documentElement;
   if (!root) return;
@@ -307,70 +408,6 @@ function setRootFlag(flag, enabled) {
   }
 }
 
-let timesUpOverlayTimeout = null;
-let breakRedirectTimeout = null;
-
-function showTimesUpOverlay() {
-  try {
-    const existing = document.getElementById('lockedin-timesup-overlay');
-    if (existing) {
-      existing.remove();
-    }
-    const overlay = document.createElement('div');
-    overlay.id = 'lockedin-timesup-overlay';
-
-    const img = document.createElement('img');
-    img.className = 'lockedin-timesup-image';
-    img.alt = 'Time is up!';
-    img.src = browser.runtime.getURL('homepage/timesUp.jpg');
-    img.onerror = () => {
-      img.remove();
-      const fallback = document.createElement('div');
-      fallback.className = 'lockedin-timesup-image';
-      fallback.style.display = 'flex';
-      fallback.style.alignItems = 'center';
-      fallback.style.justifyContent = 'center';
-      fallback.style.fontSize = '20px';
-      fallback.style.fontWeight = '600';
-      fallback.style.color = '#0f0f0f';
-      fallback.textContent = 'Time\'s up!';
-      overlay.appendChild(fallback);
-    };
-    overlay.appendChild(img);
-
-    (document.body || document.documentElement).appendChild(overlay);
-
-    requestAnimationFrame(() => {
-      overlay.classList.add('visible');
-      requestAnimationFrame(() => overlay.classList.add('show-image'));
-    });
-
-    clearTimeout(timesUpOverlayTimeout);
-    timesUpOverlayTimeout = setTimeout(() => {
-      overlay.classList.remove('visible');
-      overlay.addEventListener('transitionend', () => overlay.remove(), { once: true });
-    }, 3000);
-  } catch (error) {
-    console.error('LockedIn: Failed to show times up overlay', error);
-  }
-}
-
-function handleBreakEnded() {
-  showTimesUpOverlay();
-  clearTimeout(breakRedirectTimeout);
-  breakRedirectTimeout = setTimeout(() => {
-    try {
-      if (window.location.hostname && window.location.hostname.includes('youtube.com')) {
-        const targetUrl = 'https://www.youtube.com/';
-        if (window.location.href !== targetUrl) {
-          window.location.replace(targetUrl);
-        }
-      }
-    } catch (error) {
-      console.error('LockedIn: Failed to redirect after break', error);
-    }
-  }, 600);
-}
 
 // ===== DEBOUNCE UTILITY =====
 function debounce(func, wait) {
@@ -405,6 +442,7 @@ const DEFAULT_SETTINGS = {
   hideExplore: false,
   hideMoreFromYT: false,
   hidePlaylists: false,
+  hideSubscriptions: false,
   extensionEnabled: true
 };
 
@@ -431,6 +469,9 @@ const GUIDE_SHORTS_SELECTORS = [
 const guideObserver = new MutationObserver(() => {
   if (latestSyncedSettings.extensionEnabled === false) return;
   updateGuideVisibility();
+  // Re-apply Explore and More From YT hiding when sidebar content changes
+  hideExplore(latestSyncedSettings.hideExplore);
+  hideMoreFromYT(latestSyncedSettings.hideMoreFromYT);
 });
 
 function applyInstantShortsCssFromCache() {
@@ -438,6 +479,13 @@ function applyInstantShortsCssFromCache() {
     latestSyncedSettings.hideShortsHomepage,
     latestSyncedSettings.hideShortsSearch,
     latestSyncedSettings.hideShortsGlobally
+  );
+}
+
+function applyInstantRecsCssFromCache() {
+  setInstantRecsHiding(
+    latestSyncedSettings.hideRecommended,
+    latestSyncedSettings.hideSidebar
   );
 }
 
@@ -855,30 +903,35 @@ function hideFeed(shouldHide) {
             imageUrl = result.customMemes[Math.floor(Math.random() * result.customMemes.length)];
             console.log('LockedIn: Using custom meme');
           } else {
-            // Use default meme images
-            const memeImages = ['meme1.jpg', 'meme2.jpg', 'meme3.jpg', 'meme4.jpg', 'meme5.jpg'];
-            const randomMeme = memeImages[Math.floor(Math.random() * memeImages.length)];
-            imageUrl = browser.runtime.getURL('homepage/' + randomMeme);
+            // Use default meme image
+            imageUrl = browser.runtime.getURL('homepage/meme1.jpg');
             console.log('LockedIn: Loading default meme from:', imageUrl);
           }
           
           const { src, cleanup } = getImageSource(imageUrl);
           if (!src) {
-            placeholder.innerHTML = '<div style="font-size: 50px;">🔒</div>';
+            const fallback = document.createElement('div');
+            fallback.style.fontSize = '50px';
+            fallback.textContent = '🔒';
+            placeholder.appendChild(fallback);
             return;
           }
           
           // Create image element
           const img = document.createElement('img');
           img.src = src;
-          img.alt = 'Stay Focused!';
+          img.alt = translate('placeholder.alt') || 'Stay Focused!';
           img.style.cssText = 'max-width: 120px; max-height: 120px; box-shadow: 0 2px 10px rgba(0,0,0,0.3); display: block; image-rendering: pixelated; image-rendering: -moz-crisp-edges; image-rendering: crisp-edges; filter: contrast(1.2) saturate(0.8);';
           
           img.onerror = function() {
             console.error('LockedIn: Failed to load meme image');
             if (cleanup) cleanup();
             // Show a fallback emoji if image fails to load
-            placeholder.innerHTML = '<div style="font-size: 50px;">🔒</div>';
+            placeholder.textContent = '';
+            const fallback = document.createElement('div');
+            fallback.style.fontSize = '50px';
+            fallback.textContent = '🔒';
+            placeholder.appendChild(fallback);
           };
           
           img.onload = function() {
@@ -908,6 +961,15 @@ function hideSidebar(shouldHide) {
   
   const playlistPanel = document.querySelector('#secondary ytd-playlist-panel-renderer, ytd-playlist-panel-renderer, ytd-playlist-panel-view-model, #playlist');
   const hasPlaylistPanel = !!playlistPanel;
+  
+  // Helper to check if element is or contains transcript/engagement panels
+  const isEngagementPanel = (el) => {
+    return el.tagName === 'YTD-ENGAGEMENT-PANEL-SECTION-LIST-RENDERER' ||
+           el.closest('ytd-engagement-panel-section-list-renderer') ||
+           el.querySelector('ytd-engagement-panel-section-list-renderer') ||
+           el.hasAttribute('target-id') || // Engagement panels have target-id
+           el.closest('[target-id]');
+  };
   
   // Restore state when disabled
   if (!shouldHide) {
@@ -942,8 +1004,9 @@ function hideSidebar(shouldHide) {
     ];
     recommendationSelectors.forEach(selector => {
       document.querySelectorAll(selector).forEach(el => {
-        // Do not hide the playlist panel itself
+        // Do not hide the playlist panel itself or engagement panels
         if (el.closest('ytd-playlist-panel-renderer')) return;
+        if (isEngagementPanel(el)) return;
         if (!el.hasAttribute('data-lockedin-hidden')) {
           el.style.display = 'none';
           el.setAttribute('data-lockedin-hidden', 'sidebar-recommendation');
@@ -961,6 +1024,7 @@ function hideSidebar(shouldHide) {
     recommendationContainers.forEach(containerSel => {
       document.querySelectorAll(`#secondary ${containerSel}`).forEach(container => {
         if (playlistPanel && container.contains(playlistPanel)) return;
+        if (isEngagementPanel(container)) return;
         // Special handling for livestream continuation containers
         const isLivestreamContainer = container.querySelector('ytd-compact-video-renderer, ytd-compact-autoplay-renderer');
         if (isLivestreamContainer || container.tagName.toLowerCase() === 'ytd-continuation-item-renderer') {
@@ -990,6 +1054,7 @@ function hideSidebar(shouldHide) {
     let recsCount = 0;
     allVideoRenderers.forEach(selector => {
       document.querySelectorAll(`#secondary ${selector}`).forEach(el => {
+        if (isEngagementPanel(el)) return;
         if (!el.hasAttribute('data-lockedin-hidden')) {
           el.style.display = 'none';
           el.setAttribute('data-lockedin-hidden', 'sidebar-recommendation');
@@ -1012,6 +1077,7 @@ function hideSidebar(shouldHide) {
     ];
     allContainers.forEach(selector => {
       document.querySelectorAll(`#secondary ${selector}`).forEach(el => {
+        if (isEngagementPanel(el)) return;
         if (!el.hasAttribute('data-lockedin-hidden')) {
           el.style.display = 'none';
           el.setAttribute('data-lockedin-hidden', 'sidebar-recommendation');
@@ -1019,9 +1085,9 @@ function hideSidebar(shouldHide) {
       });
     });
     
-    // Finally hide the entire sidebar
-    toggleElement('#secondary', true);
-    toggleElement('#secondary-inner', true);
+    // Don't hide the entire sidebar container to keep transcripts accessible
+    // Instead, just shrink the flexy width to minimize visual space
+    // Keep #secondary visible but recommendations hidden
     const flexyContainer = document.querySelector('ytd-watch-flexy');
     if (flexyContainer) {
       flexyContainer.style.setProperty('--ytd-watch-flexy-sidebar-width', '0px', 'important');
@@ -1058,6 +1124,41 @@ function hidePlaylists(shouldHide) {
   collapseSidebarIfEmpty();
 }
 
+function hideSubscriptions(shouldHide) {
+  // Target the subscriptions section in the sidebar (ytd-guide-section-renderer that contains subscription channels)
+  const subscriptionsSection = document.querySelector('ytd-guide-section-renderer:has(#sections ytd-guide-collapsible-entry-renderer)');
+  
+  if (!shouldHide) {
+    // Restore subscriptions
+    if (subscriptionsSection && subscriptionsSection.hasAttribute('data-lockedin-hidden')) {
+      subscriptionsSection.style.display = '';
+      subscriptionsSection.removeAttribute('data-lockedin-hidden');
+    }
+    // Also restore individual subscription entries
+    document.querySelectorAll('ytd-guide-entry-renderer[data-lockedin-hidden="subscription"]').forEach(el => {
+      el.style.display = '';
+      el.removeAttribute('data-lockedin-hidden');
+    });
+    return;
+  }
+  
+  // Hide the entire subscriptions section
+  if (subscriptionsSection && !subscriptionsSection.hasAttribute('data-lockedin-hidden')) {
+    subscriptionsSection.style.display = 'none';
+    subscriptionsSection.setAttribute('data-lockedin-hidden', 'subscriptions-section');
+  }
+  
+  // Also hide individual subscription channel entries as a fallback
+  document.querySelectorAll('ytd-guide-entry-renderer:has(#endpoint[href^="/@"]), ytd-guide-entry-renderer:has(#endpoint[href^="/channel/"]), ytd-guide-entry-renderer:has(#endpoint[href^="/c/"])').forEach(el => {
+    // Make sure we're not hiding Home, Shorts, or other non-subscription items
+    const link = el.querySelector('a[href^="/@"], a[href^="/channel/"], a[href^="/c/"]');
+    if (link && !el.hasAttribute('data-lockedin-hidden')) {
+      el.style.display = 'none';
+      el.setAttribute('data-lockedin-hidden', 'subscription');
+    }
+  });
+}
+
 function hideRecommendedVideos(shouldHide) {
   if (!window.location.href.includes('/watch')) {
     return;
@@ -1069,6 +1170,11 @@ function hideRecommendedVideos(shouldHide) {
       el.style.display = '';
       el.removeAttribute('data-lockedin-hidden');
     });
+    // Restore below-video recommendations (live chat layout)
+    document.querySelectorAll('[data-lockedin-hidden="below-video-recommended"]').forEach(el => {
+      el.style.display = '';
+      el.removeAttribute('data-lockedin-hidden');
+    });
     collapseSidebarIfEmpty();
     return;
   }
@@ -1076,92 +1182,114 @@ function hideRecommendedVideos(shouldHide) {
   // Hide ALL sidebar content except playlists
   // This includes recommended videos, shorts, autoplay, movies, chips, etc.
   const sidebar = document.querySelector('#secondary');
-  if (!sidebar) return;
   
-  // Hide chip cloud (the "All", "From The Office", etc. chips)
-  sidebar.querySelectorAll('yt-chip-cloud-renderer, yt-related-chip-cloud-renderer').forEach(el => {
-    if (!el.hasAttribute('data-lockedin-hidden')) {
-      el.style.display = 'none';
-      el.setAttribute('data-lockedin-hidden', 'sidebar-recommended');
-    }
-  });
+  // Also target below-video area for live chat layout
+  const belowVideo = document.querySelector('#below');
   
-  // Target all video/content renderers in sidebar
-  const contentSelectors = [
-    'ytd-compact-video-renderer',
-    'ytd-compact-movie-renderer',
-    'ytd-compact-radio-renderer',
-    'ytd-compact-autoplay-renderer',
-    'ytd-reel-item-renderer',
-    'ytd-video-renderer'
-  ];
+  const containers = [sidebar, belowVideo].filter(Boolean);
+  
+  if (containers.length === 0) return;
   
   let recsCount = 0;
-  contentSelectors.forEach(selector => {
-    sidebar.querySelectorAll(selector).forEach(el => {
-      // Skip if already hidden
-      if (el.hasAttribute('data-lockedin-hidden')) return;
-      
-      // Don't hide if it's part of a playlist panel
-      if (el.closest('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model')) return;
-      
-      // Hide everything else
-      el.style.display = 'none';
-      el.setAttribute('data-lockedin-hidden', 'sidebar-recommended');
-      recsCount++;
+  
+  containers.forEach(container => {
+    const isBelowVideo = container.id === 'below';
+    const hiddenAttr = isBelowVideo ? 'below-video-recommended' : 'sidebar-recommended';
+    
+    // Hide chip cloud (the "All", "From The Office", etc. chips)
+    container.querySelectorAll('yt-chip-cloud-renderer, yt-related-chip-cloud-renderer').forEach(el => {
+      if (!el.hasAttribute('data-lockedin-hidden')) {
+        el.style.display = 'none';
+        el.setAttribute('data-lockedin-hidden', hiddenAttr);
+      }
     });
+  
+    // Target all video/content renderers
+    const contentSelectors = [
+      'ytd-compact-video-renderer',
+      'ytd-compact-movie-renderer',
+      'ytd-compact-radio-renderer',
+      'ytd-compact-autoplay-renderer',
+      'ytd-reel-item-renderer',
+      'ytd-video-renderer'
+    ];
+  
+    contentSelectors.forEach(selector => {
+      container.querySelectorAll(selector).forEach(el => {
+        // Skip if already hidden
+        if (el.hasAttribute('data-lockedin-hidden')) return;
+        
+        // Don't hide if it's part of a playlist panel
+        if (el.closest('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model')) return;
+        
+        // Don't hide if it's an engagement panel (transcript, etc.)
+        if (el.closest('ytd-engagement-panel-section-list-renderer') || 
+            el.hasAttribute('target-id') || 
+            el.closest('[target-id]')) return;
+        
+        // Hide everything else
+        el.style.display = 'none';
+        el.setAttribute('data-lockedin-hidden', hiddenAttr);
+        recsCount++;
+      });
+    });
+  
+    // Also hide recommendation containers (but NOT if they contain playlists)
+    container.querySelectorAll('ytd-item-section-renderer, ytd-continuation-item-renderer').forEach(containerEl => {
+      // Skip if it contains a playlist
+      if (containerEl.querySelector('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model')) return;
+      
+      // Don't hide if it's an engagement panel
+      if (containerEl.closest('ytd-engagement-panel-section-list-renderer') || 
+          containerEl.hasAttribute('target-id') || 
+          containerEl.closest('[target-id]')) return;
+      
+      if (!containerEl.hasAttribute('data-lockedin-hidden')) {
+        containerEl.style.display = 'none';
+        containerEl.setAttribute('data-lockedin-hidden', hiddenAttr);
+      }
+    });
+  
+    // Hide the main watch-next results container and #related (but preserve playlists)
+    const watchNextResults = container.querySelector('ytd-watch-next-secondary-results-renderer');
+    if (watchNextResults && !watchNextResults.hasAttribute('data-lockedin-hidden')) {
+      // Check if it contains a playlist - if so, only hide the #items inside, not the whole thing
+      const hasPlaylist = watchNextResults.querySelector('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model');
+      if (hasPlaylist) {
+        // Hide only the items container, not the playlist
+        const itemsContainer = watchNextResults.querySelector('#items');
+        if (itemsContainer && !itemsContainer.hasAttribute('data-lockedin-hidden')) {
+          // Hide individual items in #items that aren't playlists
+          itemsContainer.querySelectorAll(':scope > *').forEach(item => {
+            if (!item.matches('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model') && 
+                !item.querySelector('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model') &&
+                !item.hasAttribute('data-lockedin-hidden')) {
+              item.style.display = 'none';
+              item.setAttribute('data-lockedin-hidden', hiddenAttr);
+            }
+          });
+        }
+      } else {
+        // No playlist, hide the whole container
+        watchNextResults.style.display = 'none';
+        watchNextResults.setAttribute('data-lockedin-hidden', hiddenAttr);
+      }
+    }
+  
+    // Also target #related if it exists
+    const relatedContainer = container.querySelector('#related');
+    if (relatedContainer && !relatedContainer.hasAttribute('data-lockedin-hidden')) {
+      const hasPlaylist = relatedContainer.querySelector('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model');
+      if (!hasPlaylist) {
+        relatedContainer.style.display = 'none';
+        relatedContainer.setAttribute('data-lockedin-hidden', hiddenAttr);
+      }
+    }
   });
   
   // Track hidden recommendations
   if (recsCount > 0) {
     trackStat('recs', recsCount);
-  }
-  
-  // Also hide recommendation containers (but NOT if they contain playlists)
-  sidebar.querySelectorAll('ytd-item-section-renderer, ytd-continuation-item-renderer').forEach(container => {
-    // Skip if it contains a playlist
-    if (container.querySelector('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model')) return;
-    
-    if (!container.hasAttribute('data-lockedin-hidden')) {
-      container.style.display = 'none';
-      container.setAttribute('data-lockedin-hidden', 'sidebar-recommended');
-    }
-  });
-  
-  // Hide the main watch-next results container and #related (but preserve playlists)
-  const watchNextResults = sidebar.querySelector('ytd-watch-next-secondary-results-renderer');
-  if (watchNextResults && !watchNextResults.hasAttribute('data-lockedin-hidden')) {
-    // Check if it contains a playlist - if so, only hide the #items inside, not the whole thing
-    const hasPlaylist = watchNextResults.querySelector('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model');
-    if (hasPlaylist) {
-      // Hide only the items container, not the playlist
-      const itemsContainer = watchNextResults.querySelector('#items');
-      if (itemsContainer && !itemsContainer.hasAttribute('data-lockedin-hidden')) {
-        // Hide individual items in #items that aren't playlists
-        itemsContainer.querySelectorAll(':scope > *').forEach(item => {
-          if (!item.matches('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model') && 
-              !item.querySelector('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model') &&
-              !item.hasAttribute('data-lockedin-hidden')) {
-            item.style.display = 'none';
-            item.setAttribute('data-lockedin-hidden', 'sidebar-recommended');
-          }
-        });
-      }
-    } else {
-      // No playlist, hide the whole container
-      watchNextResults.style.display = 'none';
-      watchNextResults.setAttribute('data-lockedin-hidden', 'sidebar-recommended');
-    }
-  }
-  
-  // Also target #related if it exists
-  const relatedContainer = sidebar.querySelector('#related');
-  if (relatedContainer && !relatedContainer.hasAttribute('data-lockedin-hidden')) {
-    const hasPlaylist = relatedContainer.querySelector('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model');
-    if (!hasPlaylist) {
-      relatedContainer.style.display = 'none';
-      relatedContainer.setAttribute('data-lockedin-hidden', 'sidebar-recommended');
-    }
   }
   
   collapseSidebarIfEmpty();
@@ -1471,14 +1599,52 @@ function hideEndCards(shouldHide) {
 }
 
 function hideExplore(shouldHide) {
-  const exploreKeywords = ['explore', 'trending', 'music', 'movies', 'live', 'gaming', 'news', 'sports', 'learning', 'fashion','shopping','courses','podcasts'];
-  document.querySelectorAll('ytd-guide-entry-renderer a').forEach(link => {
-    const text = link.innerText.toLowerCase().trim();
-    if (exploreKeywords.some(item => text.includes(item))) {
-      const parent = link.closest('ytd-guide-entry-renderer');
-      if (parent) {
-        parent.style.display = shouldHide ? 'none' : '';
-      }
+  // Multi-layered detection: URL-based (primary), structure-based (fallback), text-based (last resort)
+  const explorePaths = [
+    '/feed/explore',
+    '/feed/trending', 
+    '/channel/UC-9-kyTW8ZkZNDHQJ6FgpwQ', // Music
+    '/feed/storefront?bp=', // Gaming, Movies, etc (storefront)
+    '/results?search_query=', // Live may redirect here
+  ];
+  
+  // Common text patterns across languages (fallback only)
+  const exploreTexts = ['explore', 'erkunden', 'explorer', 'explorar', 'esplora', 'استكشف', 'keşfet', '탐색', '探索'];
+  const trendingTexts = ['trending', 'im trend', 'tendances', 'tendencias', 'di tendenza', 'الشائع', 'trendler', '인기', '發燒影片'];
+  
+  function isExploreElement(entry) {
+    let confidence = 0;
+    
+    // Method 1: URL-based detection (most reliable, language-independent)
+    const link = entry.querySelector('a');
+    const href = link?.getAttribute('href') || '';
+    const isExplorePath = explorePaths.some(path => href.includes(path));
+    const isBrowseEndpoint = href.includes('/feed/') && 
+      !href.includes('/feed/subscriptions') && 
+      !href.includes('/feed/you') && 
+      !href.includes('/feed/history') && 
+      !href.includes('/feed/library');
+    
+    if (isExplorePath || isBrowseEndpoint) confidence += 2; // Strong indicator
+    
+    // Method 2: Text content (works across languages)
+    const text = entry.textContent?.toLowerCase() || '';
+    const hasExploreText = exploreTexts.some(t => text.includes(t));
+    const hasTrendingText = trendingTexts.some(t => text.includes(t));
+    if (hasExploreText || hasTrendingText) confidence += 1;
+    
+    // Method 3: Structure-based (position in second guide section)
+    const parentSection = entry.closest('ytd-guide-section-renderer');
+    const allSections = Array.from(document.querySelectorAll('ytd-guide-section-renderer'));
+    const sectionIndex = allSections.indexOf(parentSection);
+    if (sectionIndex === 1 || sectionIndex === 2) confidence += 1; // Usually in 2nd or 3rd section
+    
+    return confidence >= 2; // Require at least 2 matching indicators
+  }
+  
+  document.querySelectorAll('ytd-guide-entry-renderer').forEach(entry => {
+    if (isExploreElement(entry)) {
+      entry.style.display = shouldHide ? 'none' : '';
     }
   });
 }
@@ -1705,17 +1871,36 @@ function hideMoreFromYT(shouldHide) {
     return;
   }
   
-  // Find and hide "More From YouTube" section in sidebar
+  // Multi-layered detection for "More From YouTube" section
+  function isMoreFromYTSection(section) {
+    let confidence = 0;
+    
+    // Method 1: URL patterns (primary, language-independent)
+    const exploreLinks = section.querySelectorAll('a[href*="/feed/storefront"], a[href*="/channel/"], a[href*="/feed/trending"], a[href*="/feed/explore"]');
+    if (exploreLinks.length > 0) confidence += 2;
+    
+    // Method 2: Exclusion check - NOT the main subscription section
+    const hasSubscriptions = section.querySelector('a[href*="/feed/subscriptions"]');
+    const hasHome = section.querySelector('a[href*="/"][href$="/"]');
+    if (!hasSubscriptions && !hasHome) confidence += 1;
+    
+    // Method 3: Position-based (usually 3rd or 4th section)
+    const allSections = Array.from(document.querySelectorAll('ytd-guide-section-renderer'));
+    const sectionIndex = allSections.indexOf(section);
+    if (sectionIndex >= 2 && sectionIndex <= 4) confidence += 1;
+    
+    // Method 4: Text content fallback (multi-language)
+    const text = section.textContent?.toLowerCase() || '';
+    const moreFromYTTexts = ['more from youtube', 'mehr von youtube', 'plus de youtube', 'más de youtube', 'altro da youtube', 'المزيد من youtube', 'youtube\'tan daha fazla', 'youtube에서 더보기', '來自 youtube'];
+    if (moreFromYTTexts.some(t => text.includes(t))) confidence += 1;
+    
+    return confidence >= 3; // Require strong confidence
+  }
+  
   document.querySelectorAll('ytd-guide-section-renderer').forEach(section => {
-    const heading = section.querySelector('#guide-section-title');
-    if (heading) {
-      const headingText = heading.textContent.toLowerCase().trim();
-      if (headingText.includes('more from youtube')) {
-        if (!section.hasAttribute('data-lockedin-hidden')) {
-          section.setAttribute('hidden', '');
-          section.setAttribute('data-lockedin-hidden', 'more-from-yt');
-        }
-      }
+    if (isMoreFromYTSection(section) && !section.hasAttribute('data-lockedin-hidden')) {
+      section.setAttribute('hidden', '');
+      section.setAttribute('data-lockedin-hidden', 'more-from-yt');
     }
   });
 }
@@ -2326,12 +2511,16 @@ function runAll() {
       // Restore all elements if extension is disabled
       restoreAllElements();
       setInstantHiding(false, false, false); // Disable CSS hiding for homepage, search, and global
+      setInstantRecsHiding(false, false); // Disable instant recs hiding
       return;
     }
     
     // Enable/disable instant CSS hiding based on hideShorts settings
     // Global takes precedence over individual settings
     setInstantHiding(currentSettings.hideShortsHomepage, currentSettings.hideShortsSearch, currentSettings.hideShortsGlobally);
+    
+    // Enable/disable instant CSS hiding for recommended videos
+    setInstantRecsHiding(currentSettings.hideRecommended, currentSettings.hideSidebar);
     
     // YouTube Shorts group - handle redirects first
     redirectShorts(currentSettings.redirectShorts);
@@ -2385,6 +2574,7 @@ function runAll() {
     // YouTube Sidebar group
     hideExplore(currentSettings.hideExplore);
     hideMoreFromYT(currentSettings.hideMoreFromYT);
+    hideSubscriptions(currentSettings.hideSubscriptions);
     
     updateGuideVisibility();
     ensureEssentialElementsVisible();
@@ -2507,12 +2697,14 @@ browser.storage.sync.get(null).then((settings) => {
   latestSyncedSettings = currentSettings;
   if (currentSettings.extensionEnabled) {
     setInstantHiding(currentSettings.hideShortsHomepage, currentSettings.hideShortsSearch, currentSettings.hideShortsGlobally);
+    setInstantRecsHiding(currentSettings.hideRecommended, currentSettings.hideSidebar);
   }
   updateGuideVisibility();
 }).catch(() => {
   // Use defaults if storage fails
   latestSyncedSettings = { ...DEFAULT_SETTINGS };
   setInstantHiding(DEFAULT_SETTINGS.hideShortsHomepage, DEFAULT_SETTINGS.hideShortsSearch, DEFAULT_SETTINGS.hideShortsGlobally);
+  setInstantRecsHiding(DEFAULT_SETTINGS.hideRecommended, DEFAULT_SETTINGS.hideSidebar);
   updateGuideVisibility();
 });
 
@@ -2574,8 +2766,17 @@ browser.storage.onChanged.addListener((changes, area) => {
 
   let redirectChanged = false;
   let shortsChanged = false;
+  let recsChanged = false;
 
   Object.keys(changes).forEach((key) => {
+    if (key === 'language') {
+      const change = changes[key];
+      const preferred = Object.prototype.hasOwnProperty.call(change, 'newValue')
+        ? change.newValue
+        : 'auto';
+      handleLanguagePreferenceChange(preferred);
+      return;
+    }
     const change = changes[key];
     const nextValue = Object.prototype.hasOwnProperty.call(change, 'newValue')
       ? change.newValue
@@ -2588,6 +2789,9 @@ browser.storage.onChanged.addListener((changes, area) => {
     if (key === 'hideShortsHomepage' || key === 'hideShortsSearch' || key === 'hideShortsGlobally') {
       shortsChanged = true;
     }
+    if (key === 'hideRecommended' || key === 'hideSidebar') {
+      recsChanged = true;
+    }
   });
 
   if (latestSyncedSettings.extensionEnabled !== false && redirectChanged) {
@@ -2596,6 +2800,10 @@ browser.storage.onChanged.addListener((changes, area) => {
 
   if (latestSyncedSettings.extensionEnabled !== false && shortsChanged) {
     applyInstantShortsCssFromCache();
+  }
+
+  if (latestSyncedSettings.extensionEnabled !== false && recsChanged) {
+    applyInstantRecsCssFromCache();
   }
 
   updateGuideVisibility();

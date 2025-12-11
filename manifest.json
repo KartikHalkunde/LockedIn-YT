@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "LockedIn",
-  "version": "1.0.85",
+  "version": "1.0.90",
   "description": "Stay focused on YouTube by removing distracting elements. Block recommended videos, Shorts, autoplay, and more.",
   "icons": {
     "48": "icons/icon48.png"
@@ -11,7 +11,6 @@
     "alarms"
   ],
   "background": {
-    "service_worker": "background.js",
     "scripts": ["background.js"]
   },
   "host_permissions": [

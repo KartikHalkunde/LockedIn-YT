@@ -6,7 +6,7 @@
   [![Firefox Add-ons](https://img.shields.io/badge/Firefox-Available-orange?logo=firefox-browser&logoColor=white)](https://addons.mozilla.org/firefox/addon/lockedin-yt/)
   [![Edge Add-ons](https://img.shields.io/badge/Edge-Available-blue?logo=microsoft-edge&logoColor=white)](https://microsoftedge.microsoft.com/addons/detail/hibjbjgfbmhpiaapeccnfddnpabnlklj)
   [![Chrome Web Store](https://img.shields.io/badge/Chrome-Coming%20Soon-lightgrey?logo=google-chrome&logoColor=white)](#)
-  [![Version](https://img.shields.io/badge/version-1.0.85-green.svg)](https://github.com/KartikHalkunde/LockedIn-YT/releases)
+  [![Version](https://img.shields.io/badge/version-1.0.90-green.svg)](https://github.com/KartikHalkunde/LockedIn-YT/releases)
   [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
   
 </div>
@@ -26,11 +26,13 @@ LockedIn is an open-source browser extension that helps you focus on YouTube by 
    - Separate toggle for playlists visibility
 -  Block YouTube Shorts (separate controls for homepage & search)
 -  Hide Comments & Live Chat
--  Hide Search Recommendations & "More From YouTube"
+-  Hide Search Recommendations, Subscriptions & "More From YouTube"
 -  Disable Autoplay
+-  Instant element hiding with zero delays
 -  New organized UI with 4 logical groups
 -  Power button to quickly toggle entire extension
 -  "Take a Break" mode that temporarily disables the extension, flashes a warning when time is up, and auto-redirects you back to the homepage
+-  Stats tracking for time saved and content blocked
 
 **Privacy:** Zero data collection. No external network requests. All processing happens locally in your browser.
 
@@ -79,7 +81,7 @@ Simple toggle switches for each feature. Settings are saved instantly and synced
 
 ## Changelog
 
-### Version 1.0.85 (December 3, 2025)
+### Version 1.0.86 (December 3, 2025)
 - **Granular Video Sidebar Controls**: New sub-toggles for Hide Recommended Videos, Hide Shorts, and Hide Playlists
 - **Feedback & Sponsor Pages**: New overlay pages accessible from popup footer for feedback and sponsorship options
 - **UPI Payment Page**: Dedicated payment page with modern glassmorphism design

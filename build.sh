@@ -6,18 +6,24 @@
 set -e  # Exit on any error
 
 echo "========================================="
-echo "Building LockedIn Firefox Extension v1.0.85"
+echo "Building LockedIn Firefox Extension v1.0.90"
 echo "========================================="
 echo ""
 
-# Define output filename
-OUTPUT_FILE="lockedin-1.0.85.zip"
+# Define output filenames
+MAIN_ZIP="lockedin-1.0.90.zip"
+SOURCE_ZIP="lockedin-source-1.0.90.zip"
+EDGE_ZIP="lockedin-edge-1.0.90.zip"
 
-# Remove existing build if present
-if [ -f "$OUTPUT_FILE" ]; then
-    echo "Removing existing build: $OUTPUT_FILE"
-    rm "$OUTPUT_FILE"
-fi
+# Remove existing builds if present
+echo "Cleaning previous builds..."
+for file in "$MAIN_ZIP" "$SOURCE_ZIP" "$EDGE_ZIP"; do
+    if [ -f "$file" ]; then
+        echo "  Removing: $file"
+        rm "$file"
+    fi
+done
+echo ""
 
 # Check if required files exist
 echo "Verifying source files..."
@@ -42,68 +48,84 @@ done
 echo ""
 echo "Creating ZIP package..."
 
-# Create the ZIP file
-# Check if zip is available, otherwise use Python
+# 1. Main Extension ZIP (Firefox/Chrome)
+echo "Building main extension package..."
 if command -v zip &> /dev/null; then
-    # Use system zip command
-    zip -r "$OUTPUT_FILE" \
+    zip -r "$MAIN_ZIP" \
         background.js \
         manifest.json \
         content.js \
         icons/ \
         popup/ \
         homepage/ \
-        -x "*.DS_Store" "*/__MACOSX/*" "*/.git/*" "*.gitignore" "build.sh" "build.ps1" "README.md"
+        -x "*.DS_Store" "*/__MACOSX/*" "*/.git/*" "*.gitignore"
+    echo "  ✓ $MAIN_ZIP created"
 else
-    # Fallback to Python zipfile
-    echo "  (using Python zipfile - zip command not found)"
-    python3 << PYEOF
-import zipfile
-import os
-
-output_file = "$OUTPUT_FILE"
-exclude_patterns = ['.DS_Store', '__MACOSX', '.git', '.gitignore', 'build.sh', 'build.ps1', 'README.md', 'SOURCE_SUBMISSION.md']
-
-with zipfile.ZipFile(output_file, 'w', zipfile.ZIP_DEFLATED) as zipf:
-    for root, dirs, files in os.walk('.'):
-        # Filter out excluded directories
-        dirs[:] = [d for d in dirs if d not in exclude_patterns]
-        
-        for file in files:
-            # Skip if filename matches exclude patterns
-            if any(pattern in file for pattern in exclude_patterns):
-                continue
-            if any(pattern in root for pattern in exclude_patterns):
-                continue
-                
-            file_path = os.path.join(root, file)
-            arcname = file_path[2:] if file_path.startswith('./') else file_path
-            
-            # Only include extension files
-                if arcname in ['manifest.json', 'content.js', 'background.js'] or \
-               arcname.startswith('icons/') or arcname.startswith('popup/') or arcname.startswith('homepage/'):
-                zipf.write(file_path, arcname)
-                print(f"  Adding: {arcname}")
-PYEOF
+    echo "ERROR: zip command not found. Please install zip."
+    exit 1
 fi
 
+# 2. Source Code ZIP (for Firefox review)
+echo "Building source code package..."
+zip -r "$SOURCE_ZIP" \
+    background.js \
+    manifest.json \
+    content.js \
+    icons/ \
+    popup/ \
+    homepage/ \
+    edge-build/ \
+    build.sh \
+    build.ps1 \
+    README.md \
+    BUILDING.md \
+    CHECKLIST.md \
+    CONTRIBUTING.md \
+    DEPLOY_NOW.md \
+    DEPLOYMENT_1.0.6.md \
+    LICENSE \
+    PACKAGE_SUMMARY.md \
+    PRIVACY.md \
+    SOURCE_SUBMISSION.md \
+    SUBMISSION_GUIDE.md \
+    SUPPORT.md \
+    docs/ \
+    assets/ \
+    -x "*.DS_Store" "*/__MACOSX/*" "*/.git/*" "*.gitignore" "node_modules/*"
+echo "  ✓ $SOURCE_ZIP created"
+
+# 3. Edge Extension ZIP
+echo "Building Edge extension..."
+cd edge-build
+zip -r "../$EDGE_ZIP" \
+    background.js \
+    manifest.json \
+    content.js \
+    icons/ \
+    popup/ \
+    homepage/ \
+    -x "*.DS_Store" "*/__MACOSX/*"
+cd ..
+echo "  ✓ $EDGE_ZIP created"
+
 echo ""
 echo "========================================="
-echo "✓ Build complete!"
+echo "✓ All builds complete!"
 echo "========================================="
 echo ""
-echo "Output file: $OUTPUT_FILE"
-echo "File size: $(du -h "$OUTPUT_FILE" | cut -f1)"
+echo "📦 Main Extension: $MAIN_ZIP ($(du -h "$MAIN_ZIP" | cut -f1))"
+echo "📦 Source Code: $SOURCE_ZIP ($(du -h "$SOURCE_ZIP" | cut -f1))"
+echo "📦 Edge Extension: $EDGE_ZIP ($(du -h "$EDGE_ZIP" | cut -f1))"
 echo ""
 echo "Next steps:"
-echo "  1. Test the extension:"
-echo "     - Open Firefox"
-echo "     - Go to about:debugging#/runtime/this-firefox"
-echo "     - Click 'Load Temporary Add-on'"
-echo "     - Select the generated $OUTPUT_FILE"
 echo ""
-echo "  2. Submit to Mozilla:"
-echo "     - Go to https://addons.mozilla.org/developers/"
-echo "     - Upload $OUTPUT_FILE"
-echo "     - Provide source code if requested (this entire directory)"
+echo "Firefox (addons.mozilla.org):"
+echo "  1. Upload: $MAIN_ZIP"
+echo "  2. Source: $SOURCE_ZIP (if requested)"
+echo ""
+echo "Chrome Web Store:"
+echo "  1. Upload: $MAIN_ZIP"
+echo ""
+echo "Edge (partner.microsoft.com):"
+echo "  1. Upload: $EDGE_ZIP"
 echo ""

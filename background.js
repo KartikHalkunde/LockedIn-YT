@@ -94,10 +94,50 @@ browser.alarms.onAlarm.addListener((alarm) => {
   }
 });
 
-browser.runtime.onMessage.addListener((message) => {
-  if (message && message.action === 'completeBreak') {
-    finalizeBreak('message');
+browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (!message || !message.action) {
+    return undefined;
   }
+
+  if (message.action === 'completeBreak') {
+    finalizeBreak('message');
+    if (typeof sendResponse === 'function') {
+      sendResponse({ status: 'ok' });
+    }
+    return true;
+  }
+
+  if (message.action === 'startBreakTimer') {
+    (async () => {
+      await scheduleBreakAlarm();
+      if (typeof sendResponse === 'function') {
+        sendResponse({ status: 'scheduled' });
+      }
+    })().catch((error) => {
+      console.warn('LockedIn: Failed to schedule break alarm', error);
+      if (typeof sendResponse === 'function') {
+        sendResponse({ status: 'error' });
+      }
+    });
+    return true;
+  }
+
+  if (message.action === 'cancelBreakTimer') {
+    (async () => {
+      await clearBreakAlarm();
+      if (typeof sendResponse === 'function') {
+        sendResponse({ status: 'cleared' });
+      }
+    })().catch((error) => {
+      console.warn('LockedIn: Failed to clear break alarm', error);
+      if (typeof sendResponse === 'function') {
+        sendResponse({ status: 'error' });
+      }
+    });
+    return true;
+  }
+
+  return undefined;
 });
 
 browser.storage.onChanged.addListener((changes, area) => {

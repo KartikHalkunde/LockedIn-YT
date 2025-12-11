@@ -2,6 +2,7 @@
 *.zip
 lockedin-*.zip
 lockedin-source-*.zip
+lockedin-edge-*.zip
 
 
 
@@ -69,3 +70,4 @@ DEPLOY_NOW.md
 
 DEPLOYMENT_*.md
 
+edge-build/*
