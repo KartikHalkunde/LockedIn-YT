@@ -4,12 +4,12 @@
 $ErrorActionPreference = "Stop"
 
 Write-Host "=========================================" -ForegroundColor Cyan
-Write-Host "Building LockedIn Firefox Extension v1.0.85" -ForegroundColor Cyan
+Write-Host "Building LockedIn Firefox Extension v1.0.93" -ForegroundColor Cyan
 Write-Host "=========================================" -ForegroundColor Cyan
 Write-Host ""
 
 # Define output filename
-$outputFile = "lockedin-1.0.85.zip"
+$outputFile = "lockedin-1.0.93.zip"
 
 # Remove existing build if present
 if (Test-Path $outputFile) {
@@ -27,6 +27,7 @@ $requiredFiles = @(
     "popup/popup.html",
     "popup/popup.css",
     "popup/popup.js"
+    "icons/santa-hat.svg"
 )
 
 foreach ($file in $requiredFiles) {

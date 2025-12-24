@@ -6,14 +6,14 @@
 set -e  # Exit on any error
 
 echo "========================================="
-echo "Building LockedIn Firefox Extension v1.0.92"
+echo "Building LockedIn Firefox Extension v1.0.93"
 echo "========================================="
 echo ""
 
 # Define output filenames
-MAIN_ZIP="lockedin-1.0.92.zip"
-SOURCE_ZIP="lockedin-source-1.0.92.zip"
-EDGE_ZIP="lockedin-edge-1.0.92.zip"
+MAIN_ZIP="lockedin-1.0.93.zip"
+SOURCE_ZIP="lockedin-source-1.0.93.zip"
+EDGE_ZIP="lockedin-edge-1.0.93.zip"
 
 # Remove existing builds if present
 echo "Cleaning previous builds..."
@@ -32,6 +32,7 @@ required_files=(
     "content.js"
     "background.js"
     "icons/icon48.png"
+    "icons/santa-hat.svg"
     "popup/popup.html"
     "popup/popup.css"
     "popup/popup.js"
@@ -58,7 +59,7 @@ if command -v zip &> /dev/null; then
         icons/ \
         popup/ \
         homepage/ \
-        -x "*.DS_Store" "*/__MACOSX/*" "*/.git/*" "*.gitignore"
+        -x "*.DS_Store" "*/__MACOSX/*" "*/.git/*" "*.gitignore" "assets/*"
     echo "  ✓ $MAIN_ZIP created"
 else
     echo "ERROR: zip command not found. Please install zip."
@@ -90,8 +91,7 @@ zip -r "$SOURCE_ZIP" \
     SUBMISSION_GUIDE.md \
     SUPPORT.md \
     docs/ \
-    assets/ \
-    -x "*.DS_Store" "*/__MACOSX/*" "*/.git/*" "*.gitignore" "node_modules/*"
+    -x "*.DS_Store" "*/__MACOSX/*" "*/.git/*" "*.gitignore" "node_modules/*" "assets/*"
 echo "  ✓ $SOURCE_ZIP created"
 
 # 3. Edge Extension ZIP
@@ -104,7 +104,7 @@ zip -r "../$EDGE_ZIP" \
     icons/ \
     popup/ \
     homepage/ \
-    -x "*.DS_Store" "*/__MACOSX/*"
+    -x "*.DS_Store" "*/__MACOSX/*" "assets/*"
 cd ..
 echo "  ✓ $EDGE_ZIP created"
 

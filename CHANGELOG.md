@@ -2,6 +2,13 @@
 
 All notable changes to the LockedIn extension will be documented in this file.
 
+## [1.0.93] - 2025-12-25
+### Added
+- Popup footer version display now uses a bundled Santa hat SVG with accessible markup for a holiday refresh
+
+### Changed
+- Updated build scripts to package the new assets directory for Firefox/Chrome and Edge distributions
+
 ## [1.0.92] - 2025-12-11
 ### Fixed
 - Popup sponsor and feedback texts now render HTML translations properly (no more raw markup shown)

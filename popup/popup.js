@@ -520,9 +520,8 @@ function applyTranslations(languageCode) {
     if (!value) return;
     if (attr) {
       el.setAttribute(attr, value);
-    } else if (el.dataset.i18nType === 'html') {
-      el.innerHTML = value;
     } else {
+      // Only allow HTML for a strict whitelist of keys (none for now)
       el.textContent = value;
     }
   });
@@ -548,7 +547,13 @@ function displayVersion() {
   const manifest = browser.runtime.getManifest();
   const versionElement = document.querySelector('.version');
   if (versionElement) {
-    versionElement.textContent = `v${manifest.version}`;
+    // Clear any existing content
+    versionElement.textContent = `v.${manifest.version}`;
+    const hat = document.createElement('span');
+    hat.className = 'santa-hat-icon';
+    hat.setAttribute('aria-hidden', 'true');
+    versionElement.appendChild(hat);
+    versionElement.setAttribute('aria-label', `Version ${manifest.version}`);
   }
 }
 

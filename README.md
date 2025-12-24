@@ -6,7 +6,7 @@
   [![Firefox Add-ons](https://img.shields.io/badge/Firefox-Available-orange?logo=firefox-browser&logoColor=white)](https://addons.mozilla.org/firefox/addon/lockedin-yt/)
   [![Edge Add-ons](https://img.shields.io/badge/Edge-Available-blue?logo=microsoft-edge&logoColor=white)](https://microsoftedge.microsoft.com/addons/detail/hibjbjgfbmhpiaapeccnfddnpabnlklj)
   [![Chrome Web Store](https://img.shields.io/badge/Chrome-Coming%20Soon-lightgrey?logo=google-chrome&logoColor=white)](#)
-  [![Version](https://img.shields.io/badge/version-1.0.92-green.svg)](https://github.com/KartikHalkunde/LockedIn-YT/releases)
+  [![Version](https://img.shields.io/badge/version-1.0.93-green.svg)](https://github.com/KartikHalkunde/LockedIn-YT/releases)
   [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
   
 </div>
@@ -80,6 +80,10 @@ Simple toggle switches for each feature. Settings are saved instantly and synced
 ---
 
 ## Changelog
+
+### Version 1.0.93 (December 25, 2025)
+- **Festive Footer**: Popup version label now wears a bundled Santa hat SVG with accessible markup for screen readers
+- **Packaging Updates**: Build scripts bundle the new asset across Firefox/Chrome and Edge distributions
 
 ### Version 1.0.92 (December 11, 2025)
 - **Popup HTML Fixes**: Sponsor and Feedback texts now render translated HTML links instead of showing raw markup
