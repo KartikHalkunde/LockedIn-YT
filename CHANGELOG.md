@@ -1,3 +1,7 @@
+## [1.0.94] - 2025-12-27
+### Fixed
+- Minor bug fixes in Sponsor and Feedback popup pages (removed duplicate and raw HTML issues for a cleaner user experience)
+
 # Changelog
 
 All notable changes to the LockedIn extension will be documented in this file.

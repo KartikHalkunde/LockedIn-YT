@@ -269,9 +269,9 @@ const I18N_STRINGS = {
     'tooltip.power': 'Ativar/desativar',
     'tooltip.close': 'Fechar',
     'power.instant': 'Desativar agora',
-    'power.ten': 'Desativar por 10 min',
-    'power.twenty': 'Desativar por 20 min',
-    'power.thirty': 'Desativar por 30 min',
+    'power.ten': 'Ativar por 10 min',
+    'power.twenty': 'Ativar por 20 min',
+    'power.thirty': 'Ativar por 30 min',
     'menu.title': 'Menu',
     'stats.minSaved': 'Min economizados',
     'stats.timeSaved': 'Tempo economizado',
@@ -511,17 +511,35 @@ function applyTranslations(languageCode) {
   const normalized = SUPPORTED_LANGUAGES.includes(languageCode) ? languageCode : FALLBACK_LANGUAGE;
   activeLanguage = normalized;
   document.documentElement.setAttribute('lang', normalized);
+  
   const elements = document.querySelectorAll('[data-i18n-key]');
   elements.forEach((el) => {
     const key = el.dataset.i18nKey;
     if (!key) return;
+    
     const attr = el.dataset.i18nAttr;
+    const type = el.dataset.i18nType;
     const value = translate(key, null, normalized);
     if (!value) return;
+
     if (attr) {
       el.setAttribute(attr, value);
+    } else if (type === 'html') {
+      // 1. Clear existing content
+      el.textContent = '';
+      
+      // 2. Use DOMParser to parse the string into a temporary document
+      // This avoids using the forbidden ".innerHTML" property entirely
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(value, 'text/html');
+      
+      // 3. Move the parsed nodes into your element
+      const nodes = Array.from(doc.body.childNodes);
+      nodes.forEach(node => {
+        // Clone the node to move it from the temporary doc to the popup
+        el.appendChild(document.importNode(node, true));
+      });
     } else {
-      // Only allow HTML for a strict whitelist of keys (none for now)
       el.textContent = value;
     }
   });
@@ -544,16 +562,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // ===== VERSION DISPLAY =====
 function displayVersion() {
-  const manifest = browser.runtime.getManifest();
   const versionElement = document.querySelector('.version');
   if (versionElement) {
-    // Clear any existing content
-    versionElement.textContent = `v.${manifest.version}`;
+    versionElement.textContent = `v.1.0.94`;
     const hat = document.createElement('span');
     hat.className = 'santa-hat-icon';
     hat.setAttribute('aria-hidden', 'true');
     versionElement.appendChild(hat);
-    versionElement.setAttribute('aria-label', `Version ${manifest.version}`);
+    versionElement.setAttribute('aria-label', `Version 1.0.94`);
   }
 }
 
@@ -574,7 +590,6 @@ function setupMenuButton() {
       closeMenuInlineDropdowns();
       settingsMenu.classList.add('open');
       menuButton.classList.add('open');
-      // Trigger stats animation when menu opens
       triggerStatsAnimation();
     }
     updateHeaderVisibility();
@@ -649,7 +664,6 @@ function setupPowerButton() {
   const powerDropdown = document.getElementById('powerDropdown');
   const dropdownOptions = document.querySelectorAll('.power-dropdown-option');
   
-  // Check if break countdown needs to be started
   browser.storage.sync.get(['extensionEnabled', 'takeBreak', 'breakDuration', 'breakStartTime'], (result) => {
     const isEnabled = result.extensionEnabled !== undefined ? result.extensionEnabled : true;
     
@@ -658,16 +672,11 @@ function setupPowerButton() {
     }
   });
   
-  // Toggle dropdown on power button click, or turn on if disabled
   powerButton.addEventListener('click', (e) => {
     e.stopPropagation();
-    
-    // Check if extension is currently disabled
     browser.storage.sync.get(['extensionEnabled'], (result) => {
       const isEnabled = result.extensionEnabled !== undefined ? result.extensionEnabled : true;
-      
       if (!isEnabled) {
-        // Extension is disabled, turn it back on
         browser.storage.sync.set({ 
           extensionEnabled: true, 
           breakStartTime: null,
@@ -677,18 +686,12 @@ function setupPowerButton() {
             console.error('LockedIn: Failed to save power state', browser.runtime.lastError);
             return;
           }
-          
-          // Cancel any pending break alarm
           browser.runtime.sendMessage({ action: 'cancelBreakTimer' }).catch(() => {});
-          
-          // Clear break interval
           if (breakInterval) {
             clearInterval(breakInterval);
             breakInterval = null;
           }
-          
           updatePowerState(true);
-          
           browser.tabs.query({}, (tabs) => {
             tabs.forEach((tab) => {
               if (tab.url && tab.url.includes('youtube.com')) {
@@ -701,35 +704,28 @@ function setupPowerButton() {
           });
         });
       } else {
-        // Extension is enabled, show dropdown
         powerDropdown.classList.toggle('open');
       }
     });
   });
   
-  // Close dropdown when clicking outside
   document.addEventListener('click', (e) => {
     if (!powerButton.contains(e.target) && !powerDropdown.contains(e.target)) {
       powerDropdown.classList.remove('open');
     }
   });
   
-  // Handle dropdown option clicks
   dropdownOptions.forEach(option => {
     option.addEventListener('click', () => {
       const duration = parseInt(option.dataset.duration, 10);
       powerDropdown.classList.remove('open');
-      
-      // Turn off the extension
       const saveData = { 
         extensionEnabled: false,
-        takeBreak: duration > 0, // Only enable break mode if duration > 0
+        takeBreak: duration > 0,
         breakDuration: duration
       };
-      
       if (duration > 0) {
         saveData.breakStartTime = Date.now();
-        // Use browser.alarms for persistent timer
         browser.runtime.sendMessage({
           action: 'startBreakTimer',
           duration: duration
@@ -738,15 +734,12 @@ function setupPowerButton() {
       } else {
         saveData.breakStartTime = null;
       }
-      
       browser.storage.sync.set(saveData, () => {
         if (browser.runtime.lastError) {
           console.error('LockedIn: Failed to save power state', browser.runtime.lastError);
           return;
         }
-        
         updatePowerState(false);
-        
         browser.tabs.query({}, (tabs) => {
           tabs.forEach((tab) => {
             if (tab.url && tab.url.includes('youtube.com')) {
@@ -884,7 +877,6 @@ function positionMenuDropdown(trigger, panel) {
   if (!trigger || !panel || !panel.classList.contains('open')) {
     return;
   }
-
   panel.style.visibility = 'hidden';
   panel.style.top = '0px';
   panel.style.left = '0px';
@@ -892,18 +884,15 @@ function positionMenuDropdown(trigger, panel) {
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
   panel.style.maxHeight = `${Math.min(220, viewportHeight - margin * 2)}px`;
-
   const triggerRect = trigger.getBoundingClientRect();
   const desiredWidth = Math.max(triggerRect.width + 8, 118);
   panel.style.width = `${desiredWidth}px`;
-
   const panelRect = panel.getBoundingClientRect();
   const panelWidth = panelRect.width || desiredWidth;
   let panelHeight = panelRect.height || panel.scrollHeight || 0;
   if (panelHeight === 0) {
     panelHeight = Math.min(220, viewportHeight - margin * 2);
   }
-
   let left = triggerRect.left;
   if (left < margin) {
     left = margin;
@@ -911,12 +900,10 @@ function positionMenuDropdown(trigger, panel) {
   if (left + panelWidth > viewportWidth - margin) {
     left = Math.max(margin, viewportWidth - margin - panelWidth);
   }
-
   let top = triggerRect.bottom + 4;
   if (top + panelHeight > viewportHeight - margin) {
     top = Math.max(margin, triggerRect.top - panelHeight - 4);
   }
-
   panel.style.left = `${left}px`;
   panel.style.top = `${top}px`;
   panel.style.visibility = 'visible';
@@ -931,13 +918,11 @@ function updatePowerState(isEnabled) {
   if (isEnabled) {
     popupContainer.classList.remove('disabled');
     if (breakTimerText) breakTimerText.style.display = 'none';
-    // Restore logo based on light mode
     if (headerLogo) {
       headerLogo.src = isLightMode ? '../icons/iconFullLight.png' : '../icons/iconFull.png';
     }
   } else {
     popupContainer.classList.add('disabled');
-    // When disabled, use LockedOut logo (LightOff.png for light mode)
     if (headerLogo) {
       headerLogo.src = isLightMode ? '../icons/LightOff.png' : '../icons/LockedOut.png';
     }
@@ -946,41 +931,6 @@ function updatePowerState(isEnabled) {
 
 // ===== BREAK TIMER =====
 let breakInterval = null;
-
-function setupBreakTimer() {
-  const breakTimeButtons = document.querySelectorAll('.break-time-btn');
-  const getButtonDuration = (btn) => {
-    if (btn.dataset.time) {
-      const minutes = parseFloat(btn.dataset.time);
-      return Number.isFinite(minutes) ? minutes : null;
-    }
-    if (btn.dataset.seconds) {
-      const seconds = parseFloat(btn.dataset.seconds);
-      return Number.isFinite(seconds) ? seconds / 60 : null;
-    }
-    return null;
-  };
-  
-  browser.storage.sync.get('breakDuration', (result) => {
-    const duration = typeof result.breakDuration === 'number' ? result.breakDuration : 5;
-    breakTimeButtons.forEach(btn => {
-      const btnDuration = getButtonDuration(btn);
-      if (btnDuration !== null && Math.abs(btnDuration - duration) < 0.001) {
-        btn.classList.add('selected');
-      }
-    });
-  });
-  
-  breakTimeButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      breakTimeButtons.forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
-      
-      const duration = getButtonDuration(btn) ?? 5;
-      browser.storage.sync.set({ breakDuration: duration });
-    });
-  });
-}
 
 function startBreakCountdown(startTime, duration) {
   const breakTimerText = document.getElementById('breakTimerText');
@@ -1030,69 +980,38 @@ function setupCustomMemeUpload() {
   const fileInput = document.getElementById('customMemeInput');
   const gallery = document.getElementById('customMemeGallery');
   
-  if (!fileInput || !gallery) {
-    console.error('LockedIn: Custom meme elements not found');
-    return;
-  }
+  if (!fileInput || !gallery) return;
+  if (fileInput.disabled || fileInput.dataset.disabled === 'true') return;
   
-  if (fileInput.disabled || fileInput.dataset.disabled === 'true') {
-    console.info('LockedIn: Custom meme upload is disabled (coming soon)');
-    return;
-  }
-  
-  console.log('LockedIn: Custom meme upload initialized');
-  
-  // Render gallery function - defined first so it's available everywhere
   function renderGallery(memes) {
-    console.log('LockedIn: Rendering gallery with', memes ? memes.length : 0, 'images');
     gallery.innerHTML = '';
-    
     if (!memes || memes.length === 0) {
       gallery.classList.remove('visible');
       return;
     }
-    
     gallery.classList.add('visible');
-    
     memes.forEach((meme, index) => {
       const item = document.createElement('div');
       item.className = 'gallery-item';
-      
       const img = document.createElement('img');
       img.src = meme;
-      img.alt = `Custom image ${index + 1}`;
-      img.addEventListener('click', () => {
-        window.open(meme, '_blank');
-      });
-      
+      img.addEventListener('click', () => { window.open(meme, '_blank'); });
       const deleteBtn = document.createElement('button');
       deleteBtn.className = 'gallery-delete-btn';
       deleteBtn.innerHTML = '✕';
-      deleteBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        deleteMeme(index);
-      });
-      
+      deleteBtn.addEventListener('click', (e) => { e.stopPropagation(); deleteMeme(index); });
       item.appendChild(img);
       item.appendChild(deleteBtn);
       gallery.appendChild(item);
     });
-    console.log('LockedIn: Gallery rendered, visible class:', gallery.classList.contains('visible'));
   }
 
   function readFilesAsDataUrls(files) {
-    // Resolve each file to a data URL while gracefully handling read failures
     return Promise.all(files.map((file) => {
       return new Promise((resolve) => {
         const reader = new FileReader();
-        reader.onload = (event) => {
-          console.log('LockedIn: File read complete:', file.name);
-          resolve(event.target.result);
-        };
-        reader.onerror = (error) => {
-          console.error('LockedIn: Error reading file:', file.name, error);
-          resolve(null);
-        };
+        reader.onload = (event) => resolve(event.target.result);
+        reader.onerror = () => resolve(null);
         reader.readAsDataURL(file);
       });
     }));
@@ -1102,7 +1021,6 @@ function setupCustomMemeUpload() {
     browser.storage.local.get('customMemes', (result) => {
       const memes = result.customMemes || [];
       memes.splice(index, 1);
-      
       if (memes.length === 0) {
         browser.storage.local.remove('customMemes', () => {
           renderGallery([]);
@@ -1110,11 +1028,6 @@ function setupCustomMemeUpload() {
         });
       } else {
         browser.storage.local.set({ customMemes: memes }, () => {
-          if (browser.runtime.lastError) {
-            console.error('LockedIn: Failed to update memes:', browser.runtime.lastError);
-            alert(translate('customMeme.unableUpdate') || 'Unable to update custom images. Please try again.');
-            return;
-          }
           renderGallery(memes);
           notifyContentScript(memes);
         });
@@ -1125,88 +1038,35 @@ function setupCustomMemeUpload() {
   function notifyContentScript(memes) {
     browser.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs[0]) {
-        browser.tabs.sendMessage(tabs[0].id, {
-          action: 'customMemesUpdated',
-          memes: memes
-        }).catch(() => {});
+        browser.tabs.sendMessage(tabs[0].id, { action: 'customMemesUpdated', memes: memes }).catch(() => {});
       }
     });
   }
   
-  // Load existing custom memes
   browser.storage.local.get('customMemes', (result) => {
-    console.log('LockedIn: Loaded existing memes:', result.customMemes ? result.customMemes.length : 0);
-    if (result.customMemes && result.customMemes.length > 0) {
-      renderGallery(result.customMemes);
-    }
+    if (result.customMemes && result.customMemes.length > 0) renderGallery(result.customMemes);
   });
   
-  // File input change handler
   fileInput.addEventListener('change', function(e) {
-    console.log('LockedIn: File input changed');
     const files = Array.from(e.target.files);
-    console.log('LockedIn: Selected files:', files.length);
-    
-    if (!files.length) {
-      console.log('LockedIn: No files selected');
-      return;
-    }
-    
-    // Get existing memes first
+    if (!files.length) return;
     browser.storage.local.get('customMemes', (result) => {
       const existingMemes = result.customMemes || [];
-      console.log('LockedIn: Existing memes:', existingMemes.length);
-      
       const validTypes = ['image/png', 'image/jpeg', 'image/gif', 'image/webp'];
       const validFiles = [];
-      
       for (const file of files) {
-        console.log('LockedIn: Checking file:', file.name, 'size:', file.size, 'type:', file.type);
-        if (file.size > 500 * 1024) {
-          alert(translate('customMeme.tooLarge', { filename: file.name }) || `File "${file.name}" is too large! Maximum size is 500KB per image.`);
-          continue;
-        }
-        if (!validTypes.includes(file.type)) {
-          alert(translate('customMeme.invalidType', { filename: file.name }) || `File "${file.name}" has invalid type! Use PNG, JPG, GIF, or WebP.`);
-          continue;
-        }
+        if (file.size > 500 * 1024) { alert(translate('customMeme.tooLarge', { filename: file.name })); continue; }
+        if (!validTypes.includes(file.type)) { alert(translate('customMeme.invalidType', { filename: file.name })); continue; }
         validFiles.push(file);
       }
-      
-      console.log('LockedIn: Valid files:', validFiles.length);
-      
-      if (existingMemes.length + validFiles.length > 5) {
-        alert(translate('customMeme.maxImages', { existing: existingMemes.length, added: validFiles.length }) || `Maximum 5 images allowed! You already have ${existingMemes.length} and tried to add ${validFiles.length}.`);
-        fileInput.value = '';
-        return;
-      }
-
-      if (validFiles.length === 0) {
-        fileInput.value = '';
-        return;
-      }
-      
+      if (existingMemes.length + validFiles.length > 5) { alert(translate('customMeme.maxImages', { existing: existingMemes.length, added: validFiles.length })); fileInput.value = ''; return; }
+      if (validFiles.length === 0) { fileInput.value = ''; return; }
       readFilesAsDataUrls(validFiles).then((dataUrls) => {
         const newMemes = dataUrls.filter(Boolean);
-        console.log('LockedIn: Processed new memes:', newMemes.length);
-
-        if (newMemes.length === 0) {
-          fileInput.value = '';
-          return;
-        }
-
+        if (newMemes.length === 0) { fileInput.value = ''; return; }
         const allMemes = [...existingMemes, ...newMemes];
-        console.log('LockedIn: Total memes to save:', allMemes.length);
         renderGallery(allMemes);
-        
         browser.storage.local.set({ customMemes: allMemes }, () => {
-          if (browser.runtime.lastError) {
-            console.error('LockedIn: Error saving memes:', browser.runtime.lastError);
-            fileInput.value = '';
-            alert(translate('customMeme.unableSave') || 'Unable to save these images. Please try again.');
-            return;
-          }
-          console.log('LockedIn: Memes saved successfully');
           fileInput.value = '';
           notifyContentScript(allMemes);
         });
@@ -1220,12 +1080,11 @@ function loadStats() {
   browser.storage.sync.get(['showStats'], (result) => {
     const statsSection = document.getElementById('statsSection');
     const showStats = result.showStats || false;
-    
     if (showStats) {
       statsSection.classList.add('visible');
       browser.storage.local.get('stats', (localResult) => {
         const stats = { ...DEFAULT_STATS, ...localResult.stats };
-        updateStatsDisplay(stats, true); // animate on initial load
+        updateStatsDisplay(stats, true);
       });
     } else {
       statsSection.classList.remove('visible');
@@ -1233,41 +1092,24 @@ function loadStats() {
   });
 }
 
-// Counter animation function
 function animateCounter(element, targetValue, duration = 800, suffix = '') {
   if (!element) return;
-  
-  // Reset to 0 first
   element.textContent = '0' + suffix;
-  
   const startValue = 0;
   const startTime = performance.now();
-  
   function update(currentTime) {
     const elapsed = currentTime - startTime;
     const progress = Math.min(elapsed / duration, 1);
-    
-    // Easing function (ease-out cubic)
     const easeOut = 1 - Math.pow(1 - progress, 3);
-    
     const currentValue = Math.round(startValue + (targetValue - startValue) * easeOut);
     element.textContent = currentValue + suffix;
-    
-    if (progress < 1) {
-      requestAnimationFrame(update);
-    } else {
-      element.textContent = targetValue + suffix;
-    }
+    if (progress < 1) requestAnimationFrame(update);
+    else element.textContent = targetValue + suffix;
   }
-  
-  // Small delay to ensure visibility
-  setTimeout(() => {
-    requestAnimationFrame(update);
-  }, 50);
+  setTimeout(() => requestAnimationFrame(update), 50);
 }
 
 function updateStatsDisplay(stats, animate = false) {
-  // Calculate total estimated time saved (in minutes)
   const estimatedTimeSaved = 
     (stats.shortsBlocked || 0) * TIME_SAVED_ESTIMATES.short +
     (stats.recsHidden || 0) * TIME_SAVED_ESTIMATES.recommendation +
@@ -1276,74 +1118,44 @@ function updateStatsDisplay(stats, animate = false) {
   
   const timeSavedEl = document.getElementById('statTimeSaved');
   const timeLabelEl = document.getElementById('statTimeLabel');
-  
   const hoursSuffix = translate('stats.hoursSuffix') || 'hr';
   const minSavedLabel = translate('stats.minSaved') || 'Min Saved';
   const timeSavedLabel = translate('stats.timeSaved') || 'Time Saved';
   if (timeSavedEl && timeLabelEl) {
     if (estimatedTimeSaved > 999) {
-      // Show in hours after 999 minutes with decimal
       const hours = (estimatedTimeSaved / 60).toFixed(1);
       timeLabelEl.textContent = timeSavedLabel;
       if (animate) {
-        // For animation, animate to the whole number then add decimal
-        const wholeHours = Math.floor(estimatedTimeSaved / 60);
-        animateCounter(timeSavedEl, wholeHours, 800, hoursSuffix);
-        setTimeout(() => {
-          timeSavedEl.textContent = `${hours}${hoursSuffix}`;
-        }, 850);
-      } else {
-        timeSavedEl.textContent = `${hours}${hoursSuffix}`;
-      }
+        animateCounter(timeSavedEl, Math.floor(estimatedTimeSaved / 60), 800, hoursSuffix);
+        setTimeout(() => { timeSavedEl.textContent = `${hours}${hoursSuffix}`; }, 850);
+      } else timeSavedEl.textContent = `${hours}${hoursSuffix}`;
     } else {
       timeLabelEl.textContent = minSavedLabel;
-      if (animate) {
-        animateCounter(timeSavedEl, Math.round(estimatedTimeSaved), 800);
-      } else {
-        timeSavedEl.textContent = Math.round(estimatedTimeSaved);
-      }
+      if (animate) animateCounter(timeSavedEl, Math.round(estimatedTimeSaved), 800);
+      else timeSavedEl.textContent = Math.round(estimatedTimeSaved);
     }
   }
-  
-  // Shorts blocked
   const shortsEl = document.getElementById('statShortsBlocked');
   if (shortsEl) {
     const shortsValue = stats.shortsBlocked || 0;
     if (shortsValue > 999) {
-      // Format as 1k, 1.1k, etc.
       const kValue = (shortsValue / 1000).toFixed(1);
-      // Remove .0 if whole number
       const displayValue = kValue.endsWith('.0') ? Math.floor(shortsValue / 1000) + 'k' : kValue + 'k';
       if (animate) {
-        const wholeK = Math.floor(shortsValue / 1000);
-        animateCounter(shortsEl, wholeK, 900, 'k');
-        setTimeout(() => {
-          shortsEl.textContent = displayValue;
-        }, 950);
-      } else {
-        shortsEl.textContent = displayValue;
-      }
+        animateCounter(shortsEl, Math.floor(shortsValue / 1000), 900, 'k');
+        setTimeout(() => { shortsEl.textContent = displayValue; }, 950);
+      } else shortsEl.textContent = displayValue;
     } else {
-      if (animate) {
-        animateCounter(shortsEl, shortsValue, 900);
-      } else {
-        shortsEl.textContent = shortsValue;
-      }
+      if (animate) animateCounter(shortsEl, shortsValue, 900);
+      else shortsEl.textContent = shortsValue;
     }
   }
-  
-  // Days active
   const daysEl = document.getElementById('statDaysActive');
   if (daysEl) {
     let daysValue = 1;
-    if (stats.firstUseDate) {
-      daysValue = Math.max(1, Math.floor((Date.now() - stats.firstUseDate) / (1000 * 60 * 60 * 24)));
-    }
-    if (animate) {
-      animateCounter(daysEl, daysValue, 700);
-    } else {
-      daysEl.textContent = daysValue;
-    }
+    if (stats.firstUseDate) daysValue = Math.max(1, Math.floor((Date.now() - stats.firstUseDate) / (1000 * 60 * 60 * 24)));
+    if (animate) animateCounter(daysEl, daysValue, 700);
+    else daysEl.textContent = daysValue;
   }
 }
 
@@ -1351,50 +1163,23 @@ function updateStatsDisplay(stats, animate = false) {
 function loadSettings() {
   return new Promise((resolve) => {
     const toggles = document.querySelectorAll('input[type="checkbox"]');
-    
     browser.storage.sync.get(null, (settings) => {
       const currentSettings = { ...DEFAULT_SETTINGS, ...settings };
-      
       toggles.forEach((toggle) => {
         const settingId = toggle.dataset.setting;
-        if (currentSettings[settingId] !== undefined) {
-          toggle.checked = currentSettings[settingId];
-        }
+        if (currentSettings[settingId] !== undefined) toggle.checked = currentSettings[settingId];
       });
-      
       const popupContainer = document.querySelector('.popup-container');
-      const isDisabled = !currentSettings.extensionEnabled;
-      if (popupContainer) {
-        popupContainer.classList.toggle('disabled', isDisabled);
-      }
-
+      if (popupContainer) popupContainer.classList.toggle('disabled', !currentSettings.extensionEnabled);
       let savedAppearance = currentSettings.appearance || 'auto';
-      if (savedAppearance === 'auto' && currentSettings.lightMode) {
-        savedAppearance = 'light';
-      }
+      if (savedAppearance === 'auto' && currentSettings.lightMode) savedAppearance = 'light';
       applyAppearanceSetting(savedAppearance, { skipSave: true });
-
-      const savedLanguage = currentSettings.language || 'auto';
-      applyLanguageSetting(savedLanguage, { skipSave: true });
-      
-      const statsSection = document.getElementById('statsSection');
-      if (currentSettings.showStats) {
-        statsSection.classList.add('visible');
-      }
-      
-      // Show redirect to subs sub-toggle if hideFeed is enabled
-      const redirectToSubsRow = document.getElementById('redirectToSubsRow');
-      if (currentSettings.hideFeed) {
-        redirectToSubsRow.classList.add('visible');
-      }
+      applyLanguageSetting(currentSettings.language || 'auto', { skipSave: true });
+      if (currentSettings.showStats) document.getElementById('statsSection').classList.add('visible');
+      if (currentSettings.hideFeed) document.getElementById('redirectToSubsRow').classList.add('visible');
       const sidebarSubToggles = document.getElementById('sidebarSubToggles');
-      
-      if (!currentSettings.hideSidebar) {
-        if (sidebarSubToggles) sidebarSubToggles.classList.add('visible');
-      } else {
-        if (sidebarSubToggles) sidebarSubToggles.classList.remove('visible');
-      }
-      
+      if (!currentSettings.hideSidebar) sidebarSubToggles?.classList.add('visible');
+      else sidebarSubToggles?.classList.remove('visible');
       resolve();
     });
   });
@@ -1403,164 +1188,92 @@ function loadSettings() {
 // ===== TOGGLE LISTENERS =====
 function setupToggleListeners() {
   const toggles = document.querySelectorAll('input[type="checkbox"]');
-  
   toggles.forEach((toggle) => {
     toggle.addEventListener('change', (e) => {
       const settingId = e.target.dataset.setting;
       const isChecked = e.target.checked;
-      
-      if (settingId === 'lightMode') {
-        const popupContainer = document.querySelector('.popup-container');
-        const headerLogo = document.querySelector('.header-logo');
-        const isDisabled = popupContainer.classList.contains('disabled');
-        if (isChecked) {
-          popupContainer.classList.add('light-mode');
-          if (headerLogo) {
-            headerLogo.src = isDisabled ? '../icons/LightOff.png' : '../icons/iconFullLight.png';
-          }
-        } else {
-          popupContainer.classList.remove('light-mode');
-          if (headerLogo) {
-            headerLogo.src = isDisabled ? '../icons/LockedOut.png' : '../icons/iconFull.png';
-          }
-        }
-      }
-      
       if (settingId === 'showStats') {
         const statsSection = document.getElementById('statsSection');
         if (isChecked) {
           statsSection.classList.add('visible');
           browser.storage.local.get('stats', (result) => {
             const stats = { ...DEFAULT_STATS, ...result.stats };
-            if (!stats.firstUseDate) {
-              stats.firstUseDate = Date.now();
-              browser.storage.local.set({ stats });
-            }
-            updateStatsDisplay(stats, true); // animate when toggled on
+            if (!stats.firstUseDate) { stats.firstUseDate = Date.now(); browser.storage.local.set({ stats }); }
+            updateStatsDisplay(stats, true);
           });
-        } else {
-          statsSection.classList.remove('visible');
-        }
+        } else statsSection.classList.remove('visible');
       }
-      
-      // Show/hide redirect to subs sub-toggle when hideFeed is toggled
       if (settingId === 'hideFeed') {
-        const redirectToSubsRow = document.getElementById('redirectToSubsRow');
-        if (isChecked) {
-          redirectToSubsRow.classList.add('visible');
-        } else {
-          redirectToSubsRow.classList.remove('visible');
-          // Also turn off redirectToSubs when hideFeed is turned off
+        const row = document.getElementById('redirectToSubsRow');
+        if (isChecked) row.classList.add('visible');
+        else {
+          row.classList.remove('visible');
           const redirectToggle = document.querySelector('input[data-setting="redirectToSubs"]');
-          if (redirectToggle && redirectToggle.checked) {
-            redirectToggle.checked = false;
-            browser.storage.sync.set({ redirectToSubs: false });
-          }
+          if (redirectToggle && redirectToggle.checked) { redirectToggle.checked = false; browser.storage.sync.set({ redirectToSubs: false }); }
         }
       }
       if (settingId === 'hideSidebar') {
-        const sidebarSubToggles = document.getElementById('sidebarSubToggles');
-        
-        if (!isChecked) {
-          if (sidebarSubToggles) sidebarSubToggles.classList.add('visible');
-        } else {
-          if (sidebarSubToggles) sidebarSubToggles.classList.remove('visible');
-          
-          // Turn off sub-toggles when parent is enabled
-          const hideRecommendedToggle = document.querySelector('input[data-setting="hideRecommended"]');
-          const hideSidebarShortsToggle = document.querySelector('input[data-setting="hideSidebarShorts"]');
-          const hidePlaylistsToggle = document.querySelector('input[data-setting="hidePlaylists"]');
-          
-          if (hideRecommendedToggle && hideRecommendedToggle.checked) {
-            hideRecommendedToggle.checked = false;
-            browser.storage.sync.set({ hideRecommended: false });
-          }
-          if (hideSidebarShortsToggle && hideSidebarShortsToggle.checked) {
-            hideSidebarShortsToggle.checked = false;
-            browser.storage.sync.set({ hideSidebarShorts: false });
-          }
-          if (hidePlaylistsToggle && hidePlaylistsToggle.checked) {
-            hidePlaylistsToggle.checked = false;
-            browser.storage.sync.set({ hidePlaylists: false });
-          }
+        const sub = document.getElementById('sidebarSubToggles');
+        if (!isChecked) sub?.classList.add('visible');
+        else {
+          sub?.classList.remove('visible');
+          ['hideRecommended', 'hideSidebarShorts', 'hidePlaylists'].forEach(s => {
+            const t = document.querySelector(`input[data-setting="${s}"]`);
+            if (t && t.checked) { t.checked = false; browser.storage.sync.set({ [s]: false }); }
+          });
         }
       }
-      
       browser.storage.sync.set({ [settingId]: isChecked }, () => {
-        if (browser.runtime.lastError) {
-          console.error('LockedIn: Failed to save setting', browser.runtime.lastError);
-          e.target.checked = !isChecked;
-          return;
-        }
-        
         browser.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-          if (tabs[0]) {
-            browser.tabs.sendMessage(tabs[0].id, {
-              action: 'settingChanged',
-              setting: settingId,
-              value: isChecked
-            }).catch(() => {});
-          }
+          if (tabs[0]) browser.tabs.sendMessage(tabs[0].id, { action: 'settingChanged', setting: settingId, value: isChecked }).catch(() => {});
         });
       });
     });
   });
-  
-  // Setup dropdown listeners
   setupDropdownListeners();
 }
 
-// ===== DROPDOWN LISTENERS =====
 function setupDropdownListeners() {
   const triggers = document.querySelectorAll('[data-menu-dropdown-trigger]');
-  const panels = document.querySelectorAll('.menu-inline-dropdown');
-  const options = document.querySelectorAll('.menu-inline-option');
-
   triggers.forEach((trigger) => {
-    const panelId = trigger.dataset.menuDropdownTarget;
-    const panel = document.getElementById(panelId);
-    if (!panel) return;
+    const panel = document.getElementById(trigger.dataset.menuDropdownTarget);
     trigger.addEventListener('click', (e) => {
       e.stopPropagation();
       const isOpen = panel.classList.contains('open');
       closeMenuInlineDropdowns();
-      if (!isOpen) {
-        panel.classList.add('open');
-        trigger.setAttribute('aria-expanded', 'true');
-        requestAnimationFrame(() => positionMenuDropdown(trigger, panel));
-      }
+      if (!isOpen) { panel.classList.add('open'); trigger.setAttribute('aria-expanded', 'true'); requestAnimationFrame(() => positionMenuDropdown(trigger, panel)); }
     });
   });
-
-  panels.forEach((panel) => {
-    panel.addEventListener('click', (e) => e.stopPropagation());
-  });
-
-  document.addEventListener('click', () => {
-    closeMenuInlineDropdowns();
-  });
-
-  options.forEach((option) => {
+  document.querySelectorAll('.menu-inline-option').forEach((option) => {
     option.addEventListener('click', () => {
-      const panel = option.closest('.menu-inline-dropdown');
-      const dropdownType = panel ? panel.dataset.dropdownType : null;
-      const value = option.dataset.value;
-      if (dropdownType === 'appearance') {
-        applyAppearanceSetting(value);
-      } else if (dropdownType === 'language') {
-        applyLanguageSetting(value);
-      }
+      const type = option.closest('.menu-inline-dropdown').dataset.dropdownType;
+      const val = option.dataset.value;
+      if (type === 'appearance') applyAppearanceSetting(val);
+      else if (type === 'language') applyLanguageSetting(val);
       closeMenuInlineDropdowns();
     });
   });
-
+  document.addEventListener('click', closeMenuInlineDropdowns);
   window.addEventListener('resize', () => {
-    const openPanel = document.querySelector('.menu-inline-dropdown.open');
-    if (!openPanel) return;
-    const trigger = document.querySelector(`[data-menu-dropdown-target="${openPanel.id}"]`);
-    if (trigger) {
-      positionMenuDropdown(trigger, openPanel);
-    }
+    const open = document.querySelector('.menu-inline-dropdown.open');
+    if (open) positionMenuDropdown(document.querySelector(`[data-menu-dropdown-target="${open.id}"]`), open);
   });
 }
 
+function setupBreakTimer() {
+  const btns = document.querySelectorAll('.break-time-btn');
+  browser.storage.sync.get('breakDuration', (res) => {
+    const dur = res.breakDuration ?? 5;
+    btns.forEach(b => {
+      const bDur = b.dataset.time ? parseFloat(b.dataset.time) : (b.dataset.seconds ? parseFloat(b.dataset.seconds) / 60 : null);
+      if (bDur !== null && Math.abs(bDur - dur) < 0.001) b.classList.add('selected');
+    });
+  });
+  btns.forEach(b => {
+    b.addEventListener('click', () => {
+      btns.forEach(x => x.classList.remove('selected')); b.classList.add('selected');
+      const dur = b.dataset.time ? parseFloat(b.dataset.time) : (b.dataset.seconds ? parseFloat(b.dataset.seconds) / 60 : 5);
+      browser.storage.sync.set({ breakDuration: dur });
+    });
+  });
+}

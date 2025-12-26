@@ -6,7 +6,7 @@
   [![Firefox Add-ons](https://img.shields.io/badge/Firefox-Available-orange?logo=firefox-browser&logoColor=white)](https://addons.mozilla.org/firefox/addon/lockedin-yt/)
   [![Edge Add-ons](https://img.shields.io/badge/Edge-Available-blue?logo=microsoft-edge&logoColor=white)](https://microsoftedge.microsoft.com/addons/detail/hibjbjgfbmhpiaapeccnfddnpabnlklj)
   [![Chrome Web Store](https://img.shields.io/badge/Chrome-Coming%20Soon-lightgrey?logo=google-chrome&logoColor=white)](#)
-  [![Version](https://img.shields.io/badge/version-1.0.93-green.svg)](https://github.com/KartikHalkunde/LockedIn-YT/releases)
+  [![Version](https://img.shields.io/badge/version-1.0.94-green.svg)](https://github.com/KartikHalkunde/LockedIn-YT/releases)
   [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
   
 </div>
@@ -81,23 +81,12 @@ Simple toggle switches for each feature. Settings are saved instantly and synced
 
 ## Changelog
 
+### Version 1.0.94 (December 27, 2025)
+- **Minor bug fixes**: Fixed duplicate and raw HTML issues in Sponsor and Feedback popup pages for a cleaner user experience.
+
 ### Version 1.0.93 (December 25, 2025)
 - **Festive Footer**: Popup version label now wears a bundled Santa hat SVG with accessible markup for screen readers
 - **Packaging Updates**: Build scripts bundle the new asset across Firefox/Chrome and Edge distributions
-
-### Version 1.0.92 (December 11, 2025)
-- **Popup HTML Fixes**: Sponsor and Feedback texts now render translated HTML links instead of showing raw markup
-- **Localization Robustness**: Further hardening of section detection across languages (Explore/More from YouTube/Subs) carried forward
-- **Transcript Reliability**: Transcript/engagement panels continue to auto-surface via the global observer
-
-### Version 1.0.91 (December 11, 2025)
--- **Expanded Language Coverage**: Explore/Trending/More from YouTube/Subscribers detection now uses broader localized titles plus URL fallbacks to work across all YouTube languages
--- **Transcript Robustness**: Added global observer to surface transcripts/engagement panels immediately after they load in any language and keep the sidebar visible for them
--- **Bug Fixes**: Prevented “You” section from being hidden by More from YouTube toggle and hardened sidebar section matching
-
-### Version 1.0.90 (December 11, 2025)
-- **Multi-Language Popup Support**: Extension popup now supports 9+ languages (English, German, French, Spanish, Italian, Arabic, Turkish, Korean, Chinese)
-- **Automatic Theme Detection**: Popup automatically switches between light/dark mode based on browser theme
 - **Hide Subscriptions Toggle**: New toggle to hide the Subscriptions section from YouTube sidebar
 - **Language-Independent Detection**: Multi-layered detection system for Explore/Trending/MoreFromYT toggles
 - **URL-Based Primary Detection**: Works across all languages using URL patterns as primary identifier
