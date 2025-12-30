@@ -1588,6 +1588,8 @@ function ensureTranscriptPanelVisible() {
 
 // Unhide transcript/engagement panels and their ancestor containers
 function restoreTranscriptVisibility() {
+  //only run this function on video pages
+  if (!window.location.pathname.includes('/watch?')) return;
   const panels = document.querySelectorAll('ytd-engagement-panel-section-list-renderer, ytd-transcript-segment-list-renderer');
   panels.forEach(panel => {
     panel.style.display = '';
