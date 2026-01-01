@@ -564,12 +564,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 function displayVersion() {
   const versionElement = document.querySelector('.version');
   if (versionElement) {
-    versionElement.textContent = `v.1.0.94`;
-    const hat = document.createElement('span');
-    hat.className = 'santa-hat-icon';
-    hat.setAttribute('aria-hidden', 'true');
-    versionElement.appendChild(hat);
-    versionElement.setAttribute('aria-label', `Version 1.0.94`);
+    versionElement.textContent = `v.1.0.95`;
+    versionElement.setAttribute('aria-label', `Version 1.0.95`);
   }
 }
 

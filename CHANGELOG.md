@@ -1,3 +1,7 @@
+## [1.0.95] - 2026-01-02
+### Fixed
+- Fixed video thumbnail hover previews showing black screen when "Hide End Screen Cards" toggle is enabled
+
 ## [1.0.94] - 2025-12-27
 ### Fixed
 - Minor bug fixes in Sponsor and Feedback popup pages (removed duplicate and raw HTML issues for a cleaner user experience)

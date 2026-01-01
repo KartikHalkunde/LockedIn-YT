@@ -1035,15 +1035,6 @@ body {
   padding: 0;
 }
 
-.version .santa-hat-icon {
-  display: inline-block;
-  width: 1.2em;
-  height: 1.2em;
-  margin-left: 0.3em;
-  background: url('../icons/santa-hat.svg') no-repeat center / contain;
-  vertical-align: middle;
-}
-
 /* ===== FEEDBACK PAGE ===== */
 .feedback-page {
   position: absolute;

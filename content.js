@@ -820,6 +820,16 @@ function toggleAllElements(selector, shouldHide) {
   });
 }
 
+// Toggle elements only within the video player container
+function togglePlayerElements(selector, shouldHide) {
+  // Only target the main video player, not thumbnail preview players
+  const player = document.querySelector('#movie_player');
+  if (!player) return;
+  player.querySelectorAll(selector).forEach(el => {
+    el.style.display = shouldHide ? 'none' : '';
+  });
+}
+
 function dataUrlToBlob(dataUrl) {
   const parts = dataUrl.split(',');
   if (parts.length < 2) {
@@ -1639,36 +1649,43 @@ function hideLiveChat(shouldHide) {
 }
 
 function hideEndCards(shouldHide) {
+  // Only hide end cards on watch pages, not on other pages with thumbnail previews
+  if (!window.location.pathname.startsWith('/watch')) return;
+  
+  // Only target the main video player, not thumbnail preview players
+  const player = document.querySelector('#movie_player');
+  if (!player) return;
+  
   if (!shouldHide) {
-    // Restore end screen cards
-    toggleAllElements('.ytp-ce-element', false);
-    toggleAllElements('.ytp-ce-video', false);
-    toggleAllElements('.ytp-ce-playlist', false);
-    toggleAllElements('.ytp-ce-channel', false);
-    toggleAllElements('.ytp-ce-website', false);
-    toggleAllElements('.ytp-ce-covering-overlay', false);
-    toggleAllElements('.ytp-ce-shadow', false);
-    toggleAllElements('.ytp-ce-size-1280', false);
-    toggleAllElements('.ytp-ce-size-853', false);
-    toggleAllElements('.ytp-show-tiles', false);
+    // Restore end screen cards (scoped to player)
+    togglePlayerElements('.ytp-ce-element', false);
+    togglePlayerElements('.ytp-ce-video', false);
+    togglePlayerElements('.ytp-ce-playlist', false);
+    togglePlayerElements('.ytp-ce-channel', false);
+    togglePlayerElements('.ytp-ce-website', false);
+    togglePlayerElements('.ytp-ce-covering-overlay', false);
+    togglePlayerElements('.ytp-ce-shadow', false);
+    togglePlayerElements('.ytp-ce-size-1280', false);
+    togglePlayerElements('.ytp-ce-size-853', false);
+    togglePlayerElements('.ytp-show-tiles', false);
     
-    document.querySelectorAll('.ytp-endscreen-content').forEach(el => {
+    player.querySelectorAll('.ytp-endscreen-content').forEach(el => {
       el.style.display = '';
     });
     
-    document.querySelectorAll('[class*="endscreen"]').forEach(el => {
+    player.querySelectorAll('[class*="endscreen"]').forEach(el => {
       el.style.display = '';
     });
     
-    // Restore video suggestions that appear after video ends
-    toggleAllElements('.ytp-suggestion-set', false);
-    toggleAllElements('.ytp-videowall-still', false);
-    toggleAllElements('.html5-endscreen', false);
-    toggleAllElements('.ytp-endscreen-previous', false);
-    toggleAllElements('.ytp-endscreen-next', false);
+    // Restore video suggestions that appear after video ends (scoped to player)
+    togglePlayerElements('.ytp-suggestion-set', false);
+    togglePlayerElements('.ytp-videowall-still', false);
+    togglePlayerElements('.html5-endscreen', false);
+    togglePlayerElements('.ytp-endscreen-previous', false);
+    togglePlayerElements('.ytp-endscreen-next', false);
     
     // Restore the entire endscreen container
-    document.querySelectorAll('.html5-endscreen, .ytp-endscreen-content, .ytp-ce-covering-overlay').forEach(el => {
+    player.querySelectorAll('.html5-endscreen, .ytp-endscreen-content, .ytp-ce-covering-overlay').forEach(el => {
       el.style.display = '';
       el.style.visibility = '';
       el.style.opacity = '';
@@ -1679,7 +1696,7 @@ function hideEndCards(shouldHide) {
   
   // Count visible end cards before hiding for stats
   let endCardsCount = 0;
-  document.querySelectorAll('.ytp-ce-element:not([data-lockedin-counted])').forEach(el => {
+  player.querySelectorAll('.ytp-ce-element:not([data-lockedin-counted])').forEach(el => {
     if (el.offsetParent !== null) {
       endCardsCount++;
       el.setAttribute('data-lockedin-counted', 'true');
@@ -1689,46 +1706,46 @@ function hideEndCards(shouldHide) {
     trackStat('endcards', endCardsCount);
   }
   
-  // Hide end screen annotation cards (cards that appear during video)
-  toggleAllElements('.ytp-ce-element', true);
-  toggleAllElements('.ytp-ce-video', true);
-  toggleAllElements('.ytp-ce-playlist', true);
-  toggleAllElements('.ytp-ce-channel', true);
-  toggleAllElements('.ytp-ce-website', true);
-  toggleAllElements('.ytp-ce-covering-overlay', true);
-  toggleAllElements('.ytp-ce-shadow', true);
-  toggleAllElements('.ytp-ce-size-1280', true);
-  toggleAllElements('.ytp-ce-size-853', true);
+  // Hide end screen annotation cards (cards that appear during video) - scoped to player
+  togglePlayerElements('.ytp-ce-element', true);
+  togglePlayerElements('.ytp-ce-video', true);
+  togglePlayerElements('.ytp-ce-playlist', true);
+  togglePlayerElements('.ytp-ce-channel', true);
+  togglePlayerElements('.ytp-ce-website', true);
+  togglePlayerElements('.ytp-ce-covering-overlay', true);
+  togglePlayerElements('.ytp-ce-shadow', true);
+  togglePlayerElements('.ytp-ce-size-1280', true);
+  togglePlayerElements('.ytp-ce-size-853', true);
   
-  document.querySelectorAll('.ytp-endscreen-content').forEach(el => {
+  player.querySelectorAll('.ytp-endscreen-content').forEach(el => {
     el.style.display = 'none';
   });
   
-  toggleAllElements('.ytp-show-tiles', true);
-  document.querySelectorAll('[class*="endscreen"]').forEach(el => {
+  togglePlayerElements('.ytp-show-tiles', true);
+  player.querySelectorAll('[class*="endscreen"]').forEach(el => {
     el.style.display = 'none';
   });
   
-  document.querySelectorAll('.ytp-ce-element-show').forEach(el => {
+  player.querySelectorAll('.ytp-ce-element-show').forEach(el => {
     el.style.display = 'none';
   });
   
-  // Hide video suggestions that appear AFTER video ends (the grid of videos)
-  toggleAllElements('.ytp-suggestion-set', true);
-  toggleAllElements('.ytp-videowall-still', true);
-  toggleAllElements('.html5-endscreen', true);
-  toggleAllElements('.ytp-endscreen-previous', true);
-  toggleAllElements('.ytp-endscreen-next', true);
+  // Hide video suggestions that appear AFTER video ends (the grid of videos) - scoped to player
+  togglePlayerElements('.ytp-suggestion-set', true);
+  togglePlayerElements('.ytp-videowall-still', true);
+  togglePlayerElements('.html5-endscreen', true);
+  togglePlayerElements('.ytp-endscreen-previous', true);
+  togglePlayerElements('.ytp-endscreen-next', true);
   
   // Hide the entire endscreen container and its children
-  document.querySelectorAll('.html5-endscreen, .ytp-endscreen-content, .ytp-ce-covering-overlay').forEach(el => {
+  player.querySelectorAll('.html5-endscreen, .ytp-endscreen-content, .ytp-ce-covering-overlay').forEach(el => {
     el.style.display = 'none';
     el.style.visibility = 'hidden';
     el.style.opacity = '0';
   });
   
-  // Hide video wall (the grid of suggested videos at end)
-  document.querySelectorAll('.ytp-videowall-still-image, .ytp-videowall-still, .videowall-endscreen').forEach(el => {
+  // Hide video wall (the grid of suggested videos at end) - scoped to player
+  player.querySelectorAll('.ytp-videowall-still-image, .ytp-videowall-still, .videowall-endscreen').forEach(el => {
     el.style.display = 'none';
   });
 }
@@ -2538,30 +2555,34 @@ function hideEndCardsForShortsInPlayer(shouldHide) {
     // Only hide if it's a short video
     if (!isShortVideo()) return;
     
-    // Hide end screen cards
-    document.querySelectorAll('.ytp-ce-element, .ytp-ce-video, .ytp-ce-playlist, .ytp-ce-channel, .ytp-ce-website').forEach(el => {
+    // Only target the main video player, not thumbnail preview players
+    const player = document.querySelector('#movie_player');
+    if (!player) return;
+    
+    // Hide end screen cards (scoped to player)
+    player.querySelectorAll('.ytp-ce-element, .ytp-ce-video, .ytp-ce-playlist, .ytp-ce-channel, .ytp-ce-website').forEach(el => {
       el.style.display = 'none';
     });
     
     // Hide end screen overlay
-    document.querySelectorAll('.ytp-ce-covering-overlay, .ytp-ce-shadow').forEach(el => {
+    player.querySelectorAll('.ytp-ce-covering-overlay, .ytp-ce-shadow').forEach(el => {
       el.style.display = 'none';
     });
     
     // Hide end screen content container
-    document.querySelectorAll('.ytp-endscreen-content, .html5-endscreen').forEach(el => {
+    player.querySelectorAll('.ytp-endscreen-content, .html5-endscreen').forEach(el => {
       el.style.display = 'none';
       el.style.visibility = 'hidden';
       el.style.opacity = '0';
     });
     
-    // Hide video wall suggestions
-    document.querySelectorAll('.ytp-videowall-still, .ytp-videowall-still-image, .videowall-endscreen').forEach(el => {
+    // Hide video wall suggestions (scoped to player)
+    player.querySelectorAll('.ytp-videowall-still, .ytp-videowall-still-image, .videowall-endscreen').forEach(el => {
       el.style.display = 'none';
     });
     
     // Hide autoplay/up-next elements
-    document.querySelectorAll('.ytp-autonav-endscreen, .ytp-autonav-endscreen-upnext-container, .ytp-suggestion-set').forEach(el => {
+    player.querySelectorAll('.ytp-autonav-endscreen, .ytp-autonav-endscreen-upnext-container, .ytp-suggestion-set').forEach(el => {
       el.style.display = 'none';
     });
   };

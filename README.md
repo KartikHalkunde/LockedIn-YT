@@ -6,7 +6,7 @@
   [![Firefox Add-ons](https://img.shields.io/badge/Firefox-Available-orange?logo=firefox-browser&logoColor=white)](https://addons.mozilla.org/firefox/addon/lockedin-yt/)
   [![Edge Add-ons](https://img.shields.io/badge/Edge-Available-blue?logo=microsoft-edge&logoColor=white)](https://microsoftedge.microsoft.com/addons/detail/hibjbjgfbmhpiaapeccnfddnpabnlklj)
   [![Chrome Web Store](https://img.shields.io/badge/Chrome-Coming%20Soon-lightgrey?logo=google-chrome&logoColor=white)](#)
-  [![Version](https://img.shields.io/badge/version-1.0.94-green.svg)](https://github.com/KartikHalkunde/LockedIn-YT/releases)
+  [![Version](https://img.shields.io/badge/version-1.0.95-green.svg)](https://github.com/KartikHalkunde/LockedIn-YT/releases)
   [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
   
 </div>
@@ -80,6 +80,9 @@ Simple toggle switches for each feature. Settings are saved instantly and synced
 ---
 
 ## Changelog
+
+### Version 1.0.95 (January 2, 2026)
+- **Bug Fix**: Fixed video thumbnail hover previews showing black screen when "Hide End Screen Cards" toggle is enabled.
 
 ### Version 1.0.94 (December 27, 2025)
 - **Minor bug fixes**: Fixed duplicate and raw HTML issues in Sponsor and Feedback popup pages for a cleaner user experience.
