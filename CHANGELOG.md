@@ -1,3 +1,9 @@
+## [1.0.96] - 2026-01-10
+### Fixed
+- Fixed search results page breaking when Hide Recommended Videos or Hide Sidebar toggle is enabled
+- Fixed video player persisting on homepage/search pages when Hide Recommended is toggled
+- Added page-specific CSS scoping to prevent layout issues during navigation
+
 ## [1.0.95] - 2026-01-02
 ### Fixed
 - Fixed video thumbnail hover previews showing black screen when "Hide End Screen Cards" toggle is enabled
