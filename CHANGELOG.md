@@ -1,3 +1,8 @@
+## [1.0.97] - 2026-01-18
+### Fixed
+- Fixed flickering issue around the like button area when "Hide Video Side Bar" toggle is enabled
+- Removed CSS variable manipulation that was causing layout recalculation loops
+
 ## [1.0.96] - 2026-01-10
 ### Fixed
 - Fixed search results page breaking when Hide Recommended Videos or Hide Sidebar toggle is enabled

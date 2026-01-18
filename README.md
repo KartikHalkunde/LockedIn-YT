@@ -6,7 +6,7 @@
   [![Firefox Add-ons](https://img.shields.io/badge/Firefox-Available-orange?logo=firefox-browser&logoColor=white)](https://addons.mozilla.org/firefox/addon/lockedin-yt/)
   [![Edge Add-ons](https://img.shields.io/badge/Edge-Available-blue?logo=microsoft-edge&logoColor=white)](https://microsoftedge.microsoft.com/addons/detail/hibjbjgfbmhpiaapeccnfddnpabnlklj)
   [![Chrome Web Store](https://img.shields.io/badge/Chrome-Coming%20Soon-lightgrey?logo=google-chrome&logoColor=white)](#)
-  [![Version](https://img.shields.io/badge/version-1.0.96-green.svg)](https://github.com/KartikHalkunde/LockedIn-YT/releases)
+  [![Version](https://img.shields.io/badge/version-1.0.97-green.svg)](https://github.com/KartikHalkunde/LockedIn-YT/releases)
   [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
   
 </div>
@@ -81,6 +81,10 @@ Simple toggle switches for each feature. Settings are saved instantly and synced
 
 ## Changelog
 
+### Version 1.0.97 (January 18, 2026)
+- **Bug Fix**: Fixed flickering issue around the like button area when "Hide Video Side Bar" toggle is enabled.
+- **Performance**: Removed CSS variable manipulation that was causing layout recalculation loops.
+
 ### Version 1.0.96 (January 10, 2026)
 - **Bug Fix**: Fixed search results page breaking when Hide Recommended Videos or Hide Sidebar toggle is enabled.
 - **Bug Fix**: Fixed video player persisting on homepage/search pages when Hide Recommended is toggled.
@@ -89,57 +93,7 @@ Simple toggle switches for each feature. Settings are saved instantly and synced
 ### Version 1.0.95 (January 2, 2026)
 - **Bug Fix**: Fixed video thumbnail hover previews showing black screen when "Hide End Screen Cards" toggle is enabled.
 
-### Version 1.0.94 (December 27, 2025)
-- **Minor bug fixes**: Fixed duplicate and raw HTML issues in Sponsor and Feedback popup pages for a cleaner user experience.
-
-### Version 1.0.93 (December 25, 2025)
-- **Festive Footer**: Popup version label now wears a bundled Santa hat SVG with accessible markup for screen readers
-- **Packaging Updates**: Build scripts bundle the new asset across Firefox/Chrome and Edge distributions
-- **Hide Subscriptions Toggle**: New toggle to hide the Subscriptions section from YouTube sidebar
-- **Language-Independent Detection**: Multi-layered detection system for Explore/Trending/MoreFromYT toggles
-- **URL-Based Primary Detection**: Works across all languages using URL patterns as primary identifier
-- **Confidence Scoring System**: Combines URL, text (9+ languages), and structural position detection
-- **Dynamic Sidebar Monitoring**: MutationObserver continuously applies hiding rules when sidebar updates
-- **Firefox Compliance**: Removed service_worker field and all innerHTML usage for Mozilla security requirements
-
-### Version 1.0.82 (November 27, 2025)
-- **Menu Tab**: New menu interface with enhanced navigation and controls
-- **Light Mode Theme**: Optional light theme for better visibility
-- **Take a Break Feature**: Background alarm-based timer with auto-redirect and flash notifications
-- **Instant CSS Hiding**: Pre-render hiding eliminates distraction flicker
-- **Context-Aware Toggles**: Parent/child toggles appear only when relevant
-- **Popup Refinements**: Improved layout spacing and clearer section dividers
-
-### Version 1.0.75 (November 15, 2025)
-- **Livestream Fix**: Fixed sidebar recommendations not hiding on YouTube livestream pages
-- **UI Layer Fix**: Improved meme overlay z-index to prevent covering search suggestions
-- **Toggle Independence**: Fixed Shorts toggle cross-interference between homepage and search
-- **Enhanced Detection**: Better livestream video renderer detection (ytd-compact-autoplay-renderer)
-- **Stability**: Strengthened sidebar hiding logic and improved page-type detection
-
-### Version 1.0.7 (November 5, 2025)
-- **Smart Sidebar**: Improved video page sidebar controls
-  - New toggle to show/hide playlists separately
-  - Refined recommended videos hiding to preserve playlists
-  - Better user control over sidebar content
-- **UI Enhancements**: Optimized popup interface dimensions
-- **Technical**: Updated internal version references
-
-### Version 1.0.6 (October 31, 2025)
-- **UI Overhaul**: Complete popup redesign with 4 logical groups and thread-line styling
-- **New Features**: Added hide comments, search recommendations, and "More From YouTube" filters
-- **Split Controls**: Separate toggles for homepage and search Shorts hiding
-- **Motivational Memes**: Display random meme when homepage feed is hidden
-- **Footer Updates**: GitHub and Support links with auto-version display
-- **Bug Fixes**: Fixed homepage feed hiding and search recommendations filtering
-- **Optimization**: Compressed meme images (1.7MB → 188KB total extension size)
-
-### Version 1.0.5 (October 29, 2025)
-- **Cross-Browser Support**: Now compatible with Firefox, Edge, and Chrome
-- **Edge Add-ons**: Available on Microsoft Edge Add-ons store
-- **Multi-Platform**: Single codebase works across all browsers
-
-[Full Changelog](https://github.com/KartikHalkunde/LockedIn-YT/releases)
+For more updates, check out the complete [CHANGELOG](CHANGELOG.md).
 
 ---
 

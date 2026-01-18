@@ -59,6 +59,25 @@ instantRecsHideStyle.id = 'lockedin-instant-recs-hide';
 instantRecsHideStyle.textContent = '';
 (document.head || document.documentElement).appendChild(instantRecsHideStyle);
 
+// Protect video player from any CSS inheritance issues
+const videoProtectionStyle = document.createElement('style');
+videoProtectionStyle.id = 'lockedin-video-protection';
+videoProtectionStyle.textContent = `
+/* Ensure video player is never dimmed or filtered by our extension */
+#movie_player,
+#movie_player video,
+.html5-video-player,
+.html5-video-player video,
+.html5-main-video,
+video.video-stream {
+  filter: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+}
+`;
+(document.head || document.documentElement).appendChild(videoProtectionStyle);
+
 const navHideStyle = document.createElement('style');
 navHideStyle.id = 'lockedin-nav-hide';
 navHideStyle.textContent = `
@@ -1365,10 +1384,6 @@ function hideAll(shouldHide) {
     // Also restore sidebar container visibility
     toggleElement('#secondary', false);
     toggleElement('#secondary-inner', false);
-    const flexyContainerRestore = document.querySelector('ytd-watch-flexy');
-    if (flexyContainerRestore) {
-      flexyContainerRestore.style.removeProperty('--ytd-watch-flexy-sidebar-width');
-    }
     // Restore Up Next overlays
     toggleAllElements('.ytp-upnext, .ytp-upnext-container, .ytp-suggestion-set', false);
     return;
@@ -1446,13 +1461,9 @@ function hideAll(shouldHide) {
     });
   });
   
-  // Hide the entire sidebar
+  // Hide the entire sidebar using display:none only
   toggleElement('#secondary', true);
   toggleElement('#secondary-inner', true);
-  const flexyContainer = document.querySelector('ytd-watch-flexy');
-  if (flexyContainer) {
-    flexyContainer.style.setProperty('--ytd-watch-flexy-sidebar-width', '0px', 'important');
-  }
   
   // Hide player Up Next overlays
   toggleAllElements('.ytp-upnext, .ytp-upnext-container, .ytp-suggestion-set', true);
