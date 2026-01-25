@@ -458,7 +458,10 @@ const DEFAULT_SETTINGS = {
   hideFeed: false,
   redirectToSubs: false,
   hideShortsHomepage: false,
+  cleanHomepageFeed: false,
   hideCommunityPosts: false,
+  hideFeaturedContent: false,
+  hideMembersOnly: false,
   hideShortsGlobally: false,
   redirectShorts: false,
   hideSidebar: false,
@@ -2129,6 +2132,117 @@ function hideCommunityPosts(shouldHide) {
   });
 }
 
+function hideFeaturedContent(shouldHide) {
+  // Only apply on homepage
+  const isHomepage = window.location.pathname === '/' || window.location.pathname === '/home';
+  if (!isHomepage) return;
+
+  if (!shouldHide) {
+    // Restore featured content
+    document.querySelectorAll('[data-lockedin-hidden="featured-content"]').forEach(el => {
+      el.removeAttribute('hidden');
+      el.style.display = '';
+      el.removeAttribute('data-lockedin-hidden');
+    });
+    return;
+  }
+
+  // Hide YouTube featured sections (movie recommendations, Premium prompts, etc.)
+  // These sections have "YouTube featured" badge
+  document.querySelectorAll('ytd-rich-section-renderer').forEach(section => {
+    // Check if this is a featured section by looking for the featured badge
+    const hasFeaturedBadge = section.querySelector('ytd-badge-supported-renderer[aria-label*="featured"], ytd-badge-supported-renderer[aria-label*="Featured"]');
+    const hasYouTubeFeatured = section.innerText?.includes('YouTube featured');
+    
+    if ((hasFeaturedBadge || hasYouTubeFeatured) && !section.hasAttribute('data-lockedin-hidden')) {
+      section.setAttribute('hidden', '');
+      section.style.display = 'none';
+      section.setAttribute('data-lockedin-hidden', 'featured-content');
+    }
+  });
+
+  // Hide "Try Premium" banners and cards
+  document.querySelectorAll('ytd-statement-banner-renderer, ytd-primetime-promo-renderer').forEach(banner => {
+    if (!banner.hasAttribute('data-lockedin-hidden')) {
+      banner.setAttribute('hidden', '');
+      banner.style.display = 'none';
+      banner.setAttribute('data-lockedin-hidden', 'featured-content');
+    }
+  });
+
+  // Hide premium lite and other promotional sections
+  document.querySelectorAll('[class*="premium"], [class*="promo"]').forEach(promo => {
+    // Only hide if it's a top-level promotional section, not video elements
+    if (promo.tagName.toLowerCase().startsWith('ytd-') && !promo.hasAttribute('data-lockedin-hidden')) {
+      const text = promo.innerText?.toLowerCase() || '';
+      if (text.includes('premium') || text.includes('try premium lite')) {
+        promo.setAttribute('hidden', '');
+        promo.style.display = 'none';
+        promo.setAttribute('data-lockedin-hidden', 'featured-content');
+      }
+    }
+  });
+}
+
+function hideMembersOnly(shouldHide) {
+  // Only apply on homepage and subscriptions page
+  if (!isHomePath() && !isSubscriptionsPath()) return;
+
+  if (!shouldHide) {
+    // Restore members-only content
+    document.querySelectorAll('[data-lockedin-hidden="members-only"]').forEach(el => {
+      el.style.display = '';
+      el.removeAttribute('data-lockedin-hidden');
+    });
+    return;
+  }
+
+  // Define video selectors for different YouTube layouts
+  const videoSelectors = [
+    'ytd-rich-item-renderer',      // Homepage grid
+    'ytd-grid-video-renderer',     // Subscriptions grid
+    'ytd-video-renderer'           // List view
+  ];
+
+  // Scan and hide members-only videos
+  videoSelectors.forEach(selector => {
+    document.querySelectorAll(selector).forEach(video => {
+      // Skip if already hidden by another feature
+      if (video.hasAttribute('data-lockedin-hidden')) return;
+
+      // Look for membership badges
+      const badges = video.querySelectorAll('ytd-badge-supported-renderer');
+      let isMembersOnly = false;
+
+      badges.forEach(badge => {
+        const text = badge.textContent.toLowerCase().trim();
+        // Check for "Members only" text variants
+        if (text.includes('member') || text.includes('members only')) {
+          isMembersOnly = true;
+        }
+        // Also check for specific class YouTube uses for member badges
+        if (badge.querySelector('.badge-style-type-members-only')) {
+          isMembersOnly = true;
+        }
+      });
+
+      // Hide if members-only badge detected
+      if (isMembersOnly) {
+        video.style.display = 'none';
+        video.setAttribute('data-lockedin-hidden', 'members-only');
+      }
+    });
+  });
+}
+
+function cleanHomepageFeed(shouldClean) {
+  // This is a master toggle that applies all homepage cleaning features
+  // When enabled, it hides community posts, featured content, and members-only content
+  hideCommunityPosts(shouldClean);
+  hideFeaturedContent(shouldClean);
+  hideMembersOnly(shouldClean);
+}
+
 function hideShortsHomepage(shouldHide) {
   if (!shouldHide) {
     // Restore homepage Shorts elements
@@ -2709,7 +2823,14 @@ function runAll() {
     if (!currentSettings.hideShortsGlobally) {
       hideShortsHomepage(currentSettings.hideShortsHomepage);
     }
-    hideCommunityPosts(currentSettings.hideCommunityPosts);
+    // Use Clean Homepage Feed master toggle or individual sub-toggles
+    if (currentSettings.cleanHomepageFeed) {
+      cleanHomepageFeed(true);
+    } else {
+      hideCommunityPosts(currentSettings.hideCommunityPosts);
+      hideFeaturedContent(currentSettings.hideFeaturedContent);
+      hideMembersOnly(currentSettings.hideMembersOnly);
+    }
     
     // Video Page group
     hideSidebar(currentSettings.hideSidebar);
@@ -2767,7 +2888,14 @@ function runAll() {
     if (!currentSettings.hideShortsGlobally) {
       hideShortsHomepage(currentSettings.hideShortsHomepage);
     }
-    hideCommunityPosts(currentSettings.hideCommunityPosts);
+    // Use Clean Homepage Feed master toggle or individual sub-toggles
+    if (currentSettings.cleanHomepageFeed) {
+      cleanHomepageFeed(true);
+    } else {
+      hideCommunityPosts(currentSettings.hideCommunityPosts);
+      hideFeaturedContent(currentSettings.hideFeaturedContent);
+      hideMembersOnly(currentSettings.hideMembersOnly);
+    }
     
     hideSidebar(currentSettings.hideSidebar);
     // If hideSidebar is enabled, use hideAll to hide everything including playlists
@@ -2804,6 +2932,8 @@ function restoreAllElements() {
   hideFeed(false);
   hideShortsHomepage(false);
   hideCommunityPosts(false);
+  hideFeaturedContent(false);
+  hideMembersOnly(false);
   hideShortsGlobally(false);
   setupShortsLinkInterception(false);
   

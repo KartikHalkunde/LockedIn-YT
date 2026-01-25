@@ -8,7 +8,10 @@ const DEFAULT_SETTINGS = {
   hideFeed: false,
   redirectToSubs: false,
   hideShortsHomepage: false,
+  cleanHomepageFeed: false,
   hideCommunityPosts: false,
+  hideFeaturedContent: false,
+  hideMembersOnly: false,
   hideShortsGlobally: false,
   redirectShorts: false,
   hideSidebar: false,
@@ -103,7 +106,10 @@ const I18N_STRINGS = {
     'setting.hideFeed': 'Hide Homepage Feed',
     'setting.redirectToSubs': 'Redirect to Subscriptions',
     'setting.hideShortsHomepage': 'Hide YouTube Shorts',
+    'setting.cleanHomepageFeed': 'Clean Homepage Feed',
     'setting.hideCommunityPosts': 'Hide Community Posts',
+    'setting.hideFeaturedContent': 'Hide Featured Content',
+    'setting.hideMembersOnly': 'Hide Members Only Content',
     'group.shorts': 'YouTube Shorts',
     'setting.hideShortsGlobal': 'Hide Shorts (All Pages)',
     'setting.redirectShorts': 'Redirect Shorts',
@@ -227,7 +233,10 @@ const I18N_STRINGS = {
     'setting.hideFeed': 'होमपेज फ़ीड छुपाएँ',
     'setting.redirectToSubs': 'सब्सक्रिप्शन पर ले जाएँ',
     'setting.hideShortsHomepage': 'YouTube शॉर्ट्स छुपाएँ',
+    'setting.cleanHomepageFeed': 'होमपेज फ़ीड साफ़ करें',
     'setting.hideCommunityPosts': 'कम्युनिटी पोस्ट छुपाएँ',
+    'setting.hideFeaturedContent': 'फ़ीचर्ड कंटेंट छुपाएँ',
+    'setting.hideMembersOnly': 'सदस्य-विशेष कंटेंट छुपाएँ',
     'group.shorts': 'YouTube शॉर्ट्स',
     'setting.hideShortsGlobal': 'शॉर्ट्स छुपाएँ (सभी पेज)',
     'setting.redirectShorts': 'शॉर्ट्स को रीडायरेक्ट करें',
@@ -351,7 +360,10 @@ const I18N_STRINGS = {
     'setting.hideFeed': 'Masquer le flux d’accueil',
     'setting.redirectToSubs': 'Rediriger vers Abonnements',
     'setting.hideShortsHomepage': 'Masquer les YouTube Shorts',
+    'setting.cleanHomepageFeed': 'Nettoyer le fil d\'accueil',
     'setting.hideCommunityPosts': 'Masquer les publications de la communauté',
+    'setting.hideFeaturedContent': 'Masquer le contenu en vedette',
+    'setting.hideMembersOnly': 'Masquer le contenu réservé aux membres',
     'group.shorts': 'YouTube Shorts',
     'setting.hideShortsGlobal': 'Masquer Shorts (toutes les pages)',
     'setting.redirectShorts': 'Rediriger les Shorts',
@@ -413,7 +425,10 @@ const I18N_STRINGS = {
     'setting.hideFeed': 'Startseiten-Feed ausblenden',
     'setting.redirectToSubs': 'Zu Abos umleiten',
     'setting.hideShortsHomepage': 'YouTube Shorts ausblenden',
+    'setting.cleanHomepageFeed': 'Startseiten-Feed bereinigen',
     'setting.hideCommunityPosts': 'Community-Beiträge ausblenden',
+    'setting.hideFeaturedContent': 'Hervorgehobene Inhalte ausblenden',
+    'setting.hideMembersOnly': 'Mitgliederinhalte ausblenden',
     'group.shorts': 'YouTube Shorts',
     'setting.hideShortsGlobal': 'Shorts ausblenden (alle Seiten)',
     'setting.redirectShorts': 'Shorts umleiten',
@@ -1173,6 +1188,9 @@ function loadSettings() {
       applyLanguageSetting(currentSettings.language || 'auto', { skipSave: true });
       if (currentSettings.showStats) document.getElementById('statsSection').classList.add('visible');
       if (currentSettings.hideFeed) document.getElementById('redirectToSubsRow').classList.add('visible');
+      const cleanFeedSubToggles = document.getElementById('cleanFeedSubToggles');
+      if (!currentSettings.cleanHomepageFeed) cleanFeedSubToggles?.classList.add('visible');
+      else cleanFeedSubToggles?.classList.remove('visible');
       const sidebarSubToggles = document.getElementById('sidebarSubToggles');
       if (!currentSettings.hideSidebar) sidebarSubToggles?.classList.add('visible');
       else sidebarSubToggles?.classList.remove('visible');
@@ -1206,6 +1224,17 @@ function setupToggleListeners() {
           row.classList.remove('visible');
           const redirectToggle = document.querySelector('input[data-setting="redirectToSubs"]');
           if (redirectToggle && redirectToggle.checked) { redirectToggle.checked = false; browser.storage.sync.set({ redirectToSubs: false }); }
+        }
+      }
+      if (settingId === 'cleanHomepageFeed') {
+        const sub = document.getElementById('cleanFeedSubToggles');
+        if (!isChecked) sub?.classList.add('visible');
+        else {
+          sub?.classList.remove('visible');
+          ['hideCommunityPosts', 'hideFeaturedContent', 'hideMembersOnly'].forEach(s => {
+            const t = document.querySelector(`input[data-setting="${s}"]`);
+            if (t && t.checked) { t.checked = false; browser.storage.sync.set({ [s]: false }); }
+          });
         }
       }
       if (settingId === 'hideSidebar') {
