@@ -20,7 +20,8 @@ LockedIn is an open-source browser extension that helps you focus on YouTube by 
 **Compatible with:** Firefox, Microsoft Edge, and Chromium-based browsers
 
 **Features:**
--  Hide Homepage Feed with motivational memes
+-  Hide Homepage Feed
+-  Hide Youtube featured and members only content
 -  Smart Video Sidebar Controls:
    - Hide Recommended Videos while keeping playlists visible
    - Separate toggle for playlists visibility
