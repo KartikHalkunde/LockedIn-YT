@@ -1,3 +1,10 @@
+## [1.0.98] - 2026-01-26
+### Added
+- Added new toggles for better content control
+
+### Fixed
+- Minor bug fixes and stability improvements
+
 ## [1.0.97] - 2026-01-18
 ### Fixed
 - Fixed flickering issue around the like button area when "Hide Video Side Bar" toggle is enabled

@@ -4,6 +4,117 @@ if (typeof browser === 'undefined') {
   var browser = chrome;
 }
 
+// ===== ENVIRONMENT DETECTION =====
+// Detect if running on mobile YouTube vs desktop YouTube
+function isMobileYouTube() {
+  // Check 1: Mobile domain
+  if (window.location.hostname === 'm.youtube.com') {
+    return true;
+  }
+  
+  // Check 2: Mobile app container
+  if (document.querySelector('ytm-app')) {
+    return true;
+  }
+  
+  // Check 3: Mobile viewport meta tag or user agent
+  const isMobileUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  const isMobileViewport = window.innerWidth <= 768;
+  
+  // Only return true if we have strong mobile indicators
+  return isMobileUA && isMobileViewport && document.querySelector('ytm-browse, ytm-watch');
+}
+
+// Cache the environment detection result (it won't change during session)
+let IS_MOBILE = null;
+function getEnvironment() {
+  if (IS_MOBILE === null) {
+    IS_MOBILE = isMobileYouTube();
+  }
+  return IS_MOBILE ? 'mobile' : 'desktop';
+}
+
+// ===== SELECTOR MAPS FOR DESKTOP vs MOBILE =====
+// YouTube uses completely different DOM elements on mobile
+const SELECTORS = {
+  desktop: {
+    // Homepage/Feed
+    homeRenderer: 'ytd-rich-grid-renderer',
+    videoRenderer: 'ytd-rich-item-renderer',
+    gridVideoRenderer: 'ytd-grid-video-renderer',
+    
+    // Shorts
+    shortsShelf: 'ytd-reel-shelf-renderer',
+    shortsRenderer: 'ytd-reel-item-renderer',
+    
+    // Sidebar (Watch page)
+    sidebar: '#secondary',
+    sidebarInner: '#secondary-inner',
+    sidebarVideos: 'ytd-compact-video-renderer',
+    sidebarShorts: 'ytd-reel-item-renderer',
+    autoplay: 'ytd-compact-autoplay-renderer',
+    
+    // Playlists
+    playlistPanel: 'ytd-playlist-panel-renderer',
+    
+    // Comments
+    comments: '#comments, ytd-comments',
+    
+    // Community posts
+    communityPost: 'ytd-backstage-post-thread-renderer',
+    
+    // Search
+    searchRenderer: 'ytd-video-renderer'
+  },
+  mobile: {
+    // Homepage/Feed
+    homeRenderer: 'ytm-browse',
+    videoRenderer: 'ytm-video-with-context-renderer',
+    gridVideoRenderer: 'ytm-grid-video-renderer',
+    
+    // Shorts
+    shortsShelf: 'ytm-reel-shelf-renderer',
+    shortsRenderer: 'ytm-reel-item-renderer',
+    
+    // Sidebar (Watch page) - mobile has "related" section below video
+    sidebar: '#related, ytm-watch-next-secondary-results-renderer',
+    sidebarInner: null, // Doesn't exist on mobile
+    sidebarVideos: 'ytm-compact-video-renderer, ytm-video-with-context-renderer',
+    sidebarShorts: 'ytm-reel-item-renderer',
+    autoplay: 'ytm-compact-autoplay-renderer',
+    
+    // Playlists
+    playlistPanel: 'ytm-playlist-panel-renderer',
+    
+    // Comments
+    comments: 'ytm-comments-entry-point-header-renderer, ytm-comment-thread-renderer',
+    
+    // Community posts
+    communityPost: 'ytm-backstage-post-renderer',
+    
+    // Search
+    searchRenderer: 'ytm-compact-video-renderer'
+  }
+};
+
+// Helper to get the right selectors for current environment
+function getSelector(key) {
+  const env = getEnvironment();
+  return SELECTORS[env][key];
+}
+
+// Helper to get all selectors (desktop + mobile) for comprehensive coverage
+function getAllSelectors(key) {
+  const desktop = SELECTORS.desktop[key];
+  const mobile = SELECTORS.mobile[key];
+  
+  if (!desktop && !mobile) return '';
+  if (!desktop) return mobile;
+  if (!mobile) return desktop;
+  
+  return `${desktop}, ${mobile}`;
+}
+
 function normalizePathname(pathname) {
   if (!pathname) return '/';
   if (pathname.length > 1 && pathname.endsWith('/')) {
@@ -988,11 +1099,16 @@ function hideFeed(shouldHide) {
   
   // Only hide on homepage
   if (window.location.pathname === '/' || window.location.pathname === '/home') {
-    // Hide multiple feed-related elements
+    // Hide multiple feed-related elements (desktop + mobile)
     const feedSelectors = [
+      // Desktop
       'ytd-rich-grid-renderer',
       'ytd-two-column-browse-results-renderer #primary',
-      'ytd-browse[page-subtype="home"]'
+      'ytd-browse[page-subtype="home"]',
+      // Mobile
+      'ytm-browse',
+      'ytm-rich-grid-renderer',
+      'ytm-feed'
     ];
     
     feedSelectors.forEach(selector => {
@@ -1168,11 +1284,17 @@ function hideSidebar(shouldHide) {
     // No current playlist: hide entire sidebar and all recommendation renderers
     // First hide all individual video renderers (including livestream recommendations)
     const allVideoRenderers = [
+      // Desktop
       'ytd-compact-video-renderer',
       'ytd-compact-movie-renderer',
       'ytd-compact-radio-renderer',
       'ytd-compact-autoplay-renderer',
-      'ytd-video-renderer'
+      'ytd-video-renderer',
+      // Mobile
+      'ytm-compact-video-renderer',
+      'ytm-video-with-context-renderer',
+      'ytm-item-section-renderer',
+      'ytm-compact-autoplay-renderer'
     ];
     let recsCount = 0;
     allVideoRenderers.forEach(selector => {
@@ -1192,11 +1314,15 @@ function hideSidebar(shouldHide) {
     
     // Hide all container sections
     const allContainers = [
+      // Desktop
       'ytd-watch-next-secondary-results-renderer',
       'ytd-item-section-renderer',
       'ytd-continuation-item-renderer',
       '#related',
-      '#items'
+      '#items',
+      // Mobile
+      'ytm-watch-next-secondary-results-renderer',
+      'ytm-item-section-renderer'
     ];
     allContainers.forEach(selector => {
       document.querySelectorAll(`#secondary ${selector}`).forEach(el => {
@@ -1284,7 +1410,11 @@ function hideRecommendedVideos(shouldHide) {
     return;
   }
 
-  const sidebar = document.querySelector('#secondary');
+  // FIX: Look for Desktop Sidebar (#secondary) OR Mobile Container
+  const sidebar = document.querySelector('#secondary') || 
+                  document.querySelector('ytm-watch-next-secondary-results-renderer') || 
+                  document.querySelector('ytm-item-section-renderer[section-identifier="related-items"]');
+                  
   const isLivestreamVideo = () => {
     return !!document.querySelector(
       'ytd-live-chat-frame, #chat, .ytp-live-badge, meta[itemprop="isLiveBroadcast"][content="True" i], ytd-thumbnail-overlay-time-status-renderer[overlay-style="LIVE"]'
@@ -1302,8 +1432,8 @@ function hideRecommendedVideos(shouldHide) {
 
   if (!sidebar) return;
 
-  // If sidebar is moved below the player AND it's a livestream layout, skip hiding to avoid chat/comments
-  if (sidebar.closest('#below') && isLivestreamVideo()) {
+  // Desktop Specific: If sidebar is moved below the player AND it's a livestream layout, skip hiding to avoid chat/comments
+  if (sidebar.id === 'secondary' && sidebar.closest('#below') && isLivestreamVideo()) {
     return;
   }
 
@@ -1363,6 +1493,16 @@ function hideRecommendedVideos(shouldHide) {
       container.setAttribute('data-lockedin-hidden', hiddenAttr);
     }
   });
+  
+  // Mobile: Aggressively hide the specific related items section if it contains videos
+  sidebar.querySelectorAll('ytm-item-section-renderer').forEach(section => {
+    if (section.querySelector('ytm-video-with-context-renderer, ytm-compact-video-renderer')) {
+      if (!section.hasAttribute('data-lockedin-hidden')) {
+        section.style.display = 'none';
+        section.setAttribute('data-lockedin-hidden', hiddenAttr);
+      }
+    }
+  });
 
   // Track hidden recommendations
   if (recsCount > 0) {
@@ -1406,22 +1546,32 @@ function hideSidebarShorts(shouldHide) {
     return;
   }
   
-  const sidebar = document.querySelector('#secondary');
-  if (!sidebar) return;
-  
   let shortsCount = 0;
   
-  // Hide shorts-specific renderers
+  // Hide shorts-specific renderers (desktop + mobile)
+  // Search the ENTIRE document like hideShortsGlobally() does - don't limit to sidebar
   const shortsSelectors = [
+    // Desktop
     'ytd-compact-video-renderer[is-shorts]',
     'ytd-reel-item-renderer',
-    'ytd-reel-shelf-renderer'
+    'ytd-reel-shelf-renderer',
+    // Mobile - INCLUDING the critical selectors from hideShortsGlobally()
+    'ytm-reel-item-renderer',
+    'ytm-reel-shelf-renderer',
+    'ytm-shorts-lockup-view-model',      // KEY: This is what hideShortsGlobally() uses!
+    'ytm-shorts-lockup-view-model-v2'    // KEY: This too!
   ];
   
   shortsSelectors.forEach(selector => {
-    sidebar.querySelectorAll(selector).forEach(el => {
+    // Search entire document, not just sidebar
+    document.querySelectorAll(selector).forEach(el => {
+      // Only hide if it's in the watch page sidebar/recommendations area
       // Don't hide if it's part of a playlist
-      if (el.closest('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model')) return;
+      if (el.closest('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model, ytm-playlist-panel-renderer')) return;
+      
+      // Only process if in sidebar/related area (not main video player area)
+      const inSidebar = el.closest('#secondary, ytm-watch-next-secondary-results-renderer, ytm-item-section-renderer[section-identifier="related-items"]');
+      if (!inSidebar) return;
       
       if (!el.hasAttribute('data-lockedin-hidden')) {
         el.style.display = 'none';
@@ -1432,16 +1582,20 @@ function hideSidebarShorts(shouldHide) {
   });
   
   // Check all compact-video-renderer elements for shorts
-  sidebar.querySelectorAll('ytd-compact-video-renderer').forEach(el => {
+  document.querySelectorAll('ytd-compact-video-renderer, ytm-compact-video-renderer').forEach(el => {
     if (el.hasAttribute('data-lockedin-hidden')) return;
     
     // Don't hide if it's part of a playlist
-    if (el.closest('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model')) return;
+    if (el.closest('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model, ytm-playlist-panel-renderer')) return;
+    
+    // Only process if in sidebar/related area
+    const inSidebar = el.closest('#secondary, ytm-watch-next-secondary-results-renderer, ytm-item-section-renderer[section-identifier="related-items"]');
+    if (!inSidebar) return;
     
     // Check if it's a short by URL
     const shortsLink = el.querySelector('a[href*="/shorts/"]');
     // Check if it's a short by overlay badge
-    const shortsOverlay = el.querySelector('ytd-thumbnail-overlay-time-status-renderer[overlay-style="SHORTS"]');
+    const shortsOverlay = el.querySelector('ytd-thumbnail-overlay-time-status-renderer[overlay-style="SHORTS"], [overlay-style="SHORTS"]');
     // Check for shorts badge in metadata
     const shortsBadge = el.querySelector('[aria-label*="Shorts" i], [title*="Shorts" i]');
     
@@ -1453,12 +1607,16 @@ function hideSidebarShorts(shouldHide) {
   });
   
   // Also check ytd-video-renderer in sidebar (sometimes used)
-  sidebar.querySelectorAll('ytd-video-renderer').forEach(el => {
+  document.querySelectorAll('ytd-video-renderer, ytm-video-with-context-renderer').forEach(el => {
     if (el.hasAttribute('data-lockedin-hidden')) return;
-    if (el.closest('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model')) return;
+    if (el.closest('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model, ytm-playlist-panel-renderer')) return;
+    
+    // Only process if in sidebar/related area
+    const inSidebar = el.closest('#secondary, ytm-watch-next-secondary-results-renderer, ytm-item-section-renderer[section-identifier="related-items"]');
+    if (!inSidebar) return;
     
     const shortsLink = el.querySelector('a[href*="/shorts/"]');
-    const shortsOverlay = el.querySelector('ytd-thumbnail-overlay-time-status-renderer[overlay-style="SHORTS"]');
+    const shortsOverlay = el.querySelector('ytd-thumbnail-overlay-time-status-renderer[overlay-style="SHORTS"], [overlay-style="SHORTS"]');
     
     if (shortsLink || shortsOverlay) {
       el.style.display = 'none';
@@ -1476,7 +1634,9 @@ function hideSidebarShorts(shouldHide) {
 }
 
 function collapseSidebarIfEmpty() {
-  const sidebar = document.querySelector('#secondary');
+  // Check for Desktop OR Mobile container
+  const sidebar = document.querySelector('#secondary') || 
+                  document.querySelector('ytm-watch-next-secondary-results-renderer');
   if (!sidebar) return;
   const transcriptPanel = document.querySelector('ytd-engagement-panel-section-list-renderer, ytd-transcript-segment-list-renderer');
   if (transcriptPanel) {
@@ -1854,19 +2014,31 @@ function disableAutoplay(shouldDisable) {
 
 function hideComments(shouldHide) {
   if (!shouldHide) {
-    // Restore comments section
+    // Restore comments (Desktop)
     toggleElement('#comments', false);
     toggleElement('ytd-comments', false);
     toggleElement('ytd-comments#comments', false);
     toggleAllElements('ytd-comments-entry-point-header-renderer', false);
+    
+    // Restore comments (Mobile) - Use toggleAllElements to restore all instances
+    toggleAllElements('ytm-comments-entry-point-header-renderer', false);
+    toggleAllElements('ytm-comment-thread-renderer', false);
+    toggleAllElements('ytm-comments-section-renderer', false);
+    toggleAllElements('ytm-structured-description-content-renderer', false);
     return;
   }
   
-  // Hide comments section with all possible selectors
+  // Hide Desktop Comments
   toggleElement('#comments', true);
   toggleElement('ytd-comments', true);
   toggleElement('ytd-comments#comments', true);
   toggleAllElements('ytd-comments-entry-point-header-renderer', true);
+
+  // Hide Mobile Comments (Using toggleAllElements to catch all threads)
+  toggleAllElements('ytm-comments-entry-point-header-renderer', true);  // The "Comments" header button
+  toggleAllElements('ytm-comment-thread-renderer', true);              // Individual comments
+  toggleAllElements('ytm-comments-section-renderer', true);            // The main container
+  toggleAllElements('ytm-structured-description-content-renderer', true); // Description/Comments wrapper
 }
 
 function hideSearchRecommended(shouldHide) {
@@ -1989,8 +2161,10 @@ function hideCommunityPosts(shouldHide) {
     return;
   }
 
-  // Hide community posts sections (polls, posts, votes)
-  // Using selectors from uBlock Origin rules
+  // Get community post selector for current environment
+  const communityPostSelector = getAllSelectors('communityPost');
+
+  // Hide community posts sections (polls, posts, votes) - Desktop
   document.querySelectorAll('ytd-rich-section-renderer:has(ytd-rich-item-renderer[is-post])').forEach(section => {
     if (!section.hasAttribute('data-lockedin-hidden')) {
       section.setAttribute('hidden', '');
@@ -1999,7 +2173,7 @@ function hideCommunityPosts(shouldHide) {
     }
   });
 
-  // Hide individual post items
+  // Hide individual post items - Desktop
   document.querySelectorAll('ytd-rich-item-renderer[is-post]').forEach(post => {
     if (!post.hasAttribute('data-lockedin-hidden')) {
       post.setAttribute('hidden', '');
@@ -2008,7 +2182,7 @@ function hideCommunityPosts(shouldHide) {
     }
   });
 
-  // Also hide post renderers inside rich items (alternative structure)
+  // Also hide post renderers inside rich items (alternative structure) - Desktop
   document.querySelectorAll('ytd-rich-item-renderer:has(ytd-post-renderer), ytd-rich-item-renderer:has(ytd-backstage-post-thread-renderer)').forEach(item => {
     if (!item.hasAttribute('data-lockedin-hidden')) {
       item.setAttribute('hidden', '');
@@ -2017,10 +2191,10 @@ function hideCommunityPosts(shouldHide) {
     }
   });
 
-  // Mobile support - hide backstage posts (community posts on mobile)
-  document.querySelectorAll('ytm-backstage-post-renderer').forEach(post => {
+  // Mobile - hide backstage posts (community posts on mobile)
+  document.querySelectorAll('ytm-backstage-post-renderer, ytm-post-renderer').forEach(post => {
     // Find the parent container to hide the entire post section
-    const container = post.closest('ytm-item-section-renderer') || post.closest('ytm-rich-item-renderer') || post;
+    const container = post.closest('ytm-item-section-renderer, ytm-rich-item-renderer') || post;
     if (container && !container.hasAttribute('data-lockedin-hidden')) {
       container.setAttribute('hidden', '');
       container.style.display = 'none';
@@ -2160,17 +2334,21 @@ function hideShortsHomepage(shouldHide) {
     return;
   }
 
-  // 1. Hide Shorts tab in sidebar (guide) - both expanded and collapsed
+  // 1. Hide Shorts tab in sidebar (guide) - both desktop and mobile
   const guideShortsSelectors = [
+    // Desktop
     'ytd-guide-entry-renderer a[href="/shorts"]',
     'ytd-guide-entry-renderer a[title="Shorts"]',
     'ytd-mini-guide-entry-renderer a[href="/shorts"]',
-    'ytd-mini-guide-entry-renderer a[title="Shorts"]'
+    'ytd-mini-guide-entry-renderer a[title="Shorts"]',
+    // Mobile
+    'ytm-pivot-bar-item-renderer a[href="/shorts"]',
+    'ytm-pivot-bar-renderer a[title="Shorts"]'
   ];
   
   guideShortsSelectors.forEach(selector => {
     document.querySelectorAll(selector).forEach(link => {
-      const container = link.closest('ytd-guide-entry-renderer, ytd-mini-guide-entry-renderer');
+      const container = link.closest('ytd-guide-entry-renderer, ytd-mini-guide-entry-renderer, ytm-pivot-bar-item-renderer');
       if (container && !container.hasAttribute('data-lockedin-hidden')) {
         container.setAttribute('hidden', '');
         container.setAttribute('data-lockedin-hidden', 'shorts-homepage');
@@ -2178,26 +2356,30 @@ function hideShortsHomepage(shouldHide) {
     });
   });
 
-  // 2. Hide Shorts shelves/carousels on homepage (dedicated Shorts containers)
+  // 2. Hide Shorts shelves/carousels - use selector maps for desktop + mobile
+  const shortsShelfSelector = getAllSelectors('shortsShelf');
   const shelfSelectors = [
-    'ytd-reel-shelf-renderer',           // Shorts shelf
-    'ytd-rich-shelf-renderer',           // Rich shelf (check if contains Shorts)
-    'ytd-rich-section-renderer'          // Rich section
+    shortsShelfSelector,
+    'ytd-rich-shelf-renderer',           // Desktop rich shelf
+    'ytd-rich-section-renderer',         // Desktop rich section
+    'ytm-rich-shelf-renderer',           // Mobile rich shelf
+    'ytm-item-section-renderer'          // Mobile sections
   ];
   
   shelfSelectors.forEach(selector => {
+    if (!selector) return;
     document.querySelectorAll(selector).forEach(shelf => {
       // Check if shelf contains Shorts by looking for reel items or Shorts links
-      const hasReelItems = shelf.querySelector('ytd-reel-item-renderer') !== null;
+      const hasReelItems = shelf.querySelector('ytd-reel-item-renderer, ytm-reel-item-renderer') !== null;
       const hasShortsLinks = shelf.querySelector('[href^="/shorts/"]') !== null;
-      const titleHasShorts = shelf.querySelector('#title')?.textContent.toLowerCase().includes('shorts');
+      const titleHasShorts = shelf.querySelector('#title, .shelf-title')?.textContent.toLowerCase().includes('shorts');
       
       if (hasReelItems || hasShortsLinks || titleHasShorts) {
         if (!shelf.hasAttribute('data-lockedin-hidden')) {
           shelf.setAttribute('hidden', '');
           shelf.setAttribute('data-lockedin-hidden', 'shorts-homepage');
           // Count shorts in shelf for stats
-          const shortsCount = shelf.querySelectorAll('ytd-reel-item-renderer, [href^="/shorts/"]').length;
+          const shortsCount = shelf.querySelectorAll('ytd-reel-item-renderer, ytm-reel-item-renderer, [href^="/shorts/"]').length;
           if (shortsCount > 0) {
             trackStat('shorts', shortsCount);
           }
@@ -2212,8 +2394,13 @@ function hideShortsHomepage(shouldHide) {
   const isHomepageSurface = isHomeLikeSurface();
   if (isHomepageSurface) {
     const videoRendererSelectors = [
+      // Desktop
       'ytd-rich-item-renderer',       // Home page, grid view
-      'ytd-reel-item-renderer'        // Reel items
+      'ytd-reel-item-renderer',        // Reel items
+      // Mobile
+      'ytm-video-with-context-renderer',  // Mobile video items
+      'ytm-shorts-lockup-view-model',     // Mobile Shorts lockup
+      'ytm-reel-item-renderer'            // Mobile reel items
     ];
     
     videoRendererSelectors.forEach(selector => {

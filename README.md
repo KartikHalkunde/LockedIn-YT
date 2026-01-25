@@ -6,7 +6,7 @@
   [![Firefox Add-ons](https://img.shields.io/badge/Firefox-Available-orange?logo=firefox-browser&logoColor=white)](https://addons.mozilla.org/firefox/addon/lockedin-yt/)
   [![Edge Add-ons](https://img.shields.io/badge/Edge-Available-blue?logo=microsoft-edge&logoColor=white)](https://microsoftedge.microsoft.com/addons/detail/hibjbjgfbmhpiaapeccnfddnpabnlklj)
   [![Chrome Web Store](https://img.shields.io/badge/Chrome-Coming%20Soon-lightgrey?logo=google-chrome&logoColor=white)](#)
-  [![Version](https://img.shields.io/badge/version-1.0.97-green.svg)](https://github.com/KartikHalkunde/LockedIn-YT/releases)
+  [![Version](https://img.shields.io/badge/version-1.0.98-green.svg)](https://github.com/KartikHalkunde/LockedIn-YT/releases)
   [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
   
 </div>
@@ -81,6 +81,10 @@ Simple toggle switches for each feature. Settings are saved instantly and synced
 
 ## Changelog
 
+### Version 1.0.98 (January 26, 2026)
+- **Enhancement**: Added new toggles for better content control.
+- **Bug Fix**: Minor bug fixes and stability improvements.
+
 ### Version 1.0.97 (January 18, 2026)
 - **Bug Fix**: Fixed flickering issue around the like button area when "Hide Video Side Bar" toggle is enabled.
 - **Performance**: Removed CSS variable manipulation that was causing layout recalculation loops.
@@ -97,7 +101,7 @@ For more updates, check out the complete [CHANGELOG](CHANGELOG.md).
 
 ---
 
-## Tech Stack
+## Tech Stack 
 
 ![Stack](https://img.shields.io/badge/Stack-Vanilla%20JS-yellow?style=flat-square)
 ![Dependencies](https://img.shields.io/badge/Dependencies-Zero-success?style=flat-square)
