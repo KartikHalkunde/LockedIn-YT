@@ -1248,6 +1248,71 @@ function setupToggleListeners() {
           });
         }
       }
+      
+      // Auto-enable Clean Homepage Feed when all sub-toggles are enabled
+      if (['hideCommunityPosts', 'hideFeaturedContent', 'hideMembersOnly'].includes(settingId)) {
+        const communityToggle = document.querySelector('input[data-setting="hideCommunityPosts"]');
+        const featuredToggle = document.querySelector('input[data-setting="hideFeaturedContent"]');
+        const membersToggle = document.querySelector('input[data-setting="hideMembersOnly"]');
+        const cleanFeedToggle = document.querySelector('input[data-setting="cleanHomepageFeed"]');
+        
+        if (communityToggle?.checked && featuredToggle?.checked && membersToggle?.checked) {
+          // All sub-toggles are on, enable parent and collapse sub-toggles
+          cleanFeedToggle.checked = true;
+          browser.storage.sync.set({ 
+            cleanHomepageFeed: true,
+            hideCommunityPosts: false,
+            hideFeaturedContent: false,
+            hideMembersOnly: false
+          }, () => {
+            // Uncheck all sub-toggles
+            communityToggle.checked = false;
+            featuredToggle.checked = false;
+            membersToggle.checked = false;
+            // Collapse sub-toggles
+            const sub = document.getElementById('cleanFeedSubToggles');
+            sub?.classList.remove('visible');
+            // Notify content script
+            browser.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+              if (tabs[0]) browser.tabs.sendMessage(tabs[0].id, { action: 'settingChanged', setting: 'cleanHomepageFeed', value: true }).catch(() => {});
+            });
+          });
+          return; // Skip the normal storage save below
+        }
+      }
+      
+      // Auto-enable Hide Video Sidebar when all sub-toggles are enabled
+      if (['hideRecommended', 'hideSidebarShorts', 'hidePlaylists'].includes(settingId)) {
+        const recommendedToggle = document.querySelector('input[data-setting="hideRecommended"]');
+        const shortsToggle = document.querySelector('input[data-setting="hideSidebarShorts"]');
+        const playlistsToggle = document.querySelector('input[data-setting="hidePlaylists"]');
+        const sidebarToggle = document.querySelector('input[data-setting="hideSidebar"]');
+        
+        if (recommendedToggle?.checked && shortsToggle?.checked && playlistsToggle?.checked) {
+          // All sub-toggles are on, enable parent and collapse sub-toggles
+          sidebarToggle.checked = true;
+          browser.storage.sync.set({ 
+            hideSidebar: true,
+            hideRecommended: false,
+            hideSidebarShorts: false,
+            hidePlaylists: false
+          }, () => {
+            // Uncheck all sub-toggles
+            recommendedToggle.checked = false;
+            shortsToggle.checked = false;
+            playlistsToggle.checked = false;
+            // Collapse sub-toggles
+            const sub = document.getElementById('sidebarSubToggles');
+            sub?.classList.remove('visible');
+            // Notify content script
+            browser.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+              if (tabs[0]) browser.tabs.sendMessage(tabs[0].id, { action: 'settingChanged', setting: 'hideSidebar', value: true }).catch(() => {});
+            });
+          });
+          return; // Skip the normal storage save below
+        }
+      }
+      
       browser.storage.sync.set({ [settingId]: isChecked }, () => {
         browser.tabs.query({ active: true, currentWindow: true }, (tabs) => {
           if (tabs[0]) browser.tabs.sendMessage(tabs[0].id, { action: 'settingChanged', setting: settingId, value: isChecked }).catch(() => {});
