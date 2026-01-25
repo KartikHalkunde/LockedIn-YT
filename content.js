@@ -1107,10 +1107,6 @@ function hideSidebar(shouldHide) {
     // Restore sidebar container
     toggleElement('#secondary', false);
     toggleElement('#secondary-inner', false);
-    const flexyContainerRestore = document.querySelector('ytd-watch-flexy');
-    if (flexyContainerRestore) {
-      flexyContainerRestore.style.removeProperty('--ytd-watch-flexy-sidebar-width');
-    }
     // Restore Up Next overlays
     toggleAllElements('.ytp-upnext, .ytp-upnext-container, .ytp-suggestion-set', false);
     ensureCommentsVisible();
@@ -1213,18 +1209,7 @@ function hideSidebar(shouldHide) {
     });
     
     // Don't hide the entire sidebar container to keep transcripts accessible
-    // Instead, just shrink the flexy width to minimize visual space (only if no transcript open)
     // Keep #secondary visible but recommendations hidden
-    const flexyContainer = document.querySelector('ytd-watch-flexy');
-    if (flexyContainer) {
-      // Keep a minimal sidebar width so transcript/engagement panels can initialize
-      const widthValue = hasTranscript ? '' : '240px';
-      if (widthValue) {
-        flexyContainer.style.setProperty('--ytd-watch-flexy-sidebar-width', widthValue, 'important');
-      } else {
-        flexyContainer.style.removeProperty('--ytd-watch-flexy-sidebar-width');
-      }
-    }
   }
   
   // Hide player Up Next overlays when hiding recommendations or sidebar
@@ -1312,6 +1297,7 @@ function hideRecommendedVideos(shouldHide) {
         el.style.display = '';
         el.removeAttribute('data-lockedin-hidden');
       });
+      return;
     }
 
   if (!sidebar) return;
@@ -1332,14 +1318,19 @@ function hideRecommendedVideos(shouldHide) {
     }
   });
 
-  // Target all video/content renderers
+  // Target all video/content renderers - including mobile/responsive variants
   const contentSelectors = [
     'ytd-compact-video-renderer',
     'ytd-compact-movie-renderer',
     'ytd-compact-radio-renderer',
     'ytd-compact-autoplay-renderer',
     'ytd-reel-item-renderer',
-    'ytd-video-renderer'
+    'ytd-video-renderer',
+    // Mobile/Responsive layout selectors
+    'ytm-compact-video-renderer',
+    'ytm-video-with-context-renderer',
+    'ytm-item-section-renderer',
+    'ytm-compact-autoplay-renderer'
   ];
 
   contentSelectors.forEach(selector => {
@@ -1348,10 +1339,10 @@ function hideRecommendedVideos(shouldHide) {
       if (el.hasAttribute('data-lockedin-hidden')) return;
       
       // Don't hide if it's part of a playlist panel
-      if (el.closest('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model')) return;
+      if (el.closest('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model, ytm-playlist-panel-renderer')) return;
       
       // Don't hide if it's an engagement panel (transcript, etc.)
-      if (el.closest('ytd-engagement-panel-section-list-renderer') || 
+      if (el.closest('ytd-engagement-panel-section-list-renderer, ytm-engagement-panel-section-list-renderer') || 
           el.hasAttribute('target-id') || 
           el.closest('[target-id]')) return;
       
@@ -1360,6 +1351,17 @@ function hideRecommendedVideos(shouldHide) {
       el.setAttribute('data-lockedin-hidden', hiddenAttr);
       recsCount++;
     });
+  });
+
+  // Also hide the entire related section container on mobile layouts
+  const mobileRelatedContainers = sidebar.querySelectorAll('#related, #items, ytm-watch-next-secondary-results-renderer');
+  mobileRelatedContainers.forEach(container => {
+    // Only hide if it contains videos, not if it's just playlist/transcript
+    const hasVideos = container.querySelector('ytd-compact-video-renderer, ytm-compact-video-renderer, ytm-video-with-context-renderer');
+    if (hasVideos && !container.hasAttribute('data-lockedin-hidden')) {
+      container.style.display = 'none';
+      container.setAttribute('data-lockedin-hidden', hiddenAttr);
+    }
   });
 
   // Track hidden recommendations
@@ -1378,98 +1380,15 @@ function hideAll(shouldHide) {
     return;
   }
   
-  if (!shouldHide) {
-    // Restore all hidden sidebar content
-    document.querySelectorAll('[data-lockedin-hidden="sidebar-all"]').forEach(el => {
-      el.style.display = '';
-      el.removeAttribute('data-lockedin-hidden');
-    });
-    // Also restore sidebar container visibility
-    toggleElement('#secondary', false);
-    toggleElement('#secondary-inner', false);
-    // Restore Up Next overlays
-    toggleAllElements('.ytp-upnext, .ytp-upnext-container, .ytp-suggestion-set', false);
-    return;
-  }
+  // Instead of manipulating the sidebar container directly,
+  // just call the three sub-toggle functions
+  // They will handle hiding their specific content
+  hideRecommendedVideos(shouldHide);
+  hideSidebarShorts(shouldHide);
+  hidePlaylists(shouldHide);
   
-  const sidebar = document.querySelector('#secondary');
-  if (!sidebar) return;
-  
-  // Hide chip cloud
-  sidebar.querySelectorAll('yt-chip-cloud-renderer, yt-related-chip-cloud-renderer').forEach(el => {
-    if (!el.hasAttribute('data-lockedin-hidden')) {
-      el.style.display = 'none';
-      el.setAttribute('data-lockedin-hidden', 'sidebar-all');
-    }
-  });
-  
-  // Target all video/content renderers in sidebar (including those in playlists)
-  const contentSelectors = [
-    'ytd-compact-video-renderer',
-    'ytd-compact-movie-renderer',
-    'ytd-compact-radio-renderer',
-    'ytd-compact-autoplay-renderer',
-    'ytd-reel-item-renderer',
-    'ytd-video-renderer'
-  ];
-  
-  let recsCount = 0;
-  contentSelectors.forEach(selector => {
-    sidebar.querySelectorAll(selector).forEach(el => {
-      if (!el.hasAttribute('data-lockedin-hidden')) {
-        // Skip transcript/engagement panels
-        if (el.closest('ytd-engagement-panel-section-list-renderer') || el.hasAttribute('target-id') || el.closest('[target-id]')) return;
-        el.style.display = 'none';
-        el.setAttribute('data-lockedin-hidden', 'sidebar-all');
-        recsCount++;
-      }
-    });
-  });
-  
-  // Track hidden recommendations
-  if (recsCount > 0) {
-    trackStat('recs', recsCount);
-  }
-  
-  // Hide recommendation containers
-  sidebar.querySelectorAll('ytd-item-section-renderer, ytd-continuation-item-renderer').forEach(container => {
-    if (!container.hasAttribute('data-lockedin-hidden')) {
-      container.style.display = 'none';
-      container.setAttribute('data-lockedin-hidden', 'sidebar-all');
-    }
-  });
-  
-  // Hide playlist panels
-  sidebar.querySelectorAll('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model, #playlist').forEach(el => {
-    if (!el.hasAttribute('data-lockedin-hidden')) {
-      el.style.display = 'none';
-      el.setAttribute('data-lockedin-hidden', 'sidebar-all');
-    }
-  });
-  
-  // Hide all container sections
-  const allContainers = [
-    'ytd-watch-next-secondary-results-renderer',
-    '#related',
-    '#items'
-  ];
-  allContainers.forEach(selector => {
-    sidebar.querySelectorAll(selector).forEach(el => {
-      // Skip transcript/engagement panels
-      if (el.closest('ytd-engagement-panel-section-list-renderer') || el.hasAttribute('target-id') || el.closest('[target-id]')) return;
-      if (!el.hasAttribute('data-lockedin-hidden')) {
-        el.style.display = 'none';
-        el.setAttribute('data-lockedin-hidden', 'sidebar-all');
-      }
-    });
-  });
-  
-  // Hide the entire sidebar using display:none only
-  toggleElement('#secondary', true);
-  toggleElement('#secondary-inner', true);
-  
-  // Hide player Up Next overlays
-  toggleAllElements('.ytp-upnext, .ytp-upnext-container, .ytp-suggestion-set', true);
+  // The sidebar will automatically collapse when all content is hidden
+  // No need to manipulate CSS variables or the container itself
 }
 
 function hideSidebarShorts(shouldHide) {
@@ -1570,20 +1489,17 @@ function collapseSidebarIfEmpty() {
            el.getAttribute('data-lockedin-hidden') !== 'sidebar-all' &&
            el.getAttribute('data-lockedin-hidden') !== 'current-playlist-panel';
   });
-  const flexyContainer = document.querySelector('ytd-watch-flexy');
   sidebar.style.display = '';
-  if (flexyContainer) {
-    if (!hasVisible) {
-      // Leave a minimal width so transcript/engagement panels can initialize
-      flexyContainer.style.setProperty('--ytd-watch-flexy-sidebar-width', '240px', 'important');
-    } else {
-      flexyContainer.style.removeProperty('--ytd-watch-flexy-sidebar-width');
-    }
-  }
 }
 
 // Ensure comments area is never hidden by sidebar/recommendation toggles
+// UNLESS the user explicitly enabled the Hide Comments toggle
 function ensureCommentsVisible() {
+  // Check if user wants comments hidden
+  if (latestSyncedSettings && latestSyncedSettings.hideComments) {
+    return; // Don't restore if user wants them hidden
+  }
+  
   const comments = document.querySelector('#comments, ytd-comments');
   if (comments) {
     comments.style.display = '';
@@ -1602,11 +1518,6 @@ function ensureTranscriptPanelVisible() {
     sidebar.removeAttribute('hidden');
   }
 
-  const flexyContainer = document.querySelector('ytd-watch-flexy');
-  if (flexyContainer) {
-    flexyContainer.style.removeProperty('--ytd-watch-flexy-sidebar-width');
-  }
-
   restoreTranscriptVisibility();
 }
 
@@ -1622,13 +1533,6 @@ function restoreTranscriptVisibility() {
     while (parent && parent !== document.body) {
       parent.style.display = '';
       parent.removeAttribute('hidden');
-      if (parent.id === 'secondary' || parent.id === 'secondary-inner') {
-        // Ensure sidebar stays visible for panels
-        const flexyContainer = document.querySelector('ytd-watch-flexy');
-        if (flexyContainer) {
-          flexyContainer.style.removeProperty('--ytd-watch-flexy-sidebar-width');
-        }
-      }
       parent = parent.parentElement;
     }
   });
@@ -1953,13 +1857,15 @@ function hideComments(shouldHide) {
     // Restore comments section
     toggleElement('#comments', false);
     toggleElement('ytd-comments', false);
+    toggleElement('ytd-comments#comments', false);
     toggleAllElements('ytd-comments-entry-point-header-renderer', false);
     return;
   }
   
-  // Hide comments section
+  // Hide comments section with all possible selectors
   toggleElement('#comments', true);
   toggleElement('ytd-comments', true);
+  toggleElement('ytd-comments#comments', true);
   toggleAllElements('ytd-comments-entry-point-header-renderer', true);
 }
 
@@ -2848,8 +2754,6 @@ function runAll() {
     }
     ensureSidebarObserver(currentSettings.hideSidebar || currentSettings.hideRecommended);
     scheduleSidebarHideRetries(currentSettings);
-    scheduleSidebarHideRetries(currentSettings);
-    ensureSidebarObserver(currentSettings.hideSidebar || currentSettings.hideRecommended);
     hideLiveChat(currentSettings.hideLiveChat);
     hideEndCards(currentSettings.hideEndCards);
     hideComments(currentSettings.hideComments);
