@@ -14,9 +14,10 @@ LockedIn is an open-source browser extension that helps you focus on YouTube by 
 
 <img src="docs/assets/HomepageFeed.png" width="45%" />
 <img src="docs/assets/VideoPage.png" width="45%" />
-
 <img src="docs/assets/SearchResults.png" width="45%" />
 <img src="docs/assets/popup.png" width="45%" />
+<img src="docs/assets/screenshot.png" width="45%" />
+<img src="docs/assets/screenshot.png" width="45%" />
 
 <div align="center">
 <h1>Release numbers</h1>
