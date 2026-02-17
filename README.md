@@ -39,7 +39,7 @@ LockedIn is an open-source browser extension that helps you focus on YouTube by 
 
 ---
 
-## Download
+## Get It @
 
 - **Firefox**: [Get it on Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/lockedin-yt/)
 - **Edge**: [Get it on Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/hibjbjgfbmhpiaapeccnfddnpabnlklj)
