@@ -1,5 +1,5 @@
 <div align="center">
-<img src="/icons/icon48.png" width="160" height="160" style="display: block; margin: 0 auto"/>
+<img src="/docs/assets/clearIcon.png" width="160" height="160" style="display: block; margin: 0 auto"/>
 <h1>LockedIn</h1>
 <p>
   <a> YouTube Productivity Extension for Firefox & Edge</a>
