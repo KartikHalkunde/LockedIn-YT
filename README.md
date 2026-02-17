@@ -76,7 +76,7 @@ Simple toggle switches for each feature. Settings are saved instantly and synced
 | `storage` | Saves your preferences across browser sessions |
 | `*://www.youtube.com/*` | Allows the extension to modify YouTube pages |
 
-**No tracking. No data collection. No external servers.**
+**No tracking. No data collection.**
 
 ---
 
