@@ -89,19 +89,21 @@ LockedIn is an open-source browser extension that helps you focus on YouTube by 
 
 If LockedIn helps you stay focused, consider supporting its development!
 
-**For Indian Users (UPI):**
-
-<img src="docs/assets/upi.png" alt="UPI QR Code" width="200" height="200" />
-
 **For Global Users:**
 
 <a href="https://buymeacoffee.com/lockedinyt">
-  <img src="https://img.shields.io/badge/Buy_Me_a_Coffee-FFDC10?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me a Coffee" height="40" />
+  <img src="https://img.shields.io/badge/Buy_Me_a_Coffee-FFDC10?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me a Coffee" height="55" />
 </a>
-&nbsp;
+&nbsp;&nbsp;
 <a href="https://github.com/sponsors/KartikHalkunde">
-  <img src="https://img.shields.io/badge/GitHub_Sponsors-EA4AAA?style=for-the-badge&logo=github&logoColor=white" alt="Sponsor on GitHub" height="40" />
+  <img src="https://img.shields.io/badge/GitHub_Sponsors-EA4AAA?style=for-the-badge&logo=github&logoColor=white" alt="Sponsor on GitHub" height="55" />
 </a>
+
+<br/>
+
+**For Indian Users (UPI):**
+
+<img src="docs/assets/upi.png" alt="UPI QR Code" width="200" height="200" />
 
 <br/><br/>
 
