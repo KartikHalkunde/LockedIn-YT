@@ -6,14 +6,14 @@
 set -e  # Exit on any error
 
 echo "========================================="
-echo "Building LockedIn Firefox Extension v1.0.98"
+echo "Building LockedIn Firefox Extension v1.0.99"
 echo "========================================="
 echo ""
 
 # Define output filenames
-MAIN_ZIP="lockedin-1.0.98.zip"
-SOURCE_ZIP="lockedin-source-1.0.98.zip"
-EDGE_ZIP="lockedin-edge-1.0.98.zip"
+MAIN_ZIP="lockedin-1.0.99.zip"
+SOURCE_ZIP="lockedin-source-1.0.99.zip"
+EDGE_ZIP="lockedin-edge-1.0.99.zip"
 
 # Remove existing builds if present
 echo "Cleaning previous builds..."
@@ -32,7 +32,6 @@ required_files=(
     "content.js"
     "background.js"
     "icons/icon48.png"
-    "icons/santa-hat.svg"
     "popup/popup.html"
     "popup/popup.css"
     "popup/popup.js"

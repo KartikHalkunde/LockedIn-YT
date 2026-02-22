@@ -1,3 +1,10 @@
+## [1.0.99] - 2026-02-22
+### Added
+- Added toggle to hide Boss Baby placeholder image from the homepage feed
+- Added Buy Me a Coffee (BMC) as a donation option on the Sponsors page
+- Enhanced Sponsors page with redesigned buttons using official brand assets (BMC, UPI, GitHub Sponsors)
+- Replaced Google Forms feedback with a direct GitHub Issues link for bug reports and feature requests
+
 ## [1.0.98] - 2026-01-26
 ### Added
 - Added new toggles for better content control

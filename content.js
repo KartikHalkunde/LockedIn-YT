@@ -588,6 +588,7 @@ const DEFAULT_SETTINGS = {
   hideMoreFromYT: false,
   hidePlaylists: false,
   hideSubscriptions: false,
+  hideFeedImage: false,
   extensionEnabled: true
 };
 
@@ -1121,6 +1122,13 @@ function hideFeed(shouldHide) {
       });
     });
     
+    // Remove placeholder if hideFeedImage is turned off
+    if (latestSyncedSettings.hideFeedImage) {
+      const existingPlaceholder = document.getElementById(placeholderId);
+      if (existingPlaceholder) existingPlaceholder.remove();
+      return;
+    }
+
     // Create and inject placeholder with random meme image
     if (!document.getElementById(placeholderId)) {
         const placeholder = document.createElement('div');

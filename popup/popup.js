@@ -30,6 +30,7 @@ const DEFAULT_SETTINGS = {
   extensionEnabled: true,
   lightMode: false,
   showStats: false,
+  hideFeedImage: false,
   takeBreak: false,
   breakDuration: 5,
   customMeme: null,
@@ -96,6 +97,7 @@ const I18N_STRINGS = {
     'stats.daysFocused': 'Days Focused',
     'stats.hoursSuffix': 'hr',
     'menu.option.showStats': 'Show Stats',
+    'menu.option.hideFeedImage': 'Hide Boss Baby from Feed',
     'menu.option.appearance': 'Extension Appearance',
     'menu.option.language': 'Extension Language',
     'appearance.option.auto': 'Auto',
@@ -161,6 +163,7 @@ const I18N_STRINGS = {
     'stats.daysFocused': 'Días enfocado',
     'stats.hoursSuffix': 'h',
     'menu.option.showStats': 'Mostrar estadísticas',
+    'menu.option.hideFeedImage': 'Ocultar imagen del feed',
     'menu.option.appearance': 'Apariencia de la extensión',
     'menu.option.language': 'Idioma de la extensión',
     'appearance.option.auto': 'Automático',
@@ -223,6 +226,7 @@ const I18N_STRINGS = {
     'stats.daysFocused': 'फ़ोकस किए दिन',
     'stats.hoursSuffix': 'घं',
     'menu.option.showStats': 'आँकड़े दिखाएँ',
+    'menu.option.hideFeedImage': 'फ़ीड से इमेज छुपाएँ',
     'menu.option.appearance': 'एक्सटेंशन की रूपरेखा',
     'menu.option.language': 'एक्सटेंशन की भाषा',
     'appearance.option.auto': 'स्वचालित',
@@ -288,6 +292,7 @@ const I18N_STRINGS = {
     'stats.daysFocused': 'Dias focado',
     'stats.hoursSuffix': 'h',
     'menu.option.showStats': 'Mostrar estatísticas',
+    'menu.option.hideFeedImage': 'Ocultar imagem do feed',
     'menu.option.appearance': 'Aparência da extensão',
     'menu.option.language': 'Idioma da extensão',
     'appearance.option.auto': 'Automático',
@@ -350,6 +355,7 @@ const I18N_STRINGS = {
     'stats.daysFocused': 'Jours concentré',
     'stats.hoursSuffix': 'h',
     'menu.option.showStats': 'Afficher les statistiques',
+    'menu.option.hideFeedImage': "Masquer l'image du fil",
     'menu.option.appearance': "Apparence de l’extension",
     'menu.option.language': "Langue de l’extension",
     'appearance.option.auto': 'Automatique',
@@ -415,6 +421,7 @@ const I18N_STRINGS = {
     'stats.daysFocused': 'Tage fokussiert',
     'stats.hoursSuffix': 'Std',
     'menu.option.showStats': 'Statistiken anzeigen',
+    'menu.option.hideFeedImage': 'Bild im Feed ausblenden',
     'menu.option.appearance': 'Aussehen der Erweiterung',
     'menu.option.language': 'Sprache der Erweiterung',
     'appearance.option.auto': 'Automatisch',
@@ -579,8 +586,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 function displayVersion() {
   const versionElement = document.querySelector('.version');
   if (versionElement) {
-    versionElement.textContent = `v.1.0.98`;
-    versionElement.setAttribute('aria-label', `Version 1.0.96`);
+    versionElement.textContent = `v.1.0.99`;
+    versionElement.setAttribute('aria-label', `Version 1.0.99`);
   }
 }
 
@@ -628,21 +635,9 @@ function triggerStatsAnimation() {
 // ===== FEEDBACK BUTTON =====
 function setupFeedbackButton() {
   const feedbackButton = document.getElementById('feedbackButton');
-  const closeFeedbackButton = document.getElementById('closeFeedbackButton');
-  const feedbackPage = document.getElementById('feedbackPage');
-
-  if (feedbackButton && feedbackPage) {
+  if (feedbackButton) {
     feedbackButton.addEventListener('click', () => {
-      closePowerDropdown();
-      feedbackPage.classList.add('open');
-      updateHeaderVisibility();
-    });
-  }
-
-  if (closeFeedbackButton && feedbackPage) {
-    closeFeedbackButton.addEventListener('click', () => {
-      feedbackPage.classList.remove('open');
-      updateHeaderVisibility();
+      browser.tabs.create({ url: 'https://github.com/KartikHalkunde/LockedIn-YT/issues' });
     });
   }
 }
@@ -652,6 +647,15 @@ function setupSponsorButton() {
   const sponsorButton = document.getElementById('sponsorButton');
   const closeSponsorButton = document.getElementById('closeSponsorButton');
   const sponsorPage = document.getElementById('sponsorPage');
+
+  // Set review link based on browser
+  const reviewLink = document.getElementById('reviewLink');
+  if (reviewLink) {
+    const isEdge = navigator.userAgent.includes('Edg/');
+    reviewLink.href = isEdge
+      ? 'https://microsoftedge.microsoft.com/addons/detail/lockedin/hibjbjgfbmhpiaapeccnfddnpabnlklj'
+      : 'https://addons.mozilla.org/en-US/firefox/addon/lockedin-yt/';
+  }
 
   if (sponsorButton && sponsorPage) {
     sponsorButton.addEventListener('click', () => {
