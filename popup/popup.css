@@ -1264,6 +1264,14 @@ body {
   height: 42px;
 }
 
+.paypal-btn {
+  background: #00457c;
+  color: #ffffff;
+  border: none;
+  font-weight: 700;
+  justify-content: center;
+}
+
 /* UPI / GPay - white background with UPI logo image */
 .upi-btn {
   background: #ffffff;
@@ -1281,7 +1289,7 @@ body {
 
 /* GitHub Sponsors - pink brand background, dark grey text */
 .gh-btn {
-  background: #EA4AAA;
+  background: #f05fb6;
   color: #2d2d2d;
   border: none;
   gap: 7px;

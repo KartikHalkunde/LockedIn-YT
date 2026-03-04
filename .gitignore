@@ -60,6 +60,7 @@ __pycache__/
 
 # Experimental/testing UI
 testingpopup/
+testing-ui/
 
 # Build directories and deployment files
 lockedin-1.0.*/

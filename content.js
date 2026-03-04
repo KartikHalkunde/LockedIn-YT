@@ -550,6 +550,35 @@ function setRootFlag(flag, enabled) {
   }
 }
 
+function hideNativeAutoplayToggle(shouldHide) {
+  if (!shouldHide) return;
+
+  const selectors = [
+    '.ytp-autonav-toggle-button-container',
+    'button.ytp-autonav-toggle-button',
+    '.ytp-autonav-toggle-button',
+    '.ytp-autonav-toggle-button-bg',
+    '.ytp-autonav-toggle-tooltip',
+    '.ytp-upnext-autoplay-icon',
+    '.ytp-autonav-toggle-button-visible',
+    '.ytp-autonav-toggle-button-cancel'
+  ];
+
+  selectors.forEach((sel) => {
+    document.querySelectorAll(sel).forEach((node) => {
+      node.remove();
+    });
+  });
+
+  // Also nuke any residual clickable area in the player controls bar
+  const controls = document.querySelector('.ytp-chrome-bottom, .ytp-chrome-controls');
+  if (controls) {
+    controls.querySelectorAll('[aria-label*="Autoplay" i], [data-tooltip*="Autoplay" i]').forEach((node) => {
+      node.remove();
+    });
+  }
+}
+
 
 // ===== DEBOUNCE UTILITY =====
 function debounce(func, wait) {
@@ -580,8 +609,8 @@ const DEFAULT_SETTINGS = {
   hideSidebarShorts: false,
   hideLiveChat: false,
   hideEndCards: false,
-  hideComments: false,
   disableAutoplay: false,
+  hideComments: false,
   hideSearchRecommended: false,
   hideShortsSearch: false,
   hideExplore: false,
@@ -1440,10 +1469,7 @@ function hideRecommendedVideos(shouldHide) {
 
   if (!sidebar) return;
 
-  // Desktop Specific: If sidebar is moved below the player AND it's a livestream layout, skip hiding to avoid chat/comments
-  if (sidebar.id === 'secondary' && sidebar.closest('#below') && isLivestreamVideo()) {
-    return;
-  }
+  // Even on livestream layouts where #secondary moves below the player, still hide recs but preserve chat/engagement panels
 
   const hiddenAttr = 'sidebar-recommended';
   let recsCount = 0;
@@ -1959,8 +1985,22 @@ const gridRearranger = new RearrangeVideosInGrid();
 
 // Track autoplay disabled state
 let autoplayDisabledThisPage = false;
+let autoplayRetryInterval = null;
+let autoplayObserver = null;       // Watches the autoplay button's aria-pressed
+let autoplayButtonWatcher = null;  // Watches DOM for the button to appear
+let autoplayVideoEndedHandler = null; // Blocks actual video-end navigation
 
 function disableAutoplay(shouldDisable) {
+  // Always tear down everything first
+  if (autoplayRetryInterval) { clearInterval(autoplayRetryInterval); autoplayRetryInterval = null; }
+  if (autoplayObserver) { autoplayObserver.disconnect(); autoplayObserver = null; }
+  if (autoplayButtonWatcher) { autoplayButtonWatcher.disconnect(); autoplayButtonWatcher = null; }
+  if (autoplayVideoEndedHandler) {
+    const vid = document.querySelector('video');
+    if (vid) vid.removeEventListener('ended', autoplayVideoEndedHandler, true);
+    autoplayVideoEndedHandler = null;
+  }
+
   if (!shouldDisable) {
     // Restore autoplay elements if user turns off the toggle
     toggleAllElements('.ytp-upnext', false);
@@ -1969,55 +2009,114 @@ function disableAutoplay(shouldDisable) {
     toggleAllElements('.ytp-autonav-endscreen-upnext-container', false);
     toggleAllElements('.ytm-autonav-bar', false);
     toggleAllElements('.ytm-upnext-autoplay-container', false);
-    
     document.querySelectorAll('.ytp-autonav-endscreen-upnext-button, .ytp-autonav-endscreen-countdown, .ytp-upnext-autoplay-icon').forEach(el => {
       el.style.display = '';
     });
     autoplayDisabledThisPage = false;
     return;
   }
-  
-  // Track autoplay stop once per page
-  if (!autoplayDisabledThisPage) {
-    const autoplayButton = document.querySelector('button.ytp-autonav-toggle-button');
-    if (autoplayButton && autoplayButton.getAttribute('aria-pressed') === 'true') {
-      trackStat('autoplay', 1);
-      autoplayDisabledThisPage = true;
+
+  // --- Helper: force the native YouTube autoplay button to OFF ---
+  function forceAutoplayButtonOff() {
+    const btn = document.querySelector(
+      'button.ytp-autonav-toggle-button, .ytp-autonav-toggle-button-container button'
+    );
+    if (!btn) return false;
+    // YouTube uses aria-checked on this button (aria-pressed was the old attribute)
+    const isOn = btn.getAttribute('aria-checked') === 'true' || btn.getAttribute('aria-pressed') === 'true';
+    if (isOn) {
+      if (!autoplayDisabledThisPage) {
+        trackStat('autoplay', 1);
+        autoplayDisabledThisPage = true;
+      }
+      btn.click();
     }
+    // Force the visible state to OFF to avoid confusion if YT UI lags
+    btn.setAttribute('aria-checked', 'false');
+    btn.setAttribute('aria-pressed', 'false');
+    btn.classList.remove('ytp-autonav-toggle-button-active', 'ytp-autonav-toggle-button-visible');
+    btn.classList.add('ytp-autonav-toggle-button-cancel');
+    return true;
   }
-  
-  // Method 1: Click the autoplay toggle button if it's enabled
-  const autoplayButton = document.querySelector('button.ytp-autonav-toggle-button');
-  if (autoplayButton && autoplayButton.getAttribute('aria-pressed') === 'true') {
-    autoplayButton.click();
+
+  // --- Helper: attach MutationObserver to the button so if YouTube re-enables it, we flip it back ---
+  function attachButtonObserver() {
+    const btn = document.querySelector(
+      'button.ytp-autonav-toggle-button, .ytp-autonav-toggle-button-container button'
+    );
+    if (!btn) return false;
+    if (autoplayObserver) { autoplayObserver.disconnect(); }
+    autoplayObserver = new MutationObserver(() => {
+      const isOn = btn.getAttribute('aria-checked') === 'true' || btn.getAttribute('aria-pressed') === 'true';
+      if (isOn) {
+        btn.click();
+      }
+      // Keep UI reflecting OFF state
+      btn.setAttribute('aria-checked', 'false');
+      btn.setAttribute('aria-pressed', 'false');
+      btn.classList.remove('ytp-autonav-toggle-button-active', 'ytp-autonav-toggle-button-visible');
+      btn.classList.add('ytp-autonav-toggle-button-cancel');
+    });
+    autoplayObserver.observe(btn, { attributes: true, attributeFilter: ['aria-checked', 'aria-pressed'] });
+    return true;
   }
-  
-  // Method 2: Also check for the newer autoplay toggle in settings
-  const autoplayToggle = document.querySelector('.ytp-autonav-toggle-button-container button[aria-pressed="true"]');
-  if (autoplayToggle) {
-    autoplayToggle.click();
+
+  // --- Helper: intercept the video ended event so the next video never starts ---
+  function attachVideoEndedBlock() {
+    const vid = document.querySelector('video');
+    if (!vid || autoplayVideoEndedHandler) return;
+    autoplayVideoEndedHandler = (e) => {
+      e.stopImmediatePropagation();
+      toggleAllElements('.ytp-upnext', true);
+      toggleAllElements('.ytp-autonav-endscreen', true);
+      document.querySelectorAll('.ytp-autonav-endscreen-upnext-button, .ytp-autonav-endscreen-countdown').forEach(el => {
+        el.style.display = 'none';
+      });
+    };
+    vid.addEventListener('ended', autoplayVideoEndedHandler, true);
   }
-  
-  // Method 3: Try to find autoplay in the player settings menu
-  const settingsAutoplay = document.querySelector('input[name="advancement"][checked]');
-  if (settingsAutoplay) {
-    settingsAutoplay.click();
-  }
-  
-  // Method 4: Hide the "Up Next" autoplay countdown overlay
+
+  // --- Hide "Up Next" UI elements immediately ---
   toggleAllElements('.ytp-upnext', true);
   toggleAllElements('.ytp-upnext-container', true);
   toggleAllElements('.ytp-autonav-endscreen', true);
   toggleAllElements('.ytp-autonav-endscreen-upnext-container', true);
-  
-  // Method 5: Prevent autoplay by hiding the countdown
+  toggleAllElements('.ytm-autonav-bar', true);
+  toggleAllElements('.ytm-upnext-autoplay-container', true);
   document.querySelectorAll('.ytp-autonav-endscreen-upnext-button, .ytp-autonav-endscreen-countdown, .ytp-upnext-autoplay-icon').forEach(el => {
     el.style.display = 'none';
   });
-  
-  // Method 6: Mobile autoplay elements
-  toggleAllElements('.ytm-autonav-bar', true);
-  toggleAllElements('.ytm-upnext-autoplay-container', true);
+
+  // --- Immediate attempts ---
+  forceAutoplayButtonOff();
+  attachButtonObserver();
+  attachVideoEndedBlock();
+
+  // --- Retry every 500ms for up to 10s in case the player loads late ---
+  let retryCount = 0;
+  autoplayRetryInterval = setInterval(() => {
+    forceAutoplayButtonOff();
+    if (!autoplayObserver) attachButtonObserver();
+    if (!autoplayVideoEndedHandler) attachVideoEndedBlock();
+    retryCount++;
+    if (retryCount >= 20) {
+      clearInterval(autoplayRetryInterval);
+      autoplayRetryInterval = null;
+    }
+  }, 500);
+
+  // --- Watch for the button being added to DOM (e.g. player re-created on SPA navigation) ---
+  autoplayButtonWatcher = new MutationObserver(() => {
+    const btn = document.querySelector(
+      'button.ytp-autonav-toggle-button, .ytp-autonav-toggle-button-container button'
+    );
+    if (btn) {
+      forceAutoplayButtonOff();
+      if (!autoplayObserver) attachButtonObserver();
+    }
+    if (!autoplayVideoEndedHandler) attachVideoEndedBlock();
+  });
+  autoplayButtonWatcher.observe(document.body, { childList: true, subtree: true });
 }
 
 function hideComments(shouldHide) {
@@ -2893,6 +2992,7 @@ function runAll() {
       stopTranscriptObserver();
       setInstantHiding(false, false, false); // Disable CSS hiding for homepage, search, and global
       setInstantRecsHiding(false, false); // Disable instant recs hiding
+      hideNativeAutoplayToggle(false);
       return;
     }
     
@@ -2953,6 +3053,7 @@ function runAll() {
     hideEndCards(currentSettings.hideEndCards);
     hideComments(currentSettings.hideComments);
     disableAutoplay(currentSettings.disableAutoplay);
+    hideNativeAutoplayToggle(true);
     
     // Search Results group
     hideSearchRecommended(currentSettings.hideSearchRecommended);
@@ -3012,8 +3113,9 @@ function runAll() {
     hideLiveChat(currentSettings.hideLiveChat);
     hideEndCards(currentSettings.hideEndCards);
     hideComments(currentSettings.hideComments);
+    hideNativeAutoplayToggle(true);
     disableAutoplay(currentSettings.disableAutoplay);
-    
+
     hideSearchRecommended(currentSettings.hideSearchRecommended);
     if (!currentSettings.hideShortsGlobally) {
       hideShortsSearch(currentSettings.hideShortsSearch);
@@ -3045,7 +3147,7 @@ function restoreAllElements() {
   hideEndCards(false);
   hideComments(false);
   disableAutoplay(false);
-  
+
   hideSearchRecommended(false);
   hideShortsSearch(false);
   
@@ -3120,8 +3222,6 @@ new MutationObserver(() => {
   const url = location.href;
   if (url !== lastUrl) {
     lastUrl = url;
-    // Reset page-specific tracking flags
-    autoplayDisabledThisPage = false;
     // Immediately run when URL changes (e.g., navigating to search)
     setTimeout(runAll, 100);
   }

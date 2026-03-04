@@ -103,7 +103,7 @@ If LockedIn helps you stay focused, consider supporting its development!
 
 **For Indian Users (UPI):**
 
-<img src="docs/assets/upi.png" alt="UPI QR Code" width="200" height="200" />
+<img src="docs/assets/upi.png" alt="UPI QR Code" width="200" height="200" />  
 
 <br/><br/>
 
