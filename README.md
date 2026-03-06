@@ -103,7 +103,10 @@ If LockedIn helps you stay focused, consider supporting its development!
 
 **For Indian Users (UPI):**
 
-<img src="docs/assets/upi.png" alt="UPI QR Code" width="200" height="200" />  
+<a href="https://kartikhalkunde.github.io/LockedIn-YT/upi.html" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 12px; border: 1px solid #2b2b2f; text-decoration: none; background: #f8f9ff;">
+  <img src="icons/upi.png" alt="UPI" width="24" height="24" />
+  <span style="font-weight: 600; color: #1f1f26;">Pay with UPI</span>
+</a>
 
 <br/><br/>
 
