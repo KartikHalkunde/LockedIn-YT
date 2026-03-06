@@ -104,7 +104,7 @@ If LockedIn helps you stay focused, consider supporting its development!
 **For Indian Users (UPI):**
 
 <a href="https://kartikhalkunde.github.io/LockedIn-YT/upi.html" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; justify-content: center; padding: 10px; border-radius: 12px; border: 1px solid #e5e7eb; text-decoration: none; background: #ffffff;">
-  <img src="icons/upi.png" alt="UPI" width="28" height="28" />
+  <img src="icons/upi.png" alt="UPI" width="34" height="34" style="background-color: #ffffff; border-radius: 8px;" />
 </a>
 
 <br/><br/>
