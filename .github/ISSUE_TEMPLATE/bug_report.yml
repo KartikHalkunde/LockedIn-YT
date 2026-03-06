@@ -10,15 +10,14 @@ body:
   - type: checkboxes
     id: checklist
     attributes:
-      label: "Checklist - Required"
+      label: "Checklist"
       description: |
-        **READ CAREFULLY:** You must complete these checks before submitting. Failing to do so will result in your issue being closed immediately.
+        **READ CAREFULLY:** You must complete these checks before submitting. 
 
-        **Duplicate issues = Instant closure with no response**
       options:
         - label: " I've checked that there is NO open or closed issue about this bug. (Duplicate issues will be closed immediately without response)"
           required: true
-        - label: " This issue contains only ONE bug. PLEASE check pinned issues before opening a new one."
+        - label: " This issue contains only ONE bug. "
           required: true
         - label: " The title of this issue accurately describes the bug."
           required: true
