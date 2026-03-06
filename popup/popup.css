@@ -396,10 +396,18 @@ body {
 
 .menu-option-row {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   padding: 12px 8px;
   gap: 16px;
+}
+
+.menu-option-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
 }
 
 .menu-option-label {
@@ -407,7 +415,20 @@ body {
   font-weight: 600;
   color: hsl(0, 0%, 90%);
   letter-spacing: 0.015em;
-  flex: 1;
+}
+
+.menu-option-description {
+  font-size: 11px;
+  line-height: 1.35;
+  color: hsl(0, 0%, 65%);
+  font-weight: 500;
+  letter-spacing: 0.005em;
+}
+
+.menu-option-row > .toggle-switch,
+.menu-option-row > .menu-dropdown-container {
+  margin-top: 2px;
+  flex-shrink: 0;
 }
 
 .menu-option-divider {
@@ -1203,16 +1224,120 @@ body {
   text-align: left;
 }
 
+.donation-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.donation-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 2px;
+  text-decoration: none;
+}
+
+.donation-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.donation-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+.donation-icon img {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+.donation-icon.github {
+  background: #252529;
+  color: #f3f3f3;
+}
+
+.donation-icon.bmc {
+  background: #ffdd00;
+  color: #232323;
+}
+
+.donation-icon.paypal {
+  background: #003087;
+  color: #ffffff;
+}
+
+.donation-icon.upi {
+  background: #ffffff;
+  color: #2b2b2b;
+}
+
+.donation-icon.paypal img,
+.donation-icon.upi img {
+  width: 24px;
+  height: 24px;
+}
+
+.donation-copy {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.donation-action {
+  margin-left: auto;
+  color: #ff4d4d;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.9;
+}
+
+.donation-action svg {
+  width: 20px;
+  height: 20px;
+}
+
+.donation-title {
+  font-size: 14px;
+  color: hsl(0, 0%, 94%);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.donation-subtitle {
+  font-size: 11px;
+  color: hsl(0, 0%, 62%);
+  line-height: 1.35;
+}
+
+.donation-row:hover .donation-title {
+  color: #ffffff;
+}
+
+.donation-row:hover .donation-action {
+  color: #ff6b6b;
+  opacity: 1;
+}
+
 /* Support buttons */
 .support-btn {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 7px;
-  padding: 8px 14px;
-  border-radius: 8px;
+  padding: 6px 12px;
+  border-radius: 2px;
   text-decoration: none;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   cursor: pointer;
   letter-spacing: 0.01em;
@@ -1238,7 +1363,18 @@ body {
   overflow: hidden;
   background: #FFDC10;
   border: none;
-  height: 42px;
+  height: 38px;
+}
+
+.support-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.support-stack .support-btn {
+  width: 100%;
+  height: 38px;
 }
 
 .bmc-full-img {
@@ -1249,19 +1385,6 @@ body {
   object-position: center;
   display: block;
   margin: 0 auto;
-}
-
-/* Secondary row */
-.support-secondary-row {
-  display: flex;
-  gap: 10px;
-}
-
-.support-secondary-row .support-btn {
-  flex: 1;
-  font-size: 12px;
-  padding: 8px 8px;
-  height: 42px;
 }
 
 .paypal-btn {
@@ -1302,7 +1425,33 @@ body {
 }
 
 .gh-btn span {
-  font-size: 13px;
+  font-size: 12px;
+}
+
+.support-badge {
+  position: absolute;
+  top: 2px;
+  right: 6px;
+  font-size: 7px;
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  opacity: 0.35;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.preferred-badge {
+  font-size: 6px;
+}
+
+.support-fee-note {
+  font-size: 11px;
+  color: hsl(0, 0%, 68%);
+  line-height: 1.4;
+  margin: 0;
+  text-align: center;
 }
 
 /* Review text */
@@ -1469,6 +1618,10 @@ body {
 /* Light mode - Menu Options */
 .popup-container.light-mode .menu-option-label {
   color: hsl(210, 25%, 20%);
+}
+
+.popup-container.light-mode .menu-option-description {
+  color: hsl(210, 12%, 45%);
 }
 
 .popup-container.light-mode .menu-option-divider {

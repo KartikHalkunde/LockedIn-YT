@@ -493,7 +493,14 @@ function setInstantRecsHiding(hideRecommended, hideSidebar) {
   /* ===== INSTANT RECOMMENDED VIDEOS HIDING ===== */
   /* Hide chip cloud (sidebar only) */
   #secondary yt-chip-cloud-renderer,
-  #secondary yt-related-chip-cloud-renderer {
+  #secondary yt-related-chip-cloud-renderer,
+  #related yt-chip-cloud-renderer,
+  #related yt-related-chip-cloud-renderer,
+  #secondary ytd-feed-filter-chip-bar-renderer,
+  #related ytd-feed-filter-chip-bar-renderer,
+  ytd-watch-next-secondary-results-renderer ytd-feed-filter-chip-bar-renderer,
+  ytd-watch-next-secondary-results-renderer yt-chip-cloud-renderer,
+  ytd-watch-next-secondary-results-renderer yt-related-chip-cloud-renderer {
     display: none !important;
   }
   
@@ -503,7 +510,25 @@ function setInstantRecsHiding(hideRecommended, hideSidebar) {
   #secondary ytd-compact-radio-renderer:not([data-lockedin-hidden]),
   #secondary ytd-compact-autoplay-renderer:not([data-lockedin-hidden]),
   #secondary ytd-reel-item-renderer:not([data-lockedin-hidden]),
-  #secondary ytd-video-renderer:not([data-lockedin-hidden]) {
+  #secondary ytd-video-renderer:not([data-lockedin-hidden]),
+  #related ytd-compact-video-renderer:not([data-lockedin-hidden]),
+  #related ytd-compact-movie-renderer:not([data-lockedin-hidden]),
+  #related ytd-compact-radio-renderer:not([data-lockedin-hidden]),
+  #related ytd-compact-autoplay-renderer:not([data-lockedin-hidden]),
+  #related ytd-reel-item-renderer:not([data-lockedin-hidden]),
+  #related ytd-video-renderer:not([data-lockedin-hidden]),
+  ytd-watch-next-secondary-results-renderer ytd-compact-video-renderer:not([data-lockedin-hidden]),
+  ytd-watch-next-secondary-results-renderer ytd-compact-movie-renderer:not([data-lockedin-hidden]),
+  ytd-watch-next-secondary-results-renderer ytd-compact-radio-renderer:not([data-lockedin-hidden]),
+  ytd-watch-next-secondary-results-renderer ytd-compact-autoplay-renderer:not([data-lockedin-hidden]),
+  ytd-watch-next-secondary-results-renderer ytd-reel-item-renderer:not([data-lockedin-hidden]),
+  ytd-watch-next-secondary-results-renderer ytd-video-renderer:not([data-lockedin-hidden]),
+  ytd-watch-next-secondary-results-renderer yt-lockup-view-model:not([data-lockedin-hidden]),
+  #related yt-lockup-view-model:not([data-lockedin-hidden]),
+  ytd-watch-next-secondary-results-renderer ytd-reel-shelf-renderer:not([data-lockedin-hidden]),
+  #related ytd-reel-shelf-renderer:not([data-lockedin-hidden]),
+  ytd-item-section-renderer.ytd-watch-next-secondary-results-renderer > #contents:not([data-lockedin-hidden]),
+  #related ytd-item-section-renderer > #contents:not([data-lockedin-hidden]) {
     display: none !important;
   }
 
@@ -511,7 +536,11 @@ function setInstantRecsHiding(hideRecommended, hideSidebar) {
   #secondary ytd-item-section-renderer:not([data-lockedin-hidden]):not(:has(ytd-engagement-panel-section-list-renderer)):not(:has(ytd-transcript-segment-list-renderer)),
   #secondary ytd-continuation-item-renderer:not([data-lockedin-hidden]):not(:has(ytd-engagement-panel-section-list-renderer)):not(:has(ytd-transcript-segment-list-renderer)),
   #secondary ytd-watch-next-secondary-results-renderer:not([data-lockedin-hidden]):not(:has(ytd-engagement-panel-section-list-renderer)):not(:has(ytd-transcript-segment-list-renderer)),
-  #secondary #related:not([data-lockedin-hidden]):not(:has(ytd-engagement-panel-section-list-renderer)):not(:has(ytd-transcript-segment-list-renderer)) {
+  #secondary #related:not([data-lockedin-hidden]):not(:has(ytd-engagement-panel-section-list-renderer)):not(:has(ytd-transcript-segment-list-renderer)),
+  #related ytd-item-section-renderer:not([data-lockedin-hidden]):not(:has(ytd-engagement-panel-section-list-renderer)):not(:has(ytd-transcript-segment-list-renderer)),
+  #related ytd-continuation-item-renderer:not([data-lockedin-hidden]):not(:has(ytd-engagement-panel-section-list-renderer)):not(:has(ytd-transcript-segment-list-renderer)),
+  ytd-watch-next-secondary-results-renderer ytd-item-section-renderer:not([data-lockedin-hidden]):not(:has(ytd-engagement-panel-section-list-renderer)):not(:has(ytd-transcript-segment-list-renderer)),
+  ytd-watch-next-secondary-results-renderer ytd-continuation-item-renderer:not([data-lockedin-hidden]):not(:has(ytd-engagement-panel-section-list-renderer)):not(:has(ytd-transcript-segment-list-renderer)) {
     visibility: hidden !important;
     pointer-events: none !important;
     min-height: 0 !important;
@@ -1447,10 +1476,14 @@ function hideRecommendedVideos(shouldHide) {
     return;
   }
 
-  // FIX: Look for Desktop Sidebar (#secondary) OR Mobile Container
-  const sidebar = document.querySelector('#secondary') || 
-                  document.querySelector('ytm-watch-next-secondary-results-renderer') || 
-                  document.querySelector('ytm-item-section-renderer[section-identifier="related-items"]');
+  // Cover both classic sidebar and new below-video related layouts
+  const relatedRoots = Array.from(new Set([
+    ...document.querySelectorAll('#secondary'),
+    ...document.querySelectorAll('#related'),
+    ...document.querySelectorAll('ytd-watch-next-secondary-results-renderer'),
+    ...document.querySelectorAll('ytm-watch-next-secondary-results-renderer'),
+    ...document.querySelectorAll('ytm-item-section-renderer[section-identifier="related-items"]')
+  ]));
                   
   const isLivestreamVideo = () => {
     return !!document.querySelector(
@@ -1467,20 +1500,26 @@ function hideRecommendedVideos(shouldHide) {
       return;
     }
 
-  if (!sidebar) return;
+  if (relatedRoots.length === 0) return;
 
   // Even on livestream layouts where #secondary moves below the player, still hide recs but preserve chat/engagement panels
 
   const hiddenAttr = 'sidebar-recommended';
   let recsCount = 0;
 
-  // Hide chip cloud (the "All", "From The Office", etc. chips)
-  sidebar.querySelectorAll('yt-chip-cloud-renderer, yt-related-chip-cloud-renderer').forEach(el => {
+  // Hide chip/title bars globally on watch page for related recommendations
+  document.querySelectorAll(
+    '#secondary yt-chip-cloud-renderer, #secondary yt-related-chip-cloud-renderer, #secondary ytd-feed-filter-chip-bar-renderer, ' +
+    '#related yt-chip-cloud-renderer, #related yt-related-chip-cloud-renderer, #related ytd-feed-filter-chip-bar-renderer, ' +
+    'ytd-watch-next-secondary-results-renderer yt-chip-cloud-renderer, ytd-watch-next-secondary-results-renderer yt-related-chip-cloud-renderer, ytd-watch-next-secondary-results-renderer ytd-feed-filter-chip-bar-renderer'
+  ).forEach(el => {
     if (!el.hasAttribute('data-lockedin-hidden')) {
       el.style.display = 'none';
       el.setAttribute('data-lockedin-hidden', hiddenAttr);
     }
   });
+
+  relatedRoots.forEach((sidebar) => {
 
   // Target all video/content renderers - including mobile/responsive variants
   const contentSelectors = [
@@ -1490,6 +1529,9 @@ function hideRecommendedVideos(shouldHide) {
     'ytd-compact-autoplay-renderer',
     'ytd-reel-item-renderer',
     'ytd-video-renderer',
+    'yt-lockup-view-model',
+    'ytd-reel-shelf-renderer',
+    'ytd-item-section-renderer > #contents',
     // Mobile/Responsive layout selectors
     'ytm-compact-video-renderer',
     'ytm-video-with-context-renderer',
@@ -1497,45 +1539,46 @@ function hideRecommendedVideos(shouldHide) {
     'ytm-compact-autoplay-renderer'
   ];
 
-  contentSelectors.forEach(selector => {
-    sidebar.querySelectorAll(selector).forEach(el => {
-      // Skip if already hidden
-      if (el.hasAttribute('data-lockedin-hidden')) return;
-      
-      // Don't hide if it's part of a playlist panel
-      if (el.closest('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model, ytm-playlist-panel-renderer')) return;
-      
-      // Don't hide if it's an engagement panel (transcript, etc.)
-      if (el.closest('ytd-engagement-panel-section-list-renderer, ytm-engagement-panel-section-list-renderer') || 
-          el.hasAttribute('target-id') || 
-          el.closest('[target-id]')) return;
-      
-      // Hide everything else
-      el.style.display = 'none';
-      el.setAttribute('data-lockedin-hidden', hiddenAttr);
-      recsCount++;
+    contentSelectors.forEach(selector => {
+      sidebar.querySelectorAll(selector).forEach(el => {
+        // Skip if already hidden
+        if (el.hasAttribute('data-lockedin-hidden')) return;
+        
+        // Don't hide if it's part of a playlist panel
+        if (el.closest('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model, ytm-playlist-panel-renderer')) return;
+        
+        // Don't hide if it's an engagement panel (transcript, etc.)
+        if (el.closest('ytd-engagement-panel-section-list-renderer, ytm-engagement-panel-section-list-renderer') || 
+            el.hasAttribute('target-id') || 
+            el.closest('[target-id]')) return;
+        
+        // Hide everything else
+        el.style.display = 'none';
+        el.setAttribute('data-lockedin-hidden', hiddenAttr);
+        recsCount++;
+      });
     });
-  });
 
-  // Also hide the entire related section container on mobile layouts
-  const mobileRelatedContainers = sidebar.querySelectorAll('#related, #items, ytm-watch-next-secondary-results-renderer');
-  mobileRelatedContainers.forEach(container => {
-    // Only hide if it contains videos, not if it's just playlist/transcript
-    const hasVideos = container.querySelector('ytd-compact-video-renderer, ytm-compact-video-renderer, ytm-video-with-context-renderer');
-    if (hasVideos && !container.hasAttribute('data-lockedin-hidden')) {
-      container.style.display = 'none';
-      container.setAttribute('data-lockedin-hidden', hiddenAttr);
-    }
-  });
+    // Also hide related containers used in below-video layouts
+    const mobileRelatedContainers = sidebar.querySelectorAll('#related, #items, ytm-watch-next-secondary-results-renderer, ytd-watch-next-secondary-results-renderer');
+    mobileRelatedContainers.forEach(container => {
+      // Only hide if it contains videos, not if it's just playlist/transcript
+      const hasVideos = container.querySelector('ytd-compact-video-renderer, ytd-video-renderer, yt-lockup-view-model, ytd-reel-shelf-renderer, ytm-compact-video-renderer, ytm-video-with-context-renderer');
+      if (hasVideos && !container.hasAttribute('data-lockedin-hidden')) {
+        container.style.display = 'none';
+        container.setAttribute('data-lockedin-hidden', hiddenAttr);
+      }
+    });
   
   // Mobile: Aggressively hide the specific related items section if it contains videos
-  sidebar.querySelectorAll('ytm-item-section-renderer').forEach(section => {
-    if (section.querySelector('ytm-video-with-context-renderer, ytm-compact-video-renderer')) {
-      if (!section.hasAttribute('data-lockedin-hidden')) {
-        section.style.display = 'none';
-        section.setAttribute('data-lockedin-hidden', hiddenAttr);
+    sidebar.querySelectorAll('ytm-item-section-renderer').forEach(section => {
+      if (section.querySelector('ytm-video-with-context-renderer, ytm-compact-video-renderer')) {
+        if (!section.hasAttribute('data-lockedin-hidden')) {
+          section.style.display = 'none';
+          section.setAttribute('data-lockedin-hidden', hiddenAttr);
+        }
       }
-    }
+    });
   });
 
   // Track hidden recommendations
@@ -1604,7 +1647,7 @@ function hideSidebarShorts(shouldHide) {
       if (el.closest('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model, ytm-playlist-panel-renderer')) return;
       
       // Only process if in sidebar/related area (not main video player area)
-      const inSidebar = el.closest('#secondary, ytm-watch-next-secondary-results-renderer, ytm-item-section-renderer[section-identifier="related-items"]');
+      const inSidebar = el.closest('#secondary, #related, ytd-watch-next-secondary-results-renderer, ytm-watch-next-secondary-results-renderer, ytm-item-section-renderer[section-identifier="related-items"]');
       if (!inSidebar) return;
       
       if (!el.hasAttribute('data-lockedin-hidden')) {
@@ -1623,7 +1666,7 @@ function hideSidebarShorts(shouldHide) {
     if (el.closest('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model, ytm-playlist-panel-renderer')) return;
     
     // Only process if in sidebar/related area
-    const inSidebar = el.closest('#secondary, ytm-watch-next-secondary-results-renderer, ytm-item-section-renderer[section-identifier="related-items"]');
+    const inSidebar = el.closest('#secondary, #related, ytd-watch-next-secondary-results-renderer, ytm-watch-next-secondary-results-renderer, ytm-item-section-renderer[section-identifier="related-items"]');
     if (!inSidebar) return;
     
     // Check if it's a short by URL
@@ -1646,7 +1689,7 @@ function hideSidebarShorts(shouldHide) {
     if (el.closest('ytd-playlist-panel-renderer, ytd-playlist-panel-view-model, ytm-playlist-panel-renderer')) return;
     
     // Only process if in sidebar/related area
-    const inSidebar = el.closest('#secondary, ytm-watch-next-secondary-results-renderer, ytm-item-section-renderer[section-identifier="related-items"]');
+    const inSidebar = el.closest('#secondary, #related, ytd-watch-next-secondary-results-renderer, ytm-watch-next-secondary-results-renderer, ytm-item-section-renderer[section-identifier="related-items"]');
     if (!inSidebar) return;
     
     const shortsLink = el.querySelector('a[href*="/shorts/"]');
