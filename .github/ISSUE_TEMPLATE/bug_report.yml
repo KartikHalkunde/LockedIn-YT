@@ -1,108 +1,107 @@
-  ---
-  name: Bug Report 
-  about: Create a bug report to help improve LockedIn
-  title: '[BUG] '
-  labels: [bug]
+---
+name: Bug Report 
+about: Create a bug report to help improve LockedIn
+title: '[BUG] '
+labels: [bug]
 assignees: 
   - KartikHalkunde
 body:
   - type: markdown
     attributes:
       value: |
-      ## IMPORTANT WARNING
+        ## IMPORTANT WARNING
 
-      **Duplicate or incomplete issues will be closed immediately without any response from developers.**
+        **Duplicate or incomplete issues will be closed immediately without any response from developers.**
 
-      - Check existing issues before opening a new one
-      - All required checkboxes below must be checked
-      - Duplicate issues will be closed instantly with no response
+        - Check existing issues before opening a new one
+        - All required checkboxes below must be checked
+        - Duplicate issues will be closed instantly with no response
 
-    - type: markdown
-      attributes:
-        value: |
-          ---
-          ## Bug Details
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## Bug Details
 
-    - type: textarea
-      id: reproduce-steps
-      attributes:
-        label: Steps to reproduce the bug
-        description: What did you do for the bug to show up?
-        placeholder: |
-          Example:
-            1. Go to '...'
-            2. Click on '....'
-            3. Scroll down to '....'
-            4. See error
-      validations:
-        required: true
+  - type: textarea
+    id: reproduce-steps
+    attributes:
+      label: Steps to reproduce the bug
+      description: What did you do for the bug to show up?
+      placeholder: |
+        Example:
+          1. Go to '...'
+          2. Click on '....'
+          3. Scroll down to '....'
+          4. See error
+    validations:
+      required: true
 
-    - type: textarea
-      id: expected-behavior
-      attributes:
-        label: Expected behavior
-        placeholder: |
-          Example:
-            "This should happen..."
-      validations:
-        required: true
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected behavior
+      placeholder: |
+        Example:
+          "This should happen..."
+    validations:
+      required: true
 
-    - type: textarea
-      id: actual-behavior
-      attributes:
-        label: Actual behavior
-        placeholder: |
-          Example:
-            "This happened instead..."
-      validations:
-        required: true
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: Actual behavior
+      placeholder: |
+        Example:
+          "This happened instead..."
+    validations:
+      required: true
 
-    - type: textarea
-      id: sreen-media
-      attributes:
-        label: Screenshots/Screen recordings
-        description: |
-          A picture or video helps us understand the bug more.
+  - type: textarea
+    id: sreen-media
+    attributes:
+      label: Screenshots/Screen recordings
+      description: |
+        A picture or video helps us understand the bug more.
 
-          You can upload them directly in the text box.
+        You can upload them directly in the text box.
 
+  - type: input
+    id: extension-version
+    attributes:
+      label: LockedIn version
+      description: |
+        You can find the LockedIn version in **Popup footer**.
+      placeholder: |
+        Example: "1.0.67"
+    validations:
+      required: true
 
-    - type: input
-      id: extension-version
-      attributes:
-        label: LockedIn version
-        description: |
-          You can find the LockedIn version in **Popup footer**.
-        placeholder: |
-          Example: "1.0.67"
-      validations:
-        required: true
+  - type: input
+    id: browser
+    attributes:
+      label: Browser 
+      description: |
+        Which Browser were you using.
+      placeholder: |
+        Example: "Firefox/MS Edge/Chrome"
+    validations:
+      required: true
 
-    - type: input
-      id: browser
-      attributes:
-        label: Browser 
-        description: |
-          Which Browser were you using.
-        placeholder: |
-          Example: "Firefox/MS Edge/Chrome"
-      validations:
-        required: true
+  - type: input
+    id: OS
+    attributes:
+      label: Operating System 
+      description: |
+        What operating system are you on.
+      placeholder: |
+        Example: "Windows 11/macOS/Linux(DISTRO)"
+    validations:
+      required: true
 
-    - type: input
-      id: OS
-      attributes:
-        label: Operating System 
-        description: |
-          What operating system are you on.
-        placeholder: |
-          Example: "Windows 11/macOS/Linux(DISTRO)"
-      validations:
-        required: true
-
-    - type: textarea
-      id: additional-information
-      attributes:
-        label: Additional information
-        placeholder: |
-          Additional details and attachments.
+  - type: textarea
+    id: additional-information
+    attributes:
+      label: Additional information
+      placeholder: |
+        Additional details and attachments.
