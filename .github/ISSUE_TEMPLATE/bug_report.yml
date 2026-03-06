@@ -6,16 +6,24 @@ labels: [bug]
 assignees: 
   - KartikHalkunde
 body:
-  - type: markdown
+
+  - type: checkboxes
+    id: checklist
     attributes:
-      value: |
-        ## IMPORTANT WARNING
+      label: "Checklist - Required"
+      description: |
+        **READ CAREFULLY:** You must complete these checks before submitting. Failing to do so will result in your issue being closed immediately.
 
-        **Duplicate or incomplete issues will be closed immediately without any response from developers.**
-
-        - Check existing issues before opening a new one
-        - All required checkboxes below must be checked
-        - Duplicate issues will be closed instantly with no response
+        **Duplicate issues = Instant closure with no response**
+      options:
+        - label: " I've checked that there is NO open or closed issue about this bug. (Duplicate issues will be closed immediately without response)"
+          required: true
+        - label: " This issue contains only ONE bug. PLEASE check pinned issues before opening a new one."
+          required: true
+        - label: " The title of this issue accurately describes the bug."
+          required: true
+        - label: " The entire issue report is written/translated in English."
+          required: true
 
   - type: markdown
     attributes:
