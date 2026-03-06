@@ -98,6 +98,10 @@ If LockedIn helps you stay focused, consider supporting its development!
 <a href="https://github.com/sponsors/KartikHalkunde">
   <img src="https://img.shields.io/badge/GitHub_Sponsors-EA4AAA?style=for-the-badge&logo=github&logoColor=white" alt="Sponsor on GitHub" height="55" />
 </a>
+&nbsp;&nbsp;
+<a href="https://www.paypal.com/ncp/payment/F94XZ6QRAXJEQ">
+  <img src="https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white" alt="Pay with PayPal" height="55" />
+</a>
 
 <br/>
 
