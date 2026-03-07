@@ -6,14 +6,14 @@
 set -e  # Exit on any error
 
 echo "========================================="
-echo "Building LockedIn Firefox Extension v1.0.99"
+echo "Building LockedIn Firefox Extension v1.1.0"
 echo "========================================="
 echo ""
 
 # Define output filenames
-MAIN_ZIP="lockedin-1.0.99.zip"
-SOURCE_ZIP="lockedin-source-1.0.99.zip"
-EDGE_ZIP="lockedin-edge-1.0.99.zip"
+MAIN_ZIP="lockedin-1.1.0.zip"
+SOURCE_ZIP="lockedin-source-1.1.0.zip"
+EDGE_ZIP="lockedin-edge-1.1.0.zip"
 
 # Remove existing builds if present
 echo "Cleaning previous builds..."

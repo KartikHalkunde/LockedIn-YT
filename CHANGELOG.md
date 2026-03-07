@@ -1,3 +1,15 @@
+## [1.1.0] - 2026-03-07
+### Added
+- Added PayPal as a new payment platform on the Sponsor page
+
+### Changed
+- Implemented a more robust method for the Disable Autoplay toggle to keep autoplay consistently off
+- Redesigned the Menu page for a cleaner and more informative settings experience
+- Redesigned the Sponsor page with improved platform layout and actions
+
+### Fixed
+- Made the Hide Recommended Videos toggle more robust by improving compatibility with most YouTube watch layouts
+
 ## [1.0.99] - 2026-02-22
 ### Added
 - Added toggle to hide Boss Baby placeholder image from the homepage feed
