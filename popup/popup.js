@@ -7,6 +7,7 @@ if (typeof browser === 'undefined') {
 const DEFAULT_SETTINGS = {
   hideFeed: false,
   redirectToSubs: false,
+  hideMostRelevantSubscriptions: false,
   hideShortsHomepage: false,
   cleanHomepageFeed: false,
   hideCommunityPosts: false,
@@ -109,8 +110,10 @@ const I18N_STRINGS = {
     'appearance.option.dark': 'Dark',
     'language.option.auto': 'Auto',
     'group.homepage': 'Homepage',
+    'group.subscriptionsPage': 'Subscriptions Page',
     'setting.hideFeed': 'Hide Homepage Feed',
     'setting.redirectToSubs': 'Redirect to Subscriptions',
+    'setting.hideMostRelevant': "Hide 'Most Relevant'",
     'setting.hideShortsHomepage': 'Hide YouTube Shorts',
     'setting.cleanHomepageFeed': 'Clean Homepage Feed',
     'setting.hideCommunityPosts': 'Hide Community Posts',
