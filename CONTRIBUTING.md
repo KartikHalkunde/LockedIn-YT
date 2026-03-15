@@ -22,7 +22,7 @@ cd LockedIn-YT
 # Make your changes...
 
 # Build
-./build.sh
+bash scripts/build.sh
 
 # Load in Firefox for testing
 # Go to about:debugging#/runtime/this-firefox

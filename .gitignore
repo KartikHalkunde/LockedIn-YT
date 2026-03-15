@@ -2,21 +2,18 @@
 *.zip
 lockedin-*.zip
 lockedin-source-*.zip
-lockedin-edge-*.zip
+lockedin-chromium-*.zip
+dist/
+chromium-build/
+temp-chrome-build/
 
-
-
-# Mozilla submission / deployment docs (keep local only)
-PACKAGE_SUMMARY.md
-SOURCE_SUBMISSION.md
-SUBMISSION_GUIDE.md
-CHECKLIST.md
-DEPLOYMENT_*.md
-DEPLOY_NOW.md
-RELEASE_NOTES_*.md
+# Chrome extension packaging files (not needed - Chrome Web Store handles signing)
+*.crx
+*.pem
 
 # OS-specific files
 .DS_Store
+.directory
 Thumbs.db
 desktop.ini
 __MACOSX/
@@ -39,6 +36,11 @@ Desktop.ini
 # Temporary files
 *.tmp
 *.log
+*.orig
+
+# Environment/local config
+.env
+.env.*
 
 # Node modules (if you add tooling later)
 node_modules/
@@ -54,21 +56,13 @@ __pycache__/
 *.pyd
 .Python
 *.egg-info/
+.pytest_cache/
 
-# Git
-.git/
+# Test/coverage outputs
+coverage/
+.coverage
+.nyc_output/
 
 # Experimental/testing UI
 testingpopup/
 testing-ui/
-
-# Build directories and deployment files
-lockedin-1.0.*/
-
-RELEASE_NOTES_1.0.85.md
-DEPLOYMENT_1.0.85.md
-DEPLOY_NOW.md
-
-DEPLOYMENT_*.md
-
-edge-build/*

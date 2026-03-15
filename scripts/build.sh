@@ -1,0 +1,96 @@
+#!/bin/bash
+set -e
+
+ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+SRC_DIR="$ROOT_DIR/src"
+DIST_DIR="$ROOT_DIR/dist"
+
+# Get the version from manifest.json
+VERSION=$(grep -o '"version"[[:space:]]*:[[:space:]]*"[^"]*"' "$SRC_DIR/manifest.json" | head -n1 | sed -E 's/.*"([0-9]+\.[0-9]+\.[0-9]+)"/\1/')
+
+FIREFOX_ZIP="lockedin-v$VERSION-firefox.zip"
+CHROMIUM_ZIP="lockedin-v$VERSION-chromium.zip"
+SOURCE_ZIP="lockedin-v$VERSION-source.zip"
+
+echo "========================================="
+echo "Building LockedIn Extension v$VERSION"
+echo "========================================="
+
+# Clean old builds
+mkdir -p "$DIST_DIR"
+rm -f "$DIST_DIR/lockedin-"*.zip
+
+echo "Verifying source files..."
+required_files=(
+  "$SRC_DIR/manifest.json"
+  "$SRC_DIR/background.js"
+  "$SRC_DIR/content/index.js"
+  "$SRC_DIR/popup/popup.html"
+)
+
+for file in "${required_files[@]}"; do
+  if [ ! -f "$file" ]; then
+    echo "ERROR: Required file missing: $file"
+    exit 1
+  fi
+  echo "  ✓ ${file#$ROOT_DIR/}"
+done
+
+# 1. BUILD FIREFOX (Directly from src)
+echo "Creating Firefox extension ZIP directly from src/..."
+(cd "$SRC_DIR" && zip -q -r "$DIST_DIR/$FIREFOX_ZIP" . -x "*.DS_Store" "*/__MACOSX/*")
+
+# 2. BUILD CHROMIUM / EDGE (Using a temporary ghost folder)
+echo "Preparing Chromium build in a temporary folder..."
+TEMP_DIR="$ROOT_DIR/temp-chrome-build"
+
+# Create temp folder and copy source code
+mkdir -p "$TEMP_DIR"
+cp -r "$SRC_DIR/"* "$TEMP_DIR/"
+
+# Convert manifest to Chromium-safe JSON (service worker + remove Firefox-only keys)
+python - "$TEMP_DIR/manifest.json" <<'PY'
+import json
+import pathlib
+import sys
+
+manifest_path = pathlib.Path(sys.argv[1])
+data = json.loads(manifest_path.read_text(encoding='utf-8'))
+
+bg = data.get('background', {})
+if isinstance(bg, dict):
+  if 'scripts' in bg and isinstance(bg['scripts'], list) and bg['scripts']:
+    data['background'] = {'service_worker': bg['scripts'][0]}
+  elif 'service_worker' not in bg:
+    data['background'] = {'service_worker': 'background.js'}
+else:
+  data['background'] = {'service_worker': 'background.js'}
+
+data.pop('browser_specific_settings', None)
+
+manifest_path.write_text(
+  json.dumps(data, ensure_ascii=False, indent=2) + "\n",
+  encoding='utf-8'
+)
+PY
+
+echo "Creating Chromium extension ZIP..."
+(cd "$TEMP_DIR" && zip -q -r "$DIST_DIR/$CHROMIUM_ZIP" . -x "*.DS_Store" "*/__MACOSX/*")
+
+# CLEANUP: Delete the temporary folder immediately!
+rm -rf "$TEMP_DIR"
+echo "  ✓ Cleaned up temporary build files."
+
+# 3. BUILD SOURCE CODE
+echo "Creating source ZIP..."
+(cd "$ROOT_DIR" && zip -q -r "$DIST_DIR/$SOURCE_ZIP" \
+  src/ scripts/ project-docs/ \
+  README.md CHANGELOG.md CONTRIBUTING.md PRIVACY.md LICENSE .gitignore \
+  -x "*.DS_Store" "*/__MACOSX/*" "*/.git/*" "dist/*" "temp-chrome-build/*" "chromium-build/*")
+
+echo ""
+echo "========================================="
+echo "✓ Build complete! Repository remains clean."
+echo "========================================="
+echo "📦 Firefox: dist/$FIREFOX_ZIP"
+echo "📦 Chrome/Edge: dist/$CHROMIUM_ZIP"

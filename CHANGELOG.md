@@ -1,3 +1,16 @@
+## [1.1.1] - 2026-03-12
+### Added
+- Added "Clean Sidebar" toggle group with sub-toggles (Hide Subscriptions, Hide Explore & Trending, Hide More From YouTube)
+- Added "Hide 'Most Relevant'" toggle for Subscriptions page to remove algorithmic sorting
+
+### Changed
+- Enhanced autoplay handling for more reliable control across different YouTube layouts
+- Made extension fully Chrome/Edge compatible for official Chrome Web Store release
+
+### Fixed
+- Fixed white border artifacts appearing in Chrome/Edge popup corners and edges
+
+
 ## [1.1.0] - 2026-03-07
 ### Added
 - Added PayPal as a new payment platform on the Sponsor page

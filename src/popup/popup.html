@@ -10,6 +10,7 @@
   <div class="popup-container">
     <div class="popup-header">
       <button id="menuButton" class="menu-button" title="Menu" data-i18n-key="tooltip.menu" data-i18n-attr="title">
+        <span class="notification-badge" id="notificationBadge"></span>
         <svg class="menu-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <line x1="3" y1="6" x2="21" y2="6"></line>
           <line x1="3" y1="12" x2="21" y2="12"></line>
@@ -20,7 +21,7 @@
           <line x1="18" y1="6" x2="6" y2="18"></line>
         </svg>
       </button>
-      <img src="../icons/iconFull.png" alt="LockedIn" class="header-logo">
+      <img src="../assets/icons/iconFull.png" alt="LockedIn" class="header-logo">
       <div class="power-button-container">
         <button id="powerButton" class="power-button" title="Toggle Extension" data-i18n-key="tooltip.power" data-i18n-attr="title">
           <svg class="power-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -50,6 +51,33 @@
       </div>
       
       <div class="settings-menu-scroll">
+        <!-- Announcement Section (Minimal Style) -->
+        <div class="announcement-section" id="announcementSection" style="display: none;">
+          <div class="announcement-content">
+            <div class="announcement-icon" aria-label="Announcement">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/Google_Chrome_icon_%28February_2022%29.svg" alt="Chrome Logo" style="width: 100%; height: 100%; object-fit: contain;">
+            </div>
+            <div class="announcement-text">
+              <div class="announcement-title">Now Available on Chrome!</div>
+              <div class="announcement-description">LockedIn is now on Chrome Web Store. Download and stay focused across all browsers!</div>
+            </div>
+            <button class="announcement-close" id="dismissAnnouncement" title="Dismiss">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+          <a href="https://chromewebstore.google.com/detail/lockedin/YOUR_EXTENSION_ID" target="_blank" class="announcement-button" id="chromeStoreLink">
+            <span>Download for Chrome</span>
+            <svg class="arrow-icon" style="color: #ff4757;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+              <polyline points="15 3 21 3 21 9"></polyline>
+              <line x1="10" y1="14" x2="21" y2="3"></line>
+            </svg>
+          </a>
+        </div>
+        
         <!-- Stats Section -->
         <div class="stats-bar" id="statsSection">
           <div class="stat-item time-saved">
@@ -84,14 +112,14 @@
           
           <div class="menu-option-divider"></div>
 
-          <!-- Hide Feed Image -->
+          <!-- Hide Motivational Quotes -->
           <div class="menu-option-row">
             <div class="menu-option-text">
-              <span class="menu-option-label" data-i18n-key="menu.option.hideFeedImage">Hide Boss Baby from Feed</span>
-              <span class="menu-option-description" data-i18n-key="menu.option.hideFeedImage.desc">Hide the homepage placeholder image when your feed is blocked.</span>
+              <span class="menu-option-label" data-i18n-key="menu.option.hideFeedQuote">Hide Motivational Quotes</span>
+              <span class="menu-option-description" data-i18n-key="menu.option.hideFeedQuote.desc">Hide the motivational quote shown when your homepage feed is blocked.</span>
             </div>
             <label class="toggle-switch">
-              <input type="checkbox" data-setting="hideFeedImage">
+              <input type="checkbox" data-setting="hideFeedQuote">
               <span class="toggle-slider"></span>
             </label>
           </div>
@@ -278,13 +306,6 @@
               </div>
             </div>
             <div class="setting-row">
-              <span class="setting-label" data-i18n-key="setting.hideEndCards">Hide End Screen Cards</span>
-              <label class="toggle-switch">
-                <input type="checkbox" data-setting="hideEndCards">
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-            <div class="setting-row">
               <span class="setting-label" data-i18n-key="setting.hideComments">Hide Comments</span>
               <label class="toggle-switch">
                 <input type="checkbox" data-setting="hideComments">
@@ -295,6 +316,13 @@
               <span class="setting-label" data-i18n-key="setting.hideLiveChat">Hide Live Chat</span>
               <label class="toggle-switch">
                 <input type="checkbox" data-setting="hideLiveChat">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+            <div class="setting-row">
+              <span class="setting-label" data-i18n-key="setting.hideEndCards">Hide End Screen Cards</span>
+              <label class="toggle-switch">
+                <input type="checkbox" data-setting="hideEndCards">
                 <span class="toggle-slider"></span>
               </label>
             </div>
@@ -332,25 +360,35 @@
           <h2 class="group-title" data-i18n-key="group.sidebar">YouTube Sidebar</h2>
           <div class="settings-list">
             <div class="setting-row">
-              <span class="setting-label" data-i18n-key="setting.hideExplore">Hide Explore & Trending</span>
+              <span class="setting-label" data-i18n-key="setting.cleanSidebar">Clean Sidebar</span>
               <label class="toggle-switch">
-                <input type="checkbox" data-setting="hideExplore">
+                <input type="checkbox" data-setting="cleanSidebar">
                 <span class="toggle-slider"></span>
               </label>
             </div>
-            <div class="setting-row">
-              <span class="setting-label" data-i18n-key="setting.hideMoreFromYT">Hide More From YouTube</span>
-              <label class="toggle-switch">
-                <input type="checkbox" data-setting="hideMoreFromYT">
-                <span class="toggle-slider"></span>
-              </label>
-            </div>
-            <div class="setting-row">
-              <span class="setting-label" data-i18n-key="setting.hideSubscriptions">Hide Subscriptions</span>
-              <label class="toggle-switch">
-                <input type="checkbox" data-setting="hideSubscriptions">
-                <span class="toggle-slider"></span>
-              </label>
+            <div class="sub-toggles-container" id="cleanSidebarSubToggles">
+              <div class="sub-toggles-line"></div>
+              <div class="sub-toggle-row" id="hideSubscriptionsRow">
+                <span class="setting-label" data-i18n-key="setting.hideSubscriptions">Hide Subscriptions</span>
+                <label class="toggle-switch">
+                  <input type="checkbox" data-setting="hideSubscriptions">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div class="sub-toggle-row" id="hideExploreRow">
+                <span class="setting-label" data-i18n-key="setting.hideExplore">Hide Explore & Trending</span>
+                <label class="toggle-switch">
+                  <input type="checkbox" data-setting="hideExplore">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+              <div class="sub-toggle-row" id="hideMoreFromYTRow">
+                <span class="setting-label" data-i18n-key="setting.hideMoreFromYT">Hide More From YouTube</span>
+                <label class="toggle-switch">
+                  <input type="checkbox" data-setting="hideMoreFromYT">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
             </div>
           </div>
         </div>
@@ -395,7 +433,7 @@
 
           <a href="https://buymeacoffee.com/lockedinyt" target="_blank" class="donation-row" aria-label="Buy Me a Coffee">
             <span class="donation-icon bmc">
-              <img src="../icons/bmc.png" alt="" aria-hidden="true">
+              <img src="../assets/icons/bmc.png" alt="" aria-hidden="true">
             </span>
             <span class="donation-copy">
               <span class="donation-title">Buy Me a Coffee</span>
@@ -408,7 +446,7 @@
 
           <a href="https://www.paypal.com/ncp/payment/F94XZ6QRAXJEQ" target="_blank" rel="noreferrer" class="donation-row" aria-label="PayPal">
             <span class="donation-icon paypal">
-              <img src="../icons/paypal.png" alt="" aria-hidden="true">
+              <img src="../assets/icons/paypal.png" alt="" aria-hidden="true">
             </span>
             <span class="donation-copy">
               <span class="donation-title">PayPal</span>
@@ -421,7 +459,7 @@
 
           <a href="https://kartikhalkunde.github.io/LockedIn-YT/upi.html" target="_blank" class="donation-row" aria-label="UPI">
             <span class="donation-icon upi">
-              <img src="../icons/upi.png" alt="" aria-hidden="true">
+              <img src="../assets/icons/upi.png" alt="" aria-hidden="true">
             </span>
             <span class="donation-copy">
               <span class="donation-title">UPI</span>

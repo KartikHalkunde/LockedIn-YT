@@ -13,6 +13,7 @@ const DEFAULT_SETTINGS = {
   hideCommunityPosts: false,
   hideFeaturedContent: false,
   hideMembersOnly: false,
+  cleanSidebar: false,
   hideShortsGlobally: false,
   redirectShorts: false,
   hideSidebar: false,
@@ -31,7 +32,7 @@ const DEFAULT_SETTINGS = {
   extensionEnabled: true,
   lightMode: false,
   showStats: false,
-  hideFeedImage: false,
+  hideFeedQuote: false,
   takeBreak: false,
   breakDuration: 5,
   customMeme: null,
@@ -98,11 +99,11 @@ const I18N_STRINGS = {
     'stats.daysFocused': 'Days Focused',
     'stats.hoursSuffix': 'hr',
     'menu.option.showStats': 'Show Stats',
-    'menu.option.hideFeedImage': 'Hide Boss Baby from Feed',
+    'menu.option.hideFeedQuote': 'Hide Motivational Quotes',
     'menu.option.appearance': 'Extension Appearance',
     'menu.option.language': 'Extension Language',
     'menu.option.showStats.desc': 'Show your focus stats like time saved and Shorts avoided.',
-    'menu.option.hideFeedImage.desc': 'Hide the homepage placeholder image when your feed is blocked.',
+    'menu.option.hideFeedQuote.desc': 'Hide the motivational quote shown when your homepage feed is blocked.',
     'menu.option.appearance.desc': 'Choose Auto, Light, or Dark theme for the extension popup.',
     'menu.option.language.desc': 'Set popup language manually, or keep Auto to follow browser language.',
     'appearance.option.auto': 'Auto',
@@ -117,6 +118,7 @@ const I18N_STRINGS = {
     'setting.hideShortsHomepage': 'Hide YouTube Shorts',
     'setting.cleanHomepageFeed': 'Clean Homepage Feed',
     'setting.hideCommunityPosts': 'Hide Community Posts',
+    'setting.cleanSidebar': 'Clean Sidebar',
     'setting.hideFeaturedContent': 'Hide Featured Content',
     'setting.hideMembersOnly': 'Hide Members Only Content',
     'group.shorts': 'YouTube Shorts',
@@ -170,11 +172,11 @@ const I18N_STRINGS = {
     'stats.daysFocused': 'Días enfocado',
     'stats.hoursSuffix': 'h',
     'menu.option.showStats': 'Mostrar estadísticas',
-    'menu.option.hideFeedImage': 'Ocultar imagen del feed',
+    'menu.option.hideFeedQuote': 'Ocultar citas motivacionales',
     'menu.option.appearance': 'Apariencia de la extensión',
     'menu.option.language': 'Idioma de la extensión',
     'menu.option.showStats.desc': 'Muestra estadísticas de enfoque como tiempo ahorrado y Shorts evitados.',
-    'menu.option.hideFeedImage.desc': 'Oculta la imagen de marcador cuando el feed está bloqueado.',
+    'menu.option.hideFeedQuote.desc': 'Oculta la cita motivacional cuando el feed de inicio está bloqueado.',
     'menu.option.appearance.desc': 'Elige tema Automático, Claro u Oscuro para el popup.',
     'menu.option.language.desc': 'Define el idioma del popup o usa Automático según tu navegador.',
     'appearance.option.auto': 'Automático',
@@ -182,10 +184,16 @@ const I18N_STRINGS = {
     'appearance.option.dark': 'Oscuro',
     'language.option.auto': 'Automático',
     'group.homepage': 'Página principal',
+    'group.subscriptionsPage': 'Página de suscripciones',
     'setting.hideFeed': 'Ocultar feed de inicio',
     'setting.redirectToSubs': 'Redirigir a Suscripciones',
+    'setting.hideMostRelevant': "Ocultar 'Más relevantes'",
     'setting.hideShortsHomepage': 'Ocultar Shorts de YouTube',
+    'setting.cleanHomepageFeed': 'Limpiar feed de inicio',
     'setting.hideCommunityPosts': 'Ocultar publicaciones de la comunidad',
+    'setting.cleanSidebar': 'Limpiar barra lateral',
+    'setting.hideFeaturedContent': 'Ocultar contenido destacado',
+    'setting.hideMembersOnly': 'Ocultar contenido solo para miembros',
     'group.shorts': 'YouTube Shorts',
     'setting.hideShortsGlobal': 'Ocultar Shorts (todas las páginas)',
     'setting.redirectShorts': 'Redirigir Shorts',
@@ -237,11 +245,11 @@ const I18N_STRINGS = {
     'stats.daysFocused': 'फ़ोकस किए दिन',
     'stats.hoursSuffix': 'घं',
     'menu.option.showStats': 'आँकड़े दिखाएँ',
-    'menu.option.hideFeedImage': 'फ़ीड से इमेज छुपाएँ',
+    'menu.option.hideFeedQuote': 'प्रेरणादायक उद्धरण छुपाएँ',
     'menu.option.appearance': 'एक्सटेंशन की रूपरेखा',
     'menu.option.language': 'एक्सटेंशन की भाषा',
     'menu.option.showStats.desc': 'समय बचत और टाले गए Shorts जैसे फ़ोकस आँकड़े दिखाता है।',
-    'menu.option.hideFeedImage.desc': 'फ़ीड ब्लॉक होने पर होमपेज की placeholder इमेज छुपाता है।',
+    'menu.option.hideFeedQuote.desc': 'फ़ीड ब्लॉक होने पर दिखने वाले प्रेरक उद्धरण को छुपाएँ।',
     'menu.option.appearance.desc': 'पॉपअप के लिए Auto, Light या Dark थीम चुनें।',
     'menu.option.language.desc': 'पॉपअप भाषा सेट करें, या Auto रखकर ब्राउज़र भाषा अपनाएँ।',
     'appearance.option.auto': 'स्वचालित',
@@ -249,11 +257,14 @@ const I18N_STRINGS = {
     'appearance.option.dark': 'गहरा',
     'language.option.auto': 'स्वचालित',
     'group.homepage': 'होमपेज',
+    'group.subscriptionsPage': 'सब्सक्रिप्शन पेज',
     'setting.hideFeed': 'होमपेज फ़ीड छुपाएँ',
     'setting.redirectToSubs': 'सब्सक्रिप्शन पर ले जाएँ',
+    'setting.hideMostRelevant': "'Most Relevant' छुपाएँ",
     'setting.hideShortsHomepage': 'YouTube शॉर्ट्स छुपाएँ',
     'setting.cleanHomepageFeed': 'होमपेज फ़ीड साफ़ करें',
     'setting.hideCommunityPosts': 'कम्युनिटी पोस्ट छुपाएँ',
+    'setting.cleanSidebar': 'साइडबार साफ़ करें',
     'setting.hideFeaturedContent': 'फ़ीचर्ड कंटेंट छुपाएँ',
     'setting.hideMembersOnly': 'सदस्य-विशेष कंटेंट छुपाएँ',
     'group.shorts': 'YouTube शॉर्ट्स',
@@ -307,11 +318,11 @@ const I18N_STRINGS = {
     'stats.daysFocused': 'Dias focado',
     'stats.hoursSuffix': 'h',
     'menu.option.showStats': 'Mostrar estatísticas',
-    'menu.option.hideFeedImage': 'Ocultar imagem do feed',
+    'menu.option.hideFeedQuote': 'Ocultar citações motivacionais',
     'menu.option.appearance': 'Aparência da extensão',
     'menu.option.language': 'Idioma da extensão',
     'menu.option.showStats.desc': 'Mostra estatísticas de foco, como tempo economizado e Shorts evitados.',
-    'menu.option.hideFeedImage.desc': 'Oculta a imagem placeholder da home quando o feed está bloqueado.',
+    'menu.option.hideFeedQuote.desc': 'Oculta a citação motivacional quando o feed inicial está bloqueado.',
     'menu.option.appearance.desc': 'Escolha o tema Automático, Claro ou Escuro para o popup.',
     'menu.option.language.desc': 'Defina o idioma do popup ou use Automático para seguir o navegador.',
     'appearance.option.auto': 'Automático',
@@ -319,10 +330,16 @@ const I18N_STRINGS = {
     'appearance.option.dark': 'Escuro',
     'language.option.auto': 'Automático',
     'group.homepage': 'Página inicial',
+    'group.subscriptionsPage': 'Página de inscrições',
     'setting.hideFeed': 'Ocultar feed inicial',
     'setting.redirectToSubs': 'Redirecionar para Inscrições',
+    'setting.hideMostRelevant': "Ocultar 'Mais relevantes'",
     'setting.hideShortsHomepage': 'Ocultar Shorts do YouTube',
+    'setting.cleanHomepageFeed': 'Limpar feed inicial',
     'setting.hideCommunityPosts': 'Ocultar postagens da comunidade',
+    'setting.cleanSidebar': 'Limpar barra lateral',
+    'setting.hideFeaturedContent': 'Ocultar conteúdo em destaque',
+    'setting.hideMembersOnly': 'Ocultar conteúdo exclusivo para membros',
     'group.shorts': 'YouTube Shorts',
     'setting.hideShortsGlobal': 'Ocultar Shorts (todas as páginas)',
     'setting.redirectShorts': 'Redirecionar Shorts',
@@ -374,11 +391,11 @@ const I18N_STRINGS = {
     'stats.daysFocused': 'Jours concentré',
     'stats.hoursSuffix': 'h',
     'menu.option.showStats': 'Afficher les statistiques',
-    'menu.option.hideFeedImage': "Masquer l'image du fil",
+    'menu.option.hideFeedQuote': 'Masquer les citations motivantes',
     'menu.option.appearance': "Apparence de l’extension",
     'menu.option.language': "Langue de l’extension",
     'menu.option.showStats.desc': 'Affiche vos stats de concentration comme le temps gagné et les Shorts évités.',
-    'menu.option.hideFeedImage.desc': 'Masque l’image de remplacement quand le fil d’accueil est bloqué.',
+    'menu.option.hideFeedQuote.desc': 'Masque la citation motivante lorsque le fil d’accueil est bloqué.',
     'menu.option.appearance.desc': 'Choisissez le thème Auto, Clair ou Sombre pour le popup.',
     'menu.option.language.desc': 'Définissez la langue du popup ou gardez Auto selon le navigateur.',
     'appearance.option.auto': 'Automatique',
@@ -386,11 +403,14 @@ const I18N_STRINGS = {
     'appearance.option.dark': 'Sombre',
     'language.option.auto': 'Automatique',
     'group.homepage': 'Page d’accueil',
+    'group.subscriptionsPage': 'Page des abonnements',
     'setting.hideFeed': 'Masquer le flux d’accueil',
     'setting.redirectToSubs': 'Rediriger vers Abonnements',
+    'setting.hideMostRelevant': "Masquer 'Les plus pertinents'",
     'setting.hideShortsHomepage': 'Masquer les YouTube Shorts',
     'setting.cleanHomepageFeed': 'Nettoyer le fil d\'accueil',
     'setting.hideCommunityPosts': 'Masquer les publications de la communauté',
+    'setting.cleanSidebar': 'Nettoyer la barre latérale',
     'setting.hideFeaturedContent': 'Masquer le contenu en vedette',
     'setting.hideMembersOnly': 'Masquer le contenu réservé aux membres',
     'group.shorts': 'YouTube Shorts',
@@ -444,11 +464,11 @@ const I18N_STRINGS = {
     'stats.daysFocused': 'Tage fokussiert',
     'stats.hoursSuffix': 'Std',
     'menu.option.showStats': 'Statistiken anzeigen',
-    'menu.option.hideFeedImage': 'Bild im Feed ausblenden',
+    'menu.option.hideFeedQuote': 'Motivationszitate ausblenden',
     'menu.option.appearance': 'Aussehen der Erweiterung',
     'menu.option.language': 'Sprache der Erweiterung',
     'menu.option.showStats.desc': 'Zeigt Fokus-Statistiken wie gesparte Zeit und vermiedene Shorts.',
-    'menu.option.hideFeedImage.desc': 'Blendet das Platzhalterbild aus, wenn der Startseiten-Feed blockiert ist.',
+    'menu.option.hideFeedQuote.desc': 'Blendet das Motivationszitat aus, wenn der Startseiten-Feed blockiert ist.',
     'menu.option.appearance.desc': 'Wähle Auto-, Hell- oder Dunkel-Design für das Popup.',
     'menu.option.language.desc': 'Lege die Popup-Sprache fest oder nutze Auto für die Browser-Sprache.',
     'appearance.option.auto': 'Automatisch',
@@ -456,11 +476,14 @@ const I18N_STRINGS = {
     'appearance.option.dark': 'Dunkel',
     'language.option.auto': 'Automatisch',
     'group.homepage': 'Startseite',
+    'group.subscriptionsPage': 'Abonnementseite',
     'setting.hideFeed': 'Startseiten-Feed ausblenden',
     'setting.redirectToSubs': 'Zu Abos umleiten',
+    'setting.hideMostRelevant': "'Relevanteste' ausblenden",
     'setting.hideShortsHomepage': 'YouTube Shorts ausblenden',
     'setting.cleanHomepageFeed': 'Startseiten-Feed bereinigen',
     'setting.hideCommunityPosts': 'Community-Beiträge ausblenden',
+    'setting.cleanSidebar': 'Seitenleiste bereinigen',
     'setting.hideFeaturedContent': 'Hervorgehobene Inhalte ausblenden',
     'setting.hideMembersOnly': 'Mitgliederinhalte ausblenden',
     'group.shorts': 'YouTube Shorts',
@@ -607,14 +630,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   displayVersion();
   loadStats();
   updateHeaderVisibility();
+  setupAnnouncement();
 });
 
 // ===== VERSION DISPLAY =====
 function displayVersion() {
   const versionElement = document.querySelector('.version');
   if (versionElement) {
-    versionElement.textContent = `v.1.1.0`;
-    versionElement.setAttribute('aria-label', `Version 1.1.0`);
+    versionElement.textContent = `v.1.1.1`;
+    versionElement.setAttribute('aria-label', `Version 1.1.1`);
   }
 }
 
@@ -877,12 +901,12 @@ function applyAppearanceSetting(value, options = {}) {
   if (isLightMode) {
     popupContainer.classList.add('light-mode');
     if (headerLogo) {
-      headerLogo.src = isDisabled ? '../icons/LightOff.png' : '../icons/iconFullLight.png';
+      headerLogo.src = isDisabled ? '../assets/icons/LightOff.png' : '../assets/icons/iconFullLight.png';
     }
   } else {
     popupContainer.classList.remove('light-mode');
     if (headerLogo) {
-      headerLogo.src = isDisabled ? '../icons/LockedOut.png' : '../icons/iconFull.png';
+      headerLogo.src = isDisabled ? '../assets/icons/LockedOut.png' : '../assets/icons/iconFull.png';
     }
   }
   updateMenuDropdownDisplay('appearance', normalized);
@@ -961,12 +985,12 @@ function updatePowerState(isEnabled) {
     popupContainer.classList.remove('disabled');
     if (breakTimerText) breakTimerText.style.display = 'none';
     if (headerLogo) {
-      headerLogo.src = isLightMode ? '../icons/iconFullLight.png' : '../icons/iconFull.png';
+      headerLogo.src = isLightMode ? '../assets/icons/iconFullLight.png' : '../assets/icons/iconFull.png';
     }
   } else {
     popupContainer.classList.add('disabled');
     if (headerLogo) {
-      headerLogo.src = isLightMode ? '../icons/LightOff.png' : '../icons/LockedOut.png';
+      headerLogo.src = isLightMode ? '../assets/icons/LightOff.png' : '../assets/icons/LockedOut.png';
     }
   }
 }
@@ -1206,6 +1230,12 @@ function loadSettings() {
   return new Promise((resolve) => {
     const toggles = document.querySelectorAll('input[type="checkbox"]');
     browser.storage.sync.get(null, (settings) => {
+      if (settings.hideFeedImage !== undefined && settings.hideFeedQuote === undefined) {
+        settings.hideFeedQuote = settings.hideFeedImage;
+        browser.storage.sync.set({ hideFeedQuote: settings.hideFeedImage }, () => {
+          browser.storage.sync.remove('hideFeedImage');
+        });
+      }
       const currentSettings = { ...DEFAULT_SETTINGS, ...settings };
       toggles.forEach((toggle) => {
         const settingId = toggle.dataset.setting;
@@ -1225,6 +1255,9 @@ function loadSettings() {
       const sidebarSubToggles = document.getElementById('sidebarSubToggles');
       if (!currentSettings.hideSidebar) sidebarSubToggles?.classList.add('visible');
       else sidebarSubToggles?.classList.remove('visible');
+      const cleanSidebarSubToggles = document.getElementById('cleanSidebarSubToggles');
+      if (!currentSettings.cleanSidebar) cleanSidebarSubToggles?.classList.add('visible');
+      else cleanSidebarSubToggles?.classList.remove('visible');
       resolve();
     });
   });
@@ -1279,6 +1312,17 @@ function setupToggleListeners() {
           });
         }
       }
+      if (settingId === 'cleanSidebar') {
+        const sub = document.getElementById('cleanSidebarSubToggles');
+        if (!isChecked) sub?.classList.add('visible');
+        else {
+          sub?.classList.remove('visible');
+          ['hideExplore', 'hideMoreFromYT', 'hideSubscriptions'].forEach(s => {
+            const t = document.querySelector(`input[data-setting="${s}"]`);
+            if (t && t.checked) { t.checked = false; browser.storage.sync.set({ [s]: false }); }
+          });
+        }
+      }
       
       // Auto-enable Clean Homepage Feed when all sub-toggles are enabled
       if (['hideCommunityPosts', 'hideFeaturedContent', 'hideMembersOnly'].includes(settingId)) {
@@ -1306,6 +1350,38 @@ function setupToggleListeners() {
             // Notify content script
             browser.tabs.query({ active: true, currentWindow: true }, (tabs) => {
               if (tabs[0]) browser.tabs.sendMessage(tabs[0].id, { action: 'settingChanged', setting: 'cleanHomepageFeed', value: true }).catch(() => {});
+            });
+          });
+          return; // Skip the normal storage save below
+        }
+      }
+      
+      // Auto-enable Clean Sidebar when all sub-toggles are enabled
+      if (['hideExplore', 'hideMoreFromYT', 'hideSubscriptions'].includes(settingId)) {
+        const exploreToggle = document.querySelector('input[data-setting="hideExplore"]');
+        const moreFromYTToggle = document.querySelector('input[data-setting="hideMoreFromYT"]');
+        const subscriptionsToggle = document.querySelector('input[data-setting="hideSubscriptions"]');
+        const cleanSidebarToggle = document.querySelector('input[data-setting="cleanSidebar"]');
+        
+        if (exploreToggle?.checked && moreFromYTToggle?.checked && subscriptionsToggle?.checked) {
+          // All sub-toggles are on, enable parent and collapse sub-toggles
+          cleanSidebarToggle.checked = true;
+          browser.storage.sync.set({ 
+            cleanSidebar: true,
+            hideExplore: false,
+            hideMoreFromYT: false,
+            hideSubscriptions: false
+          }, () => {
+            // Uncheck all sub-toggles
+            exploreToggle.checked = false;
+            moreFromYTToggle.checked = false;
+            subscriptionsToggle.checked = false;
+            // Collapse sub-toggles
+            const sub = document.getElementById('cleanSidebarSubToggles');
+            sub?.classList.remove('visible');
+            // Notify content script
+            browser.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+              if (tabs[0]) browser.tabs.sendMessage(tabs[0].id, { action: 'settingChanged', setting: 'cleanSidebar', value: true }).catch(() => {});
             });
           });
           return; // Skip the normal storage save below
@@ -1396,5 +1472,65 @@ function setupBreakTimer() {
       const dur = b.dataset.time ? parseFloat(b.dataset.time) : (b.dataset.seconds ? parseFloat(b.dataset.seconds) / 60 : 5);
       browser.storage.sync.set({ breakDuration: dur });
     });
+  });
+}
+
+// ===== ANNOUNCEMENT SETUP (Chrome Store Promotion for Firefox Users) =====
+function setupAnnouncement() {
+  // Detect if user is on Firefox
+  const isFirefox = typeof InstallTrigger !== 'undefined' || navigator.userAgent.toLowerCase().includes('firefox');
+  
+  if (!isFirefox) {
+    // Not Firefox, don't show announcement
+    return;
+  }
+  
+  // Check if user has dismissed the announcement
+  browser.storage.sync.get('chromeAnnouncementDismissed', (result) => {
+    if (result.chromeAnnouncementDismissed) {
+      // Already dismissed, don't show
+      return;
+    }
+    
+    // Show announcement section and badge
+    const announcementSection = document.getElementById('announcementSection');
+    const notificationBadge = document.getElementById('notificationBadge');
+    
+    if (announcementSection) {
+      announcementSection.style.display = 'block';
+    }
+    
+    if (notificationBadge) {
+      notificationBadge.classList.add('visible');
+    }
+    
+    // Setup dismiss button
+    const dismissButton = document.getElementById('dismissAnnouncement');
+    if (dismissButton) {
+      dismissButton.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        // Hide announcement and badge
+        if (announcementSection) {
+          announcementSection.style.display = 'none';
+        }
+        if (notificationBadge) {
+          notificationBadge.classList.remove('visible');
+        }
+        
+        // Save dismissed state
+        browser.storage.sync.set({ chromeAnnouncementDismissed: true });
+      });
+    }
+    
+    // Track when user clicks the Chrome Store link
+    const chromeStoreLink = document.getElementById('chromeStoreLink');
+    if (chromeStoreLink) {
+      chromeStoreLink.addEventListener('click', () => {
+        // Optionally auto-dismiss after clicking link
+        browser.storage.sync.set({ chromeAnnouncementDismissed: true });
+      });
+    }
   });
 }

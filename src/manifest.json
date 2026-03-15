@@ -1,10 +1,10 @@
 {
   "manifest_version": 3,
   "name": "LockedIn",
-  "version": "1.1.0",
-  "description": "Stay focused on YouTube by removing distracting elements. Block recommended videos, Shorts, autoplay, and more.",
+  "version": "1.1.1",
+  "description": "Stop doomscrolling. Hide YouTube Shorts, feeds, and comments. Block the algorithm and stay LockedIn on what matters.",
   "icons": {
-    "48": "icons/icon48.png"
+    "48": "assets/icons/icon48.png"
   },
   "permissions": [
     "storage",
@@ -25,17 +25,29 @@
         "*://m.youtube.com/*",
         "*://youtube.com/*"
       ],
-      "js": ["content.js"],
+      "js": [
+        "content/shared/selectors.js",
+        "content/shared/settings.js",
+        "content/shared/dom.js",
+        "content/homepage.js",
+        "content/watch.js",
+        "content/search.js",
+        "content/shorts.js",
+        "content/subscriptions.js",
+        "content/sidebar.js",
+        "content/autoplay.js",
+        "content/index.js"
+      ],
       "run_at": "document_idle"
     }
   ],
   "action": {
     "default_popup": "popup/popup.html",
-    "default_icon": "icons/icon48.png"
+    "default_icon": "assets/icons/icon48.png"
   },
   "web_accessible_resources": [
     {
-      "resources": ["homepage/*.png", "homepage/*.jpg", "homepage/*.gif"],
+      "resources": ["assets/library/*.json"],
       "matches": [
         "*://www.youtube.com/*",
         "*://m.youtube.com/*",
