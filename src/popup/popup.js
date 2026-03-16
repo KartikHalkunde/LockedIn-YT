@@ -1476,12 +1476,29 @@ function setupBreakTimer() {
 }
 
 // ===== ANNOUNCEMENT SETUP (Chrome Store Promotion for Firefox Users) =====
+const ANNOUNCEMENT_CONFIG = {
+  // Temporary OFF switch. Set to true when Chrome Web Store listing is live.
+  enabled: false
+};
+
 function setupAnnouncement() {
+  const announcementSection = document.getElementById('announcementSection');
+  const notificationBadge = document.getElementById('notificationBadge');
+
+  // Temporarily hide announcement for all browsers without deleting code.
+  if (!ANNOUNCEMENT_CONFIG.enabled) {
+    if (announcementSection) announcementSection.style.display = 'none';
+    if (notificationBadge) notificationBadge.classList.remove('visible');
+    return;
+  }
+
   // Detect if user is on Firefox
   const isFirefox = typeof InstallTrigger !== 'undefined' || navigator.userAgent.toLowerCase().includes('firefox');
   
   if (!isFirefox) {
     // Not Firefox, don't show announcement
+    if (announcementSection) announcementSection.style.display = 'none';
+    if (notificationBadge) notificationBadge.classList.remove('visible');
     return;
   }
   
@@ -1493,9 +1510,6 @@ function setupAnnouncement() {
     }
     
     // Show announcement section and badge
-    const announcementSection = document.getElementById('announcementSection');
-    const notificationBadge = document.getElementById('notificationBadge');
-    
     if (announcementSection) {
       announcementSection.style.display = 'block';
     }
