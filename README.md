@@ -25,7 +25,7 @@ LockedIn is an open-source browser extension that helps you focus on YouTube by 
 
 [![Latest release](https://img.shields.io/github/v/release/KartikHalkunde/LockedIn-YT?style=for-the-badge)](https://github.com/KartikHalkunde/LockedIn-YT/releases)
 [![GitHub license](https://img.shields.io/github/license/KartikHalkunde/LockedIn-YT?style=for-the-badge)](LICENSE)
-[![Downloads](https://img.shields.io/badge/downloads-100%2B-success?style=for-the-badge)](https://github.com/KartikHalkunde/LockedIn-YT)
+[![Downloads](https://img.shields.io/badge/downloads-200%2B-success?style=for-the-badge)](https://github.com/KartikHalkunde/LockedIn-YT)
 
 </div>
 
