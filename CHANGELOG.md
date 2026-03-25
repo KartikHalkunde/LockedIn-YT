@@ -1,3 +1,7 @@
+## [1.1.2] - 2026-03-24
+### Added
+- Added an announcement section for Firefox users to promote LockedIn on Chrome Web Store
+
 ## [1.1.1] - 2026-03-12
 ### Added
 - Added "Clean Sidebar" toggle group with sub-toggles (Hide Subscriptions, Hide Explore & Trending, Hide More From YouTube)

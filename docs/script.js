@@ -215,7 +215,7 @@ if (downloadBtn) {
         }
         // Chrome and other Chromium-based browsers
         else if (userAgent.indexOf('chrome') > -1 || userAgent.indexOf('chromium') > -1) {
-            alert('Not available on Chrome Web Store yet. Coming soon!');
+            window.open('https://chromewebstore.google.com/detail/lockedin/ddpdgiidmcljefnhnfpgndbdnimbhdgh', '_blank');
         }
         // Safari
         else if (userAgent.indexOf('safari') > -1) {

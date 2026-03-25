@@ -354,7 +354,11 @@ body {
 /* ===== ANNOUNCEMENT SECTION ===== */
 .announcement-section {
   margin-bottom: 16px;
-  background: transparent; 
+  background-color: transparent;
+  background-image: url('../assets/icons/browsers.png');
+  background-repeat: no-repeat;
+  background-position: right bottom;
+  background-size: 170px auto;
   border: 1px solid #333333;
   border-radius: 0;
   padding: 14px 14px 12px 14px;
@@ -393,12 +397,14 @@ body {
   color: #ffffff;
   margin-bottom: 4px;
   letter-spacing: 0.01em;
+  text-align: left;
 }
 
 .announcement-description {
   font-size: 12px;
   color: rgba(255, 255, 255, 0.75);
   line-height: 1.5;
+  margin-left: -52px;
 }
 
 .announcement-close {
@@ -433,20 +439,27 @@ body {
 }
 
 .announcement-button {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  width: 100%;
-  padding: 8px 12px;
-  background: #131314;
-  border: 2px solid hsla(0,0%,100%,0.13);
+  width: auto;
+  margin-left: 0;
+  margin-right: auto;
+  padding: 6px 11px;
+  background: #D91B1A;
+  border: 1px solid #D91B1A;
   border-radius: 0;
-  color: #e3e6eb;
-  font-size: 13px;
+  color: #ffffff;
+  font-size: 12px;
   font-weight: 600;
   text-decoration: none;
   box-shadow: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.announcement-button:hover {
+  background: #bf1716;
+  border-color: #bf1716;
 }
 
 .announcement-button .arrow-icon {
@@ -1805,7 +1818,7 @@ body {
 /* Light mode - Announcement Section */
 .popup-container.light-mode .announcement-section {
   border-color: hsla(210, 35%, 65%, 0.35);
-  background: hsla(210, 45%, 98%, 0.8);
+  background-color: hsla(210, 45%, 98%, 0.8);
 }
 
 .popup-container.light-mode .announcement-title {
@@ -1829,13 +1842,13 @@ body {
 }
 
 .popup-container.light-mode .announcement-button {
-  background: hsl(210, 45%, 98%);
-  border-color: hsla(210, 35%, 65%, 0.4);
-  color: hsl(210, 20%, 30%);
+  background: #D91B1A;
+  border-color: #D91B1A;
+  color: #ffffff;
 }
 
 .popup-container.light-mode .announcement-button:hover {
-  background: hsl(210, 40%, 94%);
+  background: #bf1716;
 }
 
 .popup-container.light-mode .settings-scroll-area::-webkit-scrollbar-thumb {

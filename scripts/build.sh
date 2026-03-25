@@ -26,6 +26,9 @@ required_files=(
   "$SRC_DIR/background.js"
   "$SRC_DIR/content/index.js"
   "$SRC_DIR/popup/popup.html"
+  "$SRC_DIR/popup/popup.css"
+  "$SRC_DIR/popup/popup.js"
+  "$SRC_DIR/assets/icons/icon48.png"
 )
 
 for file in "${required_files[@]}"; do
@@ -45,6 +48,7 @@ echo "Preparing Chromium build in a temporary folder..."
 TEMP_DIR="$ROOT_DIR/temp-chrome-build"
 
 # Create temp folder and copy source code
+rm -rf "$TEMP_DIR"
 mkdir -p "$TEMP_DIR"
 cp -r "$SRC_DIR/"* "$TEMP_DIR/"
 
@@ -86,7 +90,7 @@ echo "Creating source ZIP..."
 (cd "$ROOT_DIR" && zip -q -r "$DIST_DIR/$SOURCE_ZIP" \
   src/ scripts/ project-docs/ \
   README.md CHANGELOG.md CONTRIBUTING.md PRIVACY.md LICENSE .gitignore \
-  -x "*.DS_Store" "*/__MACOSX/*" "*/.git/*" "dist/*" "temp-chrome-build/*" "chromium-build/*")
+  -x "*.DS_Store" "*/__MACOSX/*" "*/.git/*" "dist/*" "temp-chrome-build/*")
 
 echo ""
 echo "========================================="
@@ -94,3 +98,4 @@ echo "✓ Build complete! Repository remains clean."
 echo "========================================="
 echo "📦 Firefox: dist/$FIREFOX_ZIP"
 echo "📦 Chrome/Edge: dist/$CHROMIUM_ZIP"
+echo "📦 Source: dist/$SOURCE_ZIP"

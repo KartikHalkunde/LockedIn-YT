@@ -637,8 +637,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 function displayVersion() {
   const versionElement = document.querySelector('.version');
   if (versionElement) {
-    versionElement.textContent = `v.1.1.1`;
-    versionElement.setAttribute('aria-label', `Version 1.1.1`);
+    versionElement.textContent = `v.1.1.2`;
+    versionElement.setAttribute('aria-label', `Version 1.1.2`);
   }
 }
 
@@ -1477,8 +1477,8 @@ function setupBreakTimer() {
 
 // ===== ANNOUNCEMENT SETUP (Chrome Store Promotion for Firefox Users) =====
 const ANNOUNCEMENT_CONFIG = {
-  // Temporary OFF switch. Set to true when Chrome Web Store listing is live.
-  enabled: false
+  // Enabled globally; runtime browser detection below shows it only on Firefox.
+  enabled: true
 };
 
 function setupAnnouncement() {

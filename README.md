@@ -2,7 +2,7 @@
 <img src="/docs/assets/clearIcon.png" width="160" height="160" style="display: block; margin: 0 auto"/>
 <h1>LockedIn</h1>
 <p>
-  <a> YouTube Productivity Extension for Firefox & Edge</a>
+  <a> YouTube Productivity Browser Extension </a>
 </p>
 
 <div style="padding: 16px; margin: 16px 0; background-color: #FFFBE5; border-left: 6px solid #FFC107; border-radius: 4px; text-align: left;">
@@ -40,10 +40,11 @@ LockedIn is an open-source browser extension that helps you focus on YouTube by 
 <td align="center">
 <a href="https://microsoftedge.microsoft.com/addons/detail/hibjbjgfbmhpiaapeccnfddnpabnlklj"><img src="docs/assets/edge-badge.png" alt="Get it on Edge" height="60"></a>
 </td>
+<td align="center">
+<a href="https://chromewebstore.google.com/detail/lockedin/ddpdgiidmcljefnhnfpgndbdnimbhdgh"><img src="https://voicewave.xyz/_next/static/media/chrome-web-store.1730b349.png" alt="Get it on Chrome" height="60"></a>
+</td>
 </tr>
 </table>
-
-<p><em>Coming Soon on Chrome Web Store!</em></p>
 
 </div>
 

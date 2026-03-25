@@ -65,4 +65,4 @@ LockedIn-YT/
 
 - No minification or obfuscation is used.
 - Build scripts package existing files; there is no bundler/transpiler pipeline.
-- The `chromium-build/` folder (if present) is auto-generated and can be ignored/deleted.
+- A temporary `temp-chrome-build/` folder may be created during Chromium packaging and is removed automatically.

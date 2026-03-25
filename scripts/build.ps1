@@ -63,10 +63,42 @@ Push-Location $Root
 Compress-Archive -Path $sourceItems -DestinationPath $sourceZip -Force
 Pop-Location
 
-Write-Host "Creating Chromium extension ZIP from chromium-build/..." -ForegroundColor White
-Push-Location (Join-Path $Root "chromium-build")
+Write-Host "Preparing Chromium build in a temporary folder..." -ForegroundColor White
+$tempChromeBuild = Join-Path $Root "temp-chrome-build"
+if (Test-Path $tempChromeBuild) {
+    Remove-Item -Recurse -Force $tempChromeBuild
+}
+
+New-Item -ItemType Directory -Path $tempChromeBuild | Out-Null
+Copy-Item -Path (Join-Path $Src "*") -Destination $tempChromeBuild -Recurse -Force
+
+# Convert manifest to Chromium-safe JSON (service_worker + remove Firefox-only keys)
+$tempManifestPath = Join-Path $tempChromeBuild "manifest.json"
+$chromeManifest = Get-Content $tempManifestPath -Raw | ConvertFrom-Json
+
+if ($null -eq $chromeManifest.background) {
+    $chromeManifest | Add-Member -NotePropertyName background -NotePropertyValue ([pscustomobject]@{ service_worker = "background.js" }) -Force
+}
+elseif ($chromeManifest.background.PSObject.Properties.Name -contains "scripts" -and $chromeManifest.background.scripts.Count -gt 0) {
+    $chromeManifest.background = [pscustomobject]@{ service_worker = $chromeManifest.background.scripts[0] }
+}
+elseif (-not ($chromeManifest.background.PSObject.Properties.Name -contains "service_worker")) {
+    $chromeManifest.background = [pscustomobject]@{ service_worker = "background.js" }
+}
+
+if ($chromeManifest.PSObject.Properties.Name -contains "browser_specific_settings") {
+    $chromeManifest.PSObject.Properties.Remove("browser_specific_settings")
+}
+
+$chromeManifest | ConvertTo-Json -Depth 100 | Set-Content -Path $tempManifestPath -Encoding UTF8
+
+Write-Host "Creating Chromium extension ZIP..." -ForegroundColor White
+Push-Location $tempChromeBuild
 Compress-Archive -Path * -DestinationPath $chromiumZip -Force
 Pop-Location
+
+Remove-Item -Recurse -Force $tempChromeBuild
+Write-Host "  ✓ Cleaned up temporary build files." -ForegroundColor Green
 
 Write-Host ""
 Write-Host "=========================================" -ForegroundColor Cyan
