@@ -254,3 +254,56 @@ console.log('%c👋 Hey developer!', 'font-size: 20px; font-weight: bold; color:
 console.log('%cLockedIn is open source! Check out the code at:', 'font-size: 14px; color: #AAAAAA;');
 console.log('%chttps://github.com/KartikHalkunde/LockedIn-YT', 'font-size: 14px; color: #4285F4; text-decoration: underline;');
 console.log('%cContributions are welcome! 🚀', 'font-size: 14px; color: #4CAF50;');
+
+// Wall of Love hearts animation (run once when section enters viewport)
+(() => {
+    const wallOfLoveSection = document.getElementById('wall-of-love');
+    const heartsLayer = document.querySelector('.love-hearts');
+
+    if (!wallOfLoveSection || !heartsLayer) return;
+
+    let hasPlayed = false;
+
+    const createHeart = () => {
+        const heart = document.createElement('span');
+        heart.className = 'love-heart';
+        heart.textContent = '❤';
+
+        const left = Math.random() * 100;
+        const size = 0.85 + Math.random() * 1.25;
+        const drift = Math.round((Math.random() - 0.5) * 90);
+        const travel = wallOfLoveSection.offsetHeight + 160;
+
+        heart.style.left = `${left}%`;
+        heart.style.fontSize = `${size}rem`;
+        heart.style.setProperty('--drift', `${drift}px`);
+        heart.style.setProperty('--travel', `${travel}px`);
+
+        heartsLayer.appendChild(heart);
+        heart.addEventListener('animationend', () => heart.remove(), { once: true });
+    };
+
+    const playHearts = () => {
+        const totalHearts = 22;
+        const burstDuration = 1800;
+
+        for (let i = 0; i < totalHearts; i++) {
+            const delay = Math.random() * burstDuration;
+            setTimeout(createHeart, delay);
+        }
+    };
+
+    const wallObserver = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+            if (hasPlayed || !entry.isIntersecting) return;
+
+            hasPlayed = true;
+            playHearts();
+            wallObserver.disconnect();
+        });
+    }, {
+        threshold: 0.35
+    });
+
+    wallObserver.observe(wallOfLoveSection);
+})();

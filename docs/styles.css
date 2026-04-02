@@ -824,6 +824,206 @@ body {
     opacity: 0.8;
 }
 
+/* ==================== Wall of Love ==================== */
+.love-rating-band {
+    margin: -34px 0 -18px;
+    position: relative;
+    z-index: 5;
+}
+
+.love-rating-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+}
+
+.love-rating-pill {
+    height: 42px;
+    padding: 0 0.9rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: linear-gradient(180deg, #1E1E1E 0%, #141414 100%);
+    color: #FFD86B;
+    letter-spacing: 0.26rem;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 22px rgba(0, 0, 0, 0.35);
+}
+
+.love-rating-text {
+    color: #F2F2F2;
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.wall-of-love {
+    position: relative;
+    padding: 80px 0;
+    background: radial-gradient(circle at top, #1E1E1E 0%, #121212 55%, #101010 100%);
+    border-bottom: 1px solid var(--border-color);
+    overflow: hidden;
+}
+
+.wall-of-love .container {
+    position: relative;
+    z-index: 1;
+}
+
+.love-hearts {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+.love-header,
+.love-grid,
+.love-card {
+    position: relative;
+    z-index: 3;
+}
+
+.love-heart {
+    position: absolute;
+    bottom: -36px;
+    opacity: 0;
+    color: rgba(255, 130, 164, 0.45);
+    font-size: 1rem;
+    line-height: 1;
+    text-shadow: 0 0 10px rgba(255, 80, 130, 0.25);
+    animation: loveHeartFloat 4.6s ease-out forwards;
+}
+
+@keyframes loveHeartFloat {
+    0% {
+        opacity: 0;
+        transform: translate3d(0, 0, 0) scale(0.75);
+    }
+    15% {
+        opacity: 0.75;
+    }
+    100% {
+        opacity: 0;
+        transform: translate3d(var(--drift, 0px), calc(-1 * var(--travel, 700px)), 0) scale(1.2);
+    }
+}
+
+.wall-of-love::before {
+    content: "";
+    position: absolute;
+    top: -56px;
+    left: 0;
+    right: 0;
+    height: 56px;
+    background: linear-gradient(180deg, rgba(15, 15, 15, 0) 0%, rgba(18, 18, 18, 0.95) 75%, rgba(18, 18, 18, 1) 100%);
+    pointer-events: none;
+}
+
+.love-header {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.love-header h2 {
+    font-size: 2.2rem;
+    margin-bottom: 0.75rem;
+    color: var(--text-primary);
+}
+
+.love-header p {
+    color: var(--text-secondary);
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.love-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.1rem;
+}
+
+.love-card {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.015) 100%);
+    border: 1px solid var(--border-color);
+    border-radius: 18px;
+    padding: 1.35rem;
+    transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.love-top {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.love-author {
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    min-width: 0;
+}
+
+.love-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    flex-shrink: 0;
+}
+
+.love-avatar img {
+    width: 18px;
+    height: 18px;
+    display: block;
+}
+
+.love-avatar.firefox {
+    background: rgba(255, 113, 57, 0.14);
+}
+
+.love-avatar.bmc {
+    background: rgba(255, 221, 0, 0.15);
+}
+
+.love-avatar.github {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.love-author-text {
+    min-width: 0;
+}
+
+.love-name {
+    color: var(--text-primary);
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.love-role {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    line-height: 1.2;
+}
+
+.love-quote {
+    color: var(--text-primary);
+    font-size: 0.98rem;
+    line-height: 1.72;
+    margin-bottom: 0;
+}
+
+.love-card-wide {
+    grid-column: span 3;
+}
+
 /* ==================== Footer ==================== */
 .footer {
     background-color: rgba(15, 15, 15, 0.95);
@@ -1825,5 +2025,90 @@ body {
     
     .steps {
         grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 968px) {
+    .love-rating-band {
+        margin: -28px 0 -14px;
+    }
+
+    .love-rating-pill {
+        height: 40px;
+        padding: 0 0.8rem;
+    }
+
+    .wall-of-love {
+        padding: 60px 0;
+    }
+
+    .wall-of-love::before {
+        top: -44px;
+        height: 44px;
+    }
+
+    .love-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .love-card-wide {
+        grid-column: span 2;
+    }
+}
+
+@media (max-width: 640px) {
+    .love-rating-band {
+        margin: -20px 0 -8px;
+    }
+
+    .love-rating-wrap {
+        gap: 0.5rem;
+    }
+
+    .love-rating-pill {
+        height: 36px;
+        padding: 0 0.7rem;
+        font-size: 0.88rem;
+        letter-spacing: 0.18rem;
+    }
+
+    .love-rating-text {
+        font-size: 0.92rem;
+    }
+
+    .wall-of-love {
+        padding: 50px 0;
+    }
+
+    .wall-of-love::before {
+        top: -32px;
+        height: 32px;
+    }
+
+    .love-header h2 {
+        font-size: 1.8rem;
+    }
+
+    .love-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .love-card {
+        padding: 1.1rem;
+        border-radius: 14px;
+    }
+
+    .love-avatar {
+        width: 38px;
+        height: 38px;
+    }
+
+    .love-avatar img {
+        width: 16px;
+        height: 16px;
+    }
+
+    .love-card-wide {
+        grid-column: span 1;
     }
 }
