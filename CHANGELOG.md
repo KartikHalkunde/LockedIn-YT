@@ -1,3 +1,10 @@
+## [1.1.3] - 2026-04-04
+### Added
+- Added a new thumbnail control dropdown with disable, blur, hidden, reveal-on-hover, and solid-color modes
+
+### Changed
+- Improved the redirect-to-subscriptions logic for a faster and more robust homepage redirect flow
+
 ## [1.1.2] - 2026-03-24
 ### Added
 - Added an announcement section for Firefox users to promote LockedIn on Chrome Web Store
