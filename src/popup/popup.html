@@ -229,6 +229,13 @@
                   <span class="toggle-slider"></span>
                 </label>
               </div>
+              <div class="sub-toggle-row" id="hidePlayablesRow">
+                <span class="setting-label" data-i18n-key="setting.hidePlayables">Hide YouTube Playables</span>
+                <label class="toggle-switch">
+                  <input type="checkbox" data-setting="hidePlayables">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
             </div>
           </div>
         </div>
@@ -262,6 +269,30 @@
                 <input type="checkbox" data-setting="redirectShorts">
                 <span class="toggle-slider"></span>
               </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-group">
+          <h2 class="group-title" data-i18n-key="group.thumbnails">Thumbnails</h2>
+          <div class="settings-list">
+            <div class="setting-row">
+              <span class="setting-label" data-i18n-key="setting.hideVideoThumbnails">Hide Thumbnails</span>
+              <div class="thumbnail-dropdown-container">
+                <button id="thumbnailModeButton" class="thumbnail-mode-button">
+                  <span id="thumbnailModeDisplay">Disable</span>
+                  <svg class="thumbnail-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                </button>
+                <div class="thumbnail-dropdown" id="thumbnailDropdown">
+                  <button class="thumbnail-dropdown-option" data-mode="off" data-i18n-key="thumbnail.disable">Disable</button>
+                  <button class="thumbnail-dropdown-option" data-mode="hidden" data-i18n-key="thumbnail.hidden">Hidden</button>
+                  <button class="thumbnail-dropdown-option" data-mode="reveal-on-hover" data-i18n-key="thumbnail.revealOnHover">Reveal on Hover</button>
+                  <button class="thumbnail-dropdown-option" data-mode="solid-color" data-i18n-key="thumbnail.solidColor">Solid Color</button>
+                  <button class="thumbnail-dropdown-option" data-mode="blurred" data-i18n-key="thumbnail.blur">Blur</button>
+                </div>
+              </div>
             </div>
           </div>
         </div>

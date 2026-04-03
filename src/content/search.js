@@ -12,43 +12,22 @@ function hideSearchRecommended(shouldHide) {
 
 	if (!window.location.pathname.includes('/results')) return;
 
-	const recommendedKeywords = [
-		'explore more',
-		'channels new to you',
-		'people also watched',
-		'people also search for',
-		'searches related to',
-		'previously watched',
-		'related to your search',
-		'from related searches',
-		'for you',
-		'related searches'
-	];
-
 	document.querySelectorAll('ytd-shelf-renderer').forEach(shelf => {
-		const title = shelf.querySelector('#title');
-		if (title) {
-			const titleText = title.textContent.toLowerCase().trim();
-			if (recommendedKeywords.some(keyword => titleText.includes(keyword))) {
-				if (!shelf.hasAttribute('data-lockedin-hidden')) {
-					shelf.setAttribute('hidden', '');
-					shelf.setAttribute('data-lockedin-hidden', 'search-recommended');
-				}
+		const hasRefinementCards = shelf.querySelector('ytd-search-refinement-card-renderer, ytm-search-refinement-card-renderer');
+		const hasHorizontalCards = shelf.querySelector('ytd-horizontal-card-list-renderer, ytm-horizontal-card-list-renderer');
+		if (hasRefinementCards || hasHorizontalCards) {
+			if (!shelf.hasAttribute('data-lockedin-hidden')) {
+				shelf.setAttribute('hidden', '');
+				shelf.setAttribute('data-lockedin-hidden', 'search-recommended');
 			}
 		}
 	});
 
 	document.querySelectorAll('ytd-horizontal-card-list-renderer, ytd-item-section-renderer').forEach(section => {
-		const sectionText = (section.textContent || '').toLowerCase().trim();
-		const heading = section.querySelector('yt-formatted-string, #title, #header, #title-text');
-		const headingText = (heading?.textContent || '').toLowerCase().trim();
-
 		const hasRefinementCards = section.querySelector('ytd-search-refinement-card-renderer, ytm-search-refinement-card-renderer');
-		const matchesKeyword = recommendedKeywords.some(keyword =>
-			headingText.includes(keyword) || sectionText.includes(keyword)
-		);
+		const hasHorizontalCards = section.querySelector('ytd-horizontal-card-list-renderer, ytm-horizontal-card-list-renderer');
 
-		if (hasRefinementCards || matchesKeyword) {
+		if (hasRefinementCards || hasHorizontalCards) {
 			if (!section.hasAttribute('data-lockedin-hidden')) {
 				section.setAttribute('hidden', '');
 				section.setAttribute('data-lockedin-hidden', 'search-recommended');

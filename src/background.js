@@ -1,3 +1,42 @@
+// ===== REDIRECT RULE MANAGEMENT =====
+const REDIRECT_RULE_ID = 1;
+
+async function updateRedirectRule() {
+  const dnr = browser.declarativeNetRequest || chrome.declarativeNetRequest;
+  if (!dnr) return; // Fallback if API is unavailable
+
+  const state = await browser.storage.sync.get(['redirectToSubs', 'extensionEnabled']);
+  const shouldRedirect = state.redirectToSubs === true && state.extensionEnabled !== false;
+
+  if (shouldRedirect) {
+    await dnr.updateDynamicRules({
+      removeRuleIds: [REDIRECT_RULE_ID], // Clear existing rule first
+      addRules: [{
+        id: REDIRECT_RULE_ID,
+        priority: 1,
+        action: {
+          type: 'redirect',
+          redirect: { url: 'https://www.youtube.com/feed/subscriptions' }
+        },
+        condition: {
+          // This Regex EXACTLY matches the homepage (with or without query parameters)
+          // It will NOT match /watch, /results, or /feed/...
+          regexFilter: "^https?://(www\\.)?youtube\\.com/?(\\?.*)?$",
+          resourceTypes: ['main_frame'] // Only trigger on full page loads
+        }
+      }]
+    });
+  } else {
+    // Remove the rule if the setting or extension is turned off
+    await dnr.updateDynamicRules({
+      removeRuleIds: [REDIRECT_RULE_ID]
+    });
+  }
+}
+
+// Call on startup and install
+browser.runtime.onStartup.addListener(updateRedirectRule);
+browser.runtime.onInstalled.addListener(updateRedirectRule);
 // ===== CROSS-BROWSER COMPATIBILITY =====
 if (typeof browser === 'undefined') {
   var browser = chrome;
@@ -149,6 +188,13 @@ browser.storage.onChanged.addListener((changes, area) => {
     Object.prototype.hasOwnProperty.call(changes, 'takeBreak')
   ) {
     scheduleBreakAlarm();
+  }
+  // Handle Redirect Rule Updates (NEW CODE)
+  if (
+    Object.prototype.hasOwnProperty.call(changes, 'redirectToSubs') ||
+    Object.prototype.hasOwnProperty.call(changes, 'extensionEnabled')
+  ) {
+    updateRedirectRule();
   }
 });
 

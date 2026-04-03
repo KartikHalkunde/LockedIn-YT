@@ -1,3 +1,15 @@
+// Listen for setting changes from popup
+if (typeof browser !== 'undefined' && browser.runtime && browser.runtime.onMessage) {
+	browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+		if (message && message.action === 'settingChanged') {
+			if (message.setting === 'hidePlayables') {
+				hidePlayables(message.value);
+			} else if (message.setting === 'cleanHomepageFeed') {
+				cleanHomepageFeed(message.value);
+			}
+		}
+	});
+}
 // ===== HOMEPAGE MODULE =====
 
 function dataUrlToBlob(dataUrl) {
@@ -107,6 +119,42 @@ function isYouTubeDarkMode() {
 }
 
 let homepageInterceptorSetup = false;
+
+// --- Playables Section Observer ---
+let playablesObserver = null;
+let playablesShouldHide = false;
+
+function handlePlayablesSections() {
+	document.querySelectorAll('ytd-rich-section-renderer').forEach(section => {
+		const headerLink = section.querySelector('#rich-shelf-header a[href="/playables"], #title-container a[href="/playables"]');
+		if (headerLink) {
+			if (playablesShouldHide) {
+				section.setAttribute('hidden', '');
+				section.style.display = 'none';
+				section.setAttribute('data-lockedin-hidden', 'playables-section');
+			} else {
+				section.removeAttribute('hidden');
+				section.style.display = '';
+				section.removeAttribute('data-lockedin-hidden');
+			}
+		}
+	});
+}
+
+function setupPlayablesObserver() {
+	if (playablesObserver) return;
+	playablesObserver = new MutationObserver(() => {
+		handlePlayablesSections();
+	});
+	playablesObserver.observe(document.body, { childList: true, subtree: true });
+}
+
+function teardownPlayablesObserver() {
+	if (playablesObserver) {
+		playablesObserver.disconnect();
+		playablesObserver = null;
+	}
+}
 
 function redirectToSubscriptions(shouldRedirect) {
 	const styleId = 'lockedin-hide-homepage-nav';
@@ -344,10 +392,15 @@ function hideFeaturedContent(shouldHide) {
 	}
 
 	document.querySelectorAll('ytd-rich-section-renderer').forEach(section => {
-		const hasFeaturedBadge = section.querySelector('ytd-badge-supported-renderer[aria-label*="featured"], ytd-badge-supported-renderer[aria-label*="Featured"]');
-		const hasYouTubeFeatured = section.innerText?.includes('YouTube featured');
+		const hasVisibleFeaturedBadge = section.querySelector('#featured-badge:not([hidden]), #paygated-featured-badge:not([hidden])');
+		const hasPromoRenderer = section.querySelector(
+			'ytd-display-ad-renderer, ytd-promoted-sparkles-web-renderer, ytd-primetime-promo-renderer, ytd-statement-banner-renderer, ytd-brand-video-singleton-renderer'
+		);
+		const hasPremiumOrPromoLink = section.querySelector(
+			'a[href*="/premium"], a[href*="youtube.com/premium"], a[href*="/music/premium"], a[href*="googleads"], a[href*="doubleclick"]'
+		);
 
-		if ((hasFeaturedBadge || hasYouTubeFeatured) && !section.hasAttribute('data-lockedin-hidden')) {
+		if ((hasVisibleFeaturedBadge || hasPromoRenderer || hasPremiumOrPromoLink) && !section.hasAttribute('data-lockedin-hidden')) {
 			section.setAttribute('hidden', '');
 			section.style.display = 'none';
 			section.setAttribute('data-lockedin-hidden', 'featured-content');
@@ -362,14 +415,11 @@ function hideFeaturedContent(shouldHide) {
 		}
 	});
 
-	document.querySelectorAll('[class*="premium"], [class*="promo"]').forEach(promo => {
+	document.querySelectorAll('[class*="premium"], [class*="promo"], [href*="/premium"], [href*="googleads"], [href*="doubleclick"]').forEach(promo => {
 		if (promo.tagName.toLowerCase().startsWith('ytd-') && !promo.hasAttribute('data-lockedin-hidden')) {
-			const text = promo.innerText?.toLowerCase() || '';
-			if (text.includes('premium') || text.includes('try premium lite')) {
-				promo.setAttribute('hidden', '');
-				promo.style.display = 'none';
-				promo.setAttribute('data-lockedin-hidden', 'featured-content');
-			}
+			promo.setAttribute('hidden', '');
+			promo.style.display = 'none';
+			promo.setAttribute('data-lockedin-hidden', 'featured-content');
 		}
 	});
 }
@@ -400,22 +450,14 @@ function hideMembersOnly(shouldHide) {
 			if (video.hasAttribute('data-lockedin-hidden')) return;
 
 			const memberBadge = video.querySelector(
-				'ytd-badge-supported-renderer[aria-label*="members only" i], ' +
+				'badge-shape.yt-badge-shape--membership, ' +
+				'.yt-badge-shape--membership, ' +
 				'.badge-style-type-members-only, ' +
-				'[class*="members-only" i], ' +
-				'[aria-label*="members only" i], ' +
-				'[title*="members only" i]'
+				'[class*="members-only" i]'
 			);
 
-			const membersOnlyHref = video.querySelector('a[href*="members-only" i], a[href*="membership" i], a[href*="member" i]');
-			const text = (video.textContent || '').toLowerCase();
-			const hasMembersOnlyText =
-				text.includes('members only') ||
-				text.includes('member only') ||
-				text.includes('exclusive for members') ||
-				text.includes('only for members');
-
-			const isMembersOnly = !!memberBadge || (!!membersOnlyHref && hasMembersOnlyText) || hasMembersOnlyText;
+			const membersOnlyHref = video.querySelector('a[href*="members-only" i], a[href*="membership" i]');
+			const isMembersOnly = !!memberBadge || !!membersOnlyHref;
 
 			if (isMembersOnly) {
 				video.style.display = 'none';
@@ -426,8 +468,125 @@ function hideMembersOnly(shouldHide) {
 	});
 }
 
+function hidePlayables(shouldHide) {
+		const isHomepage = window.location.pathname === '/' || window.location.pathname === '/home';
+		if (!isHomepage) {
+			teardownPlayablesObserver();
+			return;
+		}
+
+		playablesShouldHide = !!shouldHide;
+		setupPlayablesObserver();
+		handlePlayablesSections();
+}
+
+
+function hideVideoThumbnails(mode) {
+	const styleId = 'lockedin-video-thumbnails';
+	let style = document.getElementById(styleId);
+	if (!style) {
+		style = document.createElement('style');
+		style.id = styleId;
+		(document.head || document.documentElement).appendChild(style);
+	}
+
+	if (mode === true) mode = 'reveal-on-hover';
+	if (mode === false || mode == null) mode = 'off';
+
+	const modes = {
+		'off': '',
+		'hidden': `
+			ytd-thumbnail,
+			ytd-playlist-thumbnail,
+			.rich-thumbnail,
+			yt-thumbnail-view-model,
+			ytm-thumbnail,
+			ytm-playlist-thumbnail,
+			.yt-lockup-view-model-wiz__content-image,
+			#video-preview,
+			.ytp-videowall-still-image,
+			.ytp-modern-videowall-still-image,
+			.ytd-display-ad-renderer #media-container,
+			ytm-reel-item-renderer .video-thumbnail-container-vertical,
+			#thumbnail,
+			#thumbnail-container {
+				display: none !important;
+			}
+			ytm-reel-shelf-renderer .reel-shelf-items > * {
+				height: auto !important;
+				align-items: flex-start !important;
+			}
+			.ytp-videowall-still-info-content,
+			.ytp-modern-videowall-still-info-content {
+				opacity: 1 !important;
+			}
+		`,
+		'reveal-on-hover': `
+			ytd-thumbnail,
+			ytd-playlist-thumbnail,
+			.rich-thumbnail,
+			yt-thumbnail-view-model,
+			.yt-lockup-view-model-wiz__content-image {
+				transition: 0.25s ease-in all;
+				overflow: hidden;
+				max-height: inherit;
+				max-width: inherit;
+			}
+			ytd-rich-item-renderer:not(:hover) ytd-thumbnail,
+			ytd-video-renderer:not(:hover) ytd-thumbnail,
+			ytd-compact-video-renderer:not(:hover) ytd-thumbnail {
+				max-height: 0px !important;
+				min-height: 0px !important;
+				max-width: 0px !important;
+				min-width: 0px !important;
+				padding: 0 !important;
+				opacity: 0 !important;
+			}
+			yt-lockup-view-model:not(:hover) .yt-lockup-view-model-wiz__content-image,
+			yt-lockup-view-model:not(:hover) yt-thumbnail-view-model {
+				max-height: 0px !important;
+				min-height: 0px !important;
+				max-width: 0px !important;
+				min-width: 0px !important;
+				padding: 0 !important;
+				opacity: 0 !important;
+			}
+		`,
+		'blurred': `
+			ytd-thumbnail img,
+			ytd-playlist-thumbnail img,
+			yt-thumbnail-view-model img,
+			ytm-thumbnail img,
+			.ytp-videowall-still-image,
+			.ytp-modern-videowall-still-image,
+			#video-preview img {
+				filter: blur(16px) !important;
+			}
+		`,
+		'solid-color': `
+			ytd-thumbnail,
+			ytd-playlist-thumbnail,
+			yt-thumbnail-view-model,
+			ytm-thumbnail {
+				background-color: var(--yt-spec-additive-background, #212121) !important;
+				border-radius: 1rem !important;
+			}
+			ytd-thumbnail img,
+			ytd-playlist-thumbnail img,
+			yt-thumbnail-view-model img,
+			ytm-thumbnail img,
+			.yt-core-image {
+				display: none !important;
+			}
+		`
+	};
+
+	style.textContent = modes[mode] || modes.off;
+}
+
 function cleanHomepageFeed(shouldClean) {
 	hideCommunityPosts(shouldClean);
 	hideFeaturedContent(shouldClean);
 	hideMembersOnly(shouldClean);
+	hidePlayables(shouldClean);
 }

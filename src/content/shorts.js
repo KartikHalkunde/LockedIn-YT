@@ -115,9 +115,8 @@ function hideShortsHomepage(shouldHide) {
 		document.querySelectorAll(selector).forEach(shelf => {
 			const hasReelItems = shelf.querySelector('ytd-reel-item-renderer, ytm-reel-item-renderer') !== null;
 			const hasShortsLinks = shelf.querySelector('[href^="/shorts/"]') !== null;
-			const titleHasShorts = shelf.querySelector('#title, .shelf-title')?.textContent.toLowerCase().includes('shorts');
 
-			if (hasReelItems || hasShortsLinks || titleHasShorts) {
+			if (hasReelItems || hasShortsLinks) {
 				if (!shelf.hasAttribute('data-lockedin-hidden')) {
 					shelf.setAttribute('hidden', '');
 					shelf.setAttribute('data-lockedin-hidden', 'shorts-homepage');
@@ -194,9 +193,8 @@ function hideShortsSearch(shouldHide) {
 		document.querySelectorAll(selector).forEach(shelf => {
 			const hasReelItems = shelf.querySelector('ytd-reel-item-renderer') !== null;
 			const hasShortsLinks = shelf.querySelector('[href^="/shorts/"]') !== null;
-			const titleHasShorts = shelf.querySelector('#title')?.textContent.toLowerCase().includes('shorts');
 
-			if (hasReelItems || hasShortsLinks || titleHasShorts) {
+			if (hasReelItems || hasShortsLinks) {
 				if (!shelf.hasAttribute('data-lockedin-hidden')) {
 					shelf.setAttribute('hidden', '');
 					shelf.setAttribute('data-lockedin-hidden', 'shorts-search');
@@ -233,8 +231,8 @@ function hideShortsSearch(shouldHide) {
 	});
 
 	document.querySelectorAll('yt-chip-cloud-chip-renderer').forEach(chip => {
-		const text = chip.textContent.toLowerCase();
-		if ((text.includes('shorts') || text.includes('short')) && !chip.hasAttribute('data-lockedin-hidden')) {
+		const shortsTarget = chip.querySelector('[href^="/shorts"], [data-pivot-id="shorts"]');
+		if (shortsTarget && !chip.hasAttribute('data-lockedin-hidden')) {
 			chip.setAttribute('hidden', '');
 			chip.setAttribute('data-lockedin-hidden', 'shorts-search');
 		}
@@ -340,9 +338,8 @@ function hideShortsGlobally(shouldHide) {
 		document.querySelectorAll(selector).forEach(shelf => {
 			const hasReelItems = shelf.querySelector('ytd-reel-item-renderer, ytm-shorts-lockup-view-model') !== null;
 			const hasShortsLinks = shelf.querySelector('[href^="/shorts/"]') !== null;
-			const titleHasShorts = shelf.querySelector('#title, .title')?.textContent?.toLowerCase().includes('shorts');
 
-			if (hasReelItems || hasShortsLinks || titleHasShorts) {
+			if (hasReelItems || hasShortsLinks) {
 				if (!shelf.hasAttribute('data-lockedin-hidden')) {
 					shelf.setAttribute('hidden', '');
 					shelf.setAttribute('data-lockedin-hidden', 'shorts-global');
@@ -385,9 +382,8 @@ function hideShortsGlobally(shouldHide) {
 	});
 
 	document.querySelectorAll('yt-chip-cloud-chip-renderer').forEach(chip => {
-		const text = chip.textContent?.toLowerCase() || '';
-		const title = chip.querySelector('[title]')?.getAttribute('title')?.toLowerCase() || '';
-		if ((text.includes('shorts') || text.includes('short') || title.includes('shorts')) && !chip.hasAttribute('data-lockedin-hidden')) {
+		const shortsTarget = chip.querySelector('[href^="/shorts"], [data-pivot-id="shorts"]');
+		if (shortsTarget && !chip.hasAttribute('data-lockedin-hidden')) {
 			chip.setAttribute('hidden', '');
 			chip.setAttribute('data-lockedin-hidden', 'shorts-global');
 		}

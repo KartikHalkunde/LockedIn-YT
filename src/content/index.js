@@ -636,6 +636,11 @@ function runAll() {
     setupShortsLinkInterception(currentSettings.redirectShorts);
     // Hide end cards when shorts are played in traditional video player
     hideEndCardsForShortsInPlayer(currentSettings.redirectShorts);
+
+    // Thumbnails group - accepts mode: 'off', 'hidden', 'reveal-on-hover', 'blurred', 'solid-color'
+    const thumbnailSetting = currentSettings.hideVideoThumbnails;
+    const thumbnailMode = thumbnailSetting === true ? 'reveal-on-hover' : (thumbnailSetting || 'off');
+    hideVideoThumbnails(thumbnailMode);
     
     // Apply global Shorts hiding (takes precedence over individual)
     if (currentSettings.hideShortsGlobally) {
@@ -717,6 +722,7 @@ function runAll() {
     redirectShorts(currentSettings.redirectShorts);
     setupShortsLinkInterception(currentSettings.redirectShorts);
     hideEndCardsForShortsInPlayer(currentSettings.redirectShorts);
+    hideVideoThumbnails(currentSettings.hideVideoThumbnails);
     hideShortsGlobally(currentSettings.hideShortsGlobally);
     
     redirectToSubscriptions(currentSettings.hideFeed && currentSettings.redirectToSubs);
@@ -783,6 +789,7 @@ function restoreAllElements() {
   hideMembersOnly(false);
   hideShortsGlobally(false);
   setupShortsLinkInterception(false);
+  hideVideoThumbnails('off');
   
   hideSidebar(false);
   hideAll(false);  // Also restore elements that hideAll may have hidden
@@ -1003,5 +1010,15 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     });
   } else if (message.action === 'breakEnded') {
     handleBreakEnded();
+  }
+});
+
+// ===== REAL-TIME SETTING UPDATES =====
+// Listen for setting changes and update video thumbnail mode instantly
+browser.storage.onChanged.addListener((changes, areaName) => {
+  if (areaName !== 'sync' && areaName !== 'local') return;
+  if (changes.hideVideoThumbnails) {
+    const newMode = changes.hideVideoThumbnails.newValue || 'off';
+    hideVideoThumbnails(newMode);
   }
 });

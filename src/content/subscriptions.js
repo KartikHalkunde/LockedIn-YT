@@ -17,13 +17,15 @@ function hideMostRelevantSubscriptions(shouldHide) {
 
 	const sections = document.querySelectorAll('ytd-rich-section-renderer');
 	sections.forEach((section) => {
-		const titleNode = section.querySelector('ytd-rich-shelf-renderer #title');
-		const titleText = (titleNode?.textContent || '').trim().toLowerCase();
-		if (titleText === 'most relevant') {
-			if (!section.hasAttribute('data-lockedin-hidden')) {
-				section.style.display = 'none';
-				section.setAttribute('data-lockedin-hidden', hiddenAttr);
-			}
+		const shelf = section.querySelector('ytd-rich-shelf-renderer[has-expansion-button][restrict-contents-overflow]');
+		const hasShelfHeader = !!section.querySelector('#rich-shelf-header, #rich-shelf-header-container');
+		const hasNavButtons = !!section.querySelector('#previous-button, #next-button');
+		const hasShelfItems = !!section.querySelector('ytd-rich-item-renderer[is-shelf-item], ytd-rich-item-renderer[lockup]');
+		const hasShowMoreButton = !!section.querySelector('.expand-collapse-button, .button-container ytd-button-renderer');
+
+		if (shelf && hasShelfHeader && hasNavButtons && hasShelfItems && hasShowMoreButton && !section.hasAttribute('data-lockedin-hidden')) {
+			section.style.display = 'none';
+			section.setAttribute('data-lockedin-hidden', hiddenAttr);
 		}
 	});
 }

@@ -13,9 +13,11 @@ const DEFAULT_SETTINGS = {
   hideCommunityPosts: false,
   hideFeaturedContent: false,
   hideMembersOnly: false,
+  hidePlayables: false,
   cleanSidebar: false,
   hideShortsGlobally: false,
   redirectShorts: false,
+  hideVideoThumbnails: false,
   hideSidebar: false,
   hideRecommended: false,
   hideSidebarShorts: false,
@@ -82,6 +84,21 @@ const LANGUAGE_LABELS = {
 const LANGUAGE_OPTIONS = Object.keys(LANGUAGE_LABELS);
 const SUPPORTED_LANGUAGES = ['en', 'es', 'hi', 'pt', 'fr', 'de'];
 const FALLBACK_LANGUAGE = 'en';
+const THUMBNAIL_MODE_OPTIONS = ['off', 'blurred', 'hidden', 'reveal-on-hover', 'solid-color'];
+const THUMBNAIL_MODE_LABEL_KEYS = {
+  off: 'thumbnail.disable',
+  blurred: 'thumbnail.blur',
+  hidden: 'thumbnail.hidden',
+  'reveal-on-hover': 'thumbnail.revealOnHover',
+  'solid-color': 'thumbnail.solidColor'
+};
+const THUMBNAIL_MODE_FALLBACK_LABELS = {
+  off: 'Disable',
+  blurred: 'Blur',
+  hidden: 'Hidden',
+  'reveal-on-hover': 'Reveal on Hover',
+  'solid-color': 'Solid Color'
+};
 
 const I18N_STRINGS = {
   en: {
@@ -121,9 +138,17 @@ const I18N_STRINGS = {
     'setting.cleanSidebar': 'Clean Sidebar',
     'setting.hideFeaturedContent': 'Hide Featured Content',
     'setting.hideMembersOnly': 'Hide Members Only Content',
+    'setting.hidePlayables': 'Hide YouTube Playables',
     'group.shorts': 'YouTube Shorts',
     'setting.hideShortsGlobal': 'Hide Shorts (All Pages)',
     'setting.redirectShorts': 'Redirect Shorts',
+    'group.thumbnails': 'Thumbnails',
+    'setting.hideVideoThumbnails': 'Hide Thumbnails',
+    'thumbnail.disable': 'Disable',
+    'thumbnail.blur': 'Blur',
+    'thumbnail.hidden': 'Hidden',
+    'thumbnail.revealOnHover': 'Reveal on Hover',
+    'thumbnail.solidColor': 'Solid Color',
     'group.video': 'Video Page',
     'setting.hideSidebar': 'Hide Video Sidebar',
     'setting.hideRecommended': 'Hide Recommended Videos',
@@ -197,6 +222,13 @@ const I18N_STRINGS = {
     'group.shorts': 'YouTube Shorts',
     'setting.hideShortsGlobal': 'Ocultar Shorts (todas las páginas)',
     'setting.redirectShorts': 'Redirigir Shorts',
+    'group.thumbnails': 'Miniaturas',
+    'setting.hideVideoThumbnails': 'Ocultar Miniaturas',
+    'thumbnail.disable': 'Desactivar',
+    'thumbnail.blur': 'Desenfoque',
+    'thumbnail.hidden': 'Oculto',
+    'thumbnail.revealOnHover': 'Revelar al pasar',
+    'thumbnail.solidColor': 'Color sólido',
     'group.video': 'Página de video',
     'setting.hideSidebar': 'Ocultar barra lateral del video',
     'setting.hideRecommended': 'Ocultar videos recomendados',
@@ -270,6 +302,13 @@ const I18N_STRINGS = {
     'group.shorts': 'YouTube शॉर्ट्स',
     'setting.hideShortsGlobal': 'शॉर्ट्स छुपाएँ (सभी पेज)',
     'setting.redirectShorts': 'शॉर्ट्स को रीडायरेक्ट करें',
+    'group.thumbnails': 'थंबनेल',
+    'setting.hideVideoThumbnails': 'थंबनेल छुपाएँ',
+    'thumbnail.disable': 'अक्षम करें',
+    'thumbnail.blur': 'धुंधला करें',
+    'thumbnail.hidden': 'छिपाएँ',
+    'thumbnail.revealOnHover': 'होवर पर प्रकट करें',
+    'thumbnail.solidColor': 'ठोस रंग',
     'group.video': 'वीडियो पेज',
     'setting.hideSidebar': 'वीडियो साइडबार छुपाएँ',
     'setting.hideRecommended': 'अनुशंसित वीडियो छुपाएँ',
@@ -343,6 +382,13 @@ const I18N_STRINGS = {
     'group.shorts': 'YouTube Shorts',
     'setting.hideShortsGlobal': 'Ocultar Shorts (todas as páginas)',
     'setting.redirectShorts': 'Redirecionar Shorts',
+    'group.thumbnails': 'Miniaturas',
+    'setting.hideVideoThumbnails': 'Ocultar Miniaturas',
+    'thumbnail.disable': 'Desabilitar',
+    'thumbnail.blur': 'Desfoque',
+    'thumbnail.hidden': 'Oculto',
+    'thumbnail.revealOnHover': 'Revelar ao passar o mouse',
+    'thumbnail.solidColor': 'Cor sólida',
     'group.video': 'Página de vídeo',
     'setting.hideSidebar': 'Ocultar barra lateral do vídeo',
     'setting.hideRecommended': 'Ocultar vídeos recomendados',
@@ -416,6 +462,13 @@ const I18N_STRINGS = {
     'group.shorts': 'YouTube Shorts',
     'setting.hideShortsGlobal': 'Masquer Shorts (toutes les pages)',
     'setting.redirectShorts': 'Rediriger les Shorts',
+    'group.thumbnails': 'Miniatures',
+    'setting.hideVideoThumbnails': 'Masquer les miniatures',
+    'thumbnail.disable': 'Désactiver',
+    'thumbnail.blur': 'Flou',
+    'thumbnail.hidden': 'Masqué',
+    'thumbnail.revealOnHover': 'Révéler au survol',
+    'thumbnail.solidColor': 'Couleur unie',
     'group.video': 'Page vidéo',
     'setting.hideSidebar': 'Masquer la barre latérale',
     'setting.hideRecommended': 'Masquer les vidéos recommandées',
@@ -489,6 +542,13 @@ const I18N_STRINGS = {
     'group.shorts': 'YouTube Shorts',
     'setting.hideShortsGlobal': 'Shorts ausblenden (alle Seiten)',
     'setting.redirectShorts': 'Shorts umleiten',
+    'group.thumbnails': 'Vorschaubilder',
+    'setting.hideVideoThumbnails': 'Vorschaubilder ausblenden',
+    'thumbnail.disable': 'Deaktivieren',
+    'thumbnail.blur': 'Unschärfe',
+    'thumbnail.hidden': 'Versteckt',
+    'thumbnail.revealOnHover': 'Bei Hover anzeigen',
+    'thumbnail.solidColor': 'Einfarbig',
     'group.video': 'Videoseite',
     'setting.hideSidebar': 'Videoseitenleiste ausblenden',
     'setting.hideRecommended': 'Empfohlene Videos ausblenden',
@@ -527,6 +587,33 @@ const I18N_STRINGS = {
 let activeLanguage = FALLBACK_LANGUAGE;
 let currentAppearanceValue = 'auto';
 let currentLanguagePreference = 'auto';
+let currentThumbnailMode = 'off';
+
+function normalizeThumbnailMode(value) {
+  if (value === true) return 'reveal-on-hover';
+  if (value === false || value === null || value === undefined) return 'off';
+  if (THUMBNAIL_MODE_OPTIONS.includes(value)) return value;
+  return 'off';
+}
+
+function updateThumbnailModeUI(mode) {
+  const normalizedMode = normalizeThumbnailMode(mode);
+  currentThumbnailMode = normalizedMode;
+  const display = document.getElementById('thumbnailModeDisplay');
+  const modeButton = document.getElementById('thumbnailModeButton');
+  const options = document.querySelectorAll('.thumbnail-dropdown-option');
+  if (display) {
+    const key = THUMBNAIL_MODE_LABEL_KEYS[normalizedMode] || THUMBNAIL_MODE_LABEL_KEYS.off;
+    const fallback = THUMBNAIL_MODE_FALLBACK_LABELS[normalizedMode] || THUMBNAIL_MODE_FALLBACK_LABELS.off;
+    display.textContent = translate(key, null, activeLanguage) || fallback;
+  }
+  if (modeButton) {
+    modeButton.dataset.mode = normalizedMode;
+  }
+  options.forEach((option) => {
+    option.classList.toggle('selected', option.dataset.mode === normalizedMode);
+  });
+}
 
 function formatTemplate(template, replacements) {
   if (!template || !replacements) return template;
@@ -618,19 +705,23 @@ function applyTranslations(languageCode) {
 }
 
 // ===== INITIALIZATION =====
-document.addEventListener('DOMContentLoaded', async () => {
-  await loadSettings();
+document.addEventListener('DOMContentLoaded', () => {
+  displayVersion();
   setupToggleListeners();
+  setupThumbnailModeDropdown();
   setupPowerButton();
   setupMenuButton();
   setupFeedbackButton();
   setupSponsorButton();
   setupCustomMemeUpload();
   setupBreakTimer();
-  displayVersion();
   loadStats();
   updateHeaderVisibility();
   setupAnnouncement();
+
+  loadSettings().catch((error) => {
+    console.error('LockedIn: Failed to load popup settings', error);
+  });
 });
 
 // ===== VERSION DISPLAY =====
@@ -653,9 +744,11 @@ function setupMenuButton() {
     if (isOpen) {
       settingsMenu.classList.remove('open');
       menuButton.classList.remove('open');
+      closeThumbnailDropdown();
       closeMenuInlineDropdowns();
     } else {
       closePowerDropdown();
+      closeThumbnailDropdown();
       closeMenuInlineDropdowns();
       settingsMenu.classList.add('open');
       menuButton.classList.add('open');
@@ -667,6 +760,7 @@ function setupMenuButton() {
   closeMenuButton.addEventListener('click', () => {
     settingsMenu.classList.remove('open');
     menuButton.classList.remove('open');
+    closeThumbnailDropdown();
     closeMenuInlineDropdowns();
     updateHeaderVisibility();
   });
@@ -711,6 +805,7 @@ function setupSponsorButton() {
   if (sponsorButton && sponsorPage) {
     sponsorButton.addEventListener('click', () => {
       closePowerDropdown();
+      closeThumbnailDropdown();
       sponsorPage.classList.add('open');
       updateHeaderVisibility();
     });
@@ -729,6 +824,9 @@ function setupPowerButton() {
   const powerButton = document.getElementById('powerButton');
   const powerDropdown = document.getElementById('powerDropdown');
   const dropdownOptions = document.querySelectorAll('.power-dropdown-option');
+  if (!powerButton || !powerDropdown) {
+    return;
+  }
   
   browser.storage.sync.get(['extensionEnabled', 'takeBreak', 'breakDuration', 'breakStartTime'], (result) => {
     const isEnabled = result.extensionEnabled !== undefined ? result.extensionEnabled : true;
@@ -770,7 +868,12 @@ function setupPowerButton() {
           });
         });
       } else {
-        powerDropdown.classList.toggle('open');
+        const shouldOpen = !powerDropdown.classList.contains('open');
+        powerDropdown.classList.remove('open');
+        if (shouldOpen) {
+          closeThumbnailDropdown();
+          powerDropdown.classList.add('open');
+        }
       }
     });
   });
@@ -828,6 +931,53 @@ function closePowerDropdown() {
   }
 }
 
+function closeThumbnailDropdown() {
+  const dropdown = document.getElementById('thumbnailDropdown');
+  const modeButton = document.getElementById('thumbnailModeButton');
+  if (dropdown) {
+    dropdown.classList.remove('open');
+  }
+  if (modeButton) {
+    modeButton.classList.remove('open');
+  }
+}
+
+function positionThumbnailDropdown(modeButton, dropdown) {
+  if (!modeButton || !dropdown) return;
+
+  // Measure menu size while keeping it visually hidden.
+  const wasOpen = dropdown.classList.contains('open');
+  if (!wasOpen) {
+    dropdown.classList.add('open');
+  }
+  dropdown.style.visibility = 'hidden';
+
+  const triggerRect = modeButton.getBoundingClientRect();
+  const dropdownRect = dropdown.getBoundingClientRect();
+  const menuWidth = dropdownRect.width || 128;
+  const menuHeight = dropdownRect.height || dropdown.scrollHeight || 0;
+
+  const margin = 6;
+  let left = triggerRect.right - menuWidth;
+  if (left < margin) left = margin;
+  if (left + menuWidth > window.innerWidth - margin) {
+    left = Math.max(margin, window.innerWidth - menuWidth - margin);
+  }
+
+  let top = triggerRect.bottom + 2;
+  if (top + menuHeight > window.innerHeight - margin) {
+    top = Math.max(margin, triggerRect.top - menuHeight - 2);
+  }
+
+  dropdown.style.left = `${Math.round(left)}px`;
+  dropdown.style.top = `${Math.round(top)}px`;
+  dropdown.style.visibility = '';
+
+  if (!wasOpen) {
+    dropdown.classList.remove('open');
+  }
+}
+
 function updateHeaderVisibility() {
   const popupContainer = document.querySelector('.popup-container');
   if (!popupContainer) return;
@@ -880,6 +1030,7 @@ function closeMenuInlineDropdowns() {
     const trigger = document.querySelector(`[data-menu-dropdown-target="${dropdown.id}"]`);
     if (trigger) {
       trigger.setAttribute('aria-expanded', 'false');
+      trigger.classList.remove('open');
     }
   });
 }
@@ -920,6 +1071,7 @@ function applyLanguageSetting(value, options = {}) {
   currentLanguagePreference = normalized;
   const effectiveLanguage = resolveLanguagePreference(normalized);
   applyTranslations(effectiveLanguage);
+  updateThumbnailModeUI(currentThumbnailMode);
   updateMenuDropdownDisplay('language', normalized);
   updateMenuDropdownDisplay('appearance', currentAppearanceValue);
   const statsSection = document.getElementById('statsSection');
@@ -1241,6 +1393,7 @@ function loadSettings() {
         const settingId = toggle.dataset.setting;
         if (currentSettings[settingId] !== undefined) toggle.checked = currentSettings[settingId];
       });
+      updateThumbnailModeUI(currentSettings.hideVideoThumbnails);
       const popupContainer = document.querySelector('.popup-container');
       if (popupContainer) popupContainer.classList.toggle('disabled', !currentSettings.extensionEnabled);
       let savedAppearance = currentSettings.appearance || 'auto';
@@ -1261,6 +1414,62 @@ function loadSettings() {
       resolve();
     });
   });
+}
+
+function setupThumbnailModeDropdown() {
+  const modeButton = document.getElementById('thumbnailModeButton');
+  const dropdown = document.getElementById('thumbnailDropdown');
+  const options = document.querySelectorAll('.thumbnail-dropdown-option');
+  if (!modeButton || !dropdown || options.length === 0) {
+    return;
+  }
+
+  modeButton.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const shouldOpen = !dropdown.classList.contains('open');
+    closeThumbnailDropdown();
+    if (shouldOpen) {
+      closePowerDropdown();
+      positionThumbnailDropdown(modeButton, dropdown);
+      dropdown.classList.add('open');
+      modeButton.classList.add('open');
+    }
+  });
+
+  options.forEach((option) => {
+    option.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const mode = normalizeThumbnailMode(option.dataset.mode);
+      updateThumbnailModeUI(mode);
+      closeThumbnailDropdown();
+      browser.storage.sync.set({ hideVideoThumbnails: mode }, () => {
+        browser.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          if (tabs[0]) {
+            browser.tabs.sendMessage(tabs[0].id, {
+              action: 'settingChanged',
+              setting: 'hideVideoThumbnails',
+              value: mode
+            }).catch(() => {});
+          }
+        });
+      });
+    });
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!modeButton.contains(e.target) && !dropdown.contains(e.target)) {
+      closeThumbnailDropdown();
+    }
+  });
+
+  const settingsArea = document.getElementById('settingsArea');
+  if (settingsArea) {
+    settingsArea.addEventListener('scroll', () => {
+      if (dropdown.classList.contains('open')) {
+        closeThumbnailDropdown();
+      }
+    }, { passive: true });
+  }
 }
 
 // ===== TOGGLE LISTENERS =====
@@ -1295,7 +1504,7 @@ function setupToggleListeners() {
         if (!isChecked) sub?.classList.add('visible');
         else {
           sub?.classList.remove('visible');
-          ['hideCommunityPosts', 'hideFeaturedContent', 'hideMembersOnly'].forEach(s => {
+          ['hideCommunityPosts', 'hideFeaturedContent', 'hideMembersOnly', 'hidePlayables'].forEach(s => {
             const t = document.querySelector(`input[data-setting="${s}"]`);
             if (t && t.checked) { t.checked = false; browser.storage.sync.set({ [s]: false }); }
           });
@@ -1325,25 +1534,28 @@ function setupToggleListeners() {
       }
       
       // Auto-enable Clean Homepage Feed when all sub-toggles are enabled
-      if (['hideCommunityPosts', 'hideFeaturedContent', 'hideMembersOnly'].includes(settingId)) {
+      if (["hideCommunityPosts", "hideFeaturedContent", "hideMembersOnly", "hidePlayables"].includes(settingId)) {
         const communityToggle = document.querySelector('input[data-setting="hideCommunityPosts"]');
         const featuredToggle = document.querySelector('input[data-setting="hideFeaturedContent"]');
         const membersToggle = document.querySelector('input[data-setting="hideMembersOnly"]');
+        const playablesToggle = document.querySelector('input[data-setting="hidePlayables"]');
         const cleanFeedToggle = document.querySelector('input[data-setting="cleanHomepageFeed"]');
         
-        if (communityToggle?.checked && featuredToggle?.checked && membersToggle?.checked) {
+        if (communityToggle?.checked && featuredToggle?.checked && membersToggle?.checked && playablesToggle?.checked) {
           // All sub-toggles are on, enable parent and collapse sub-toggles
           cleanFeedToggle.checked = true;
           browser.storage.sync.set({ 
             cleanHomepageFeed: true,
             hideCommunityPosts: false,
             hideFeaturedContent: false,
-            hideMembersOnly: false
+            hideMembersOnly: false,
+            hidePlayables: false
           }, () => {
             // Uncheck all sub-toggles
             communityToggle.checked = false;
             featuredToggle.checked = false;
             membersToggle.checked = false;
+            playablesToggle.checked = false;
             // Collapse sub-toggles
             const sub = document.getElementById('cleanFeedSubToggles');
             sub?.classList.remove('visible');
@@ -1427,6 +1639,7 @@ function setupToggleListeners() {
       });
     });
   });
+
   setupDropdownListeners();
 }
 
@@ -1438,7 +1651,7 @@ function setupDropdownListeners() {
       e.stopPropagation();
       const isOpen = panel.classList.contains('open');
       closeMenuInlineDropdowns();
-      if (!isOpen) { panel.classList.add('open'); trigger.setAttribute('aria-expanded', 'true'); requestAnimationFrame(() => positionMenuDropdown(trigger, panel)); }
+      if (!isOpen) { panel.classList.add('open'); trigger.classList.add('open'); trigger.setAttribute('aria-expanded', 'true'); requestAnimationFrame(() => positionMenuDropdown(trigger, panel)); }
     });
   });
   document.querySelectorAll('.menu-inline-option').forEach((option) => {
