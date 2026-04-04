@@ -39,7 +39,6 @@ LockedIn is an open-source browser extension that helps you focus on YouTube by 
 </td>
 <td align="center">
 <a href="https://microsoftedge.microsoft.com/addons/detail/hibjbjgfbmhpiaapeccnfddnpabnlklj"><img src="docs/assets/edge-badge.png" alt="Get it on Edge" height="60" style="border-radius: 8px;"></a>
-<p><strong>Current version:</strong> 1.1.3</p>
 </td>
 <td align="center">
 <a href="https://chromewebstore.google.com/detail/lockedin/ddpdgiidmcljefnhnfpgndbdnimbhdgh"><img src="https://voicewave.xyz/_next/static/media/chrome-web-store.1730b349.png" alt="Get it on Chrome" height="60" style="border-radius: 8px;"></a>
