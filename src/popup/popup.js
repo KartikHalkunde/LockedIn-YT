@@ -717,7 +717,6 @@ document.addEventListener('DOMContentLoaded', () => {
   setupBreakTimer();
   loadStats();
   updateHeaderVisibility();
-  setupAnnouncement();
 
   loadSettings().catch((error) => {
     console.error('LockedIn: Failed to load popup settings', error);
@@ -728,8 +727,8 @@ document.addEventListener('DOMContentLoaded', () => {
 function displayVersion() {
   const versionElement = document.querySelector('.version');
   if (versionElement) {
-    versionElement.textContent = `v.1.1.3`;
-    versionElement.setAttribute('aria-label', `Version 1.1.3`);
+    versionElement.textContent = `v.1.1.4`;
+    versionElement.setAttribute('aria-label', `Version 1.1.4`);
   }
 }
 
@@ -1685,79 +1684,5 @@ function setupBreakTimer() {
       const dur = b.dataset.time ? parseFloat(b.dataset.time) : (b.dataset.seconds ? parseFloat(b.dataset.seconds) / 60 : 5);
       browser.storage.sync.set({ breakDuration: dur });
     });
-  });
-}
-
-// ===== ANNOUNCEMENT SETUP (Chrome Store Promotion for Firefox Users) =====
-const ANNOUNCEMENT_CONFIG = {
-  // Enabled globally; runtime browser detection below shows it only on Firefox.
-  enabled: true
-};
-
-function setupAnnouncement() {
-  const announcementSection = document.getElementById('announcementSection');
-  const notificationBadge = document.getElementById('notificationBadge');
-
-  // Temporarily hide announcement for all browsers without deleting code.
-  if (!ANNOUNCEMENT_CONFIG.enabled) {
-    if (announcementSection) announcementSection.style.display = 'none';
-    if (notificationBadge) notificationBadge.classList.remove('visible');
-    return;
-  }
-
-  // Detect if user is on Firefox
-  const isFirefox = typeof InstallTrigger !== 'undefined' || navigator.userAgent.toLowerCase().includes('firefox');
-  
-  if (!isFirefox) {
-    // Not Firefox, don't show announcement
-    if (announcementSection) announcementSection.style.display = 'none';
-    if (notificationBadge) notificationBadge.classList.remove('visible');
-    return;
-  }
-  
-  // Check if user has dismissed the announcement
-  browser.storage.sync.get('chromeAnnouncementDismissed', (result) => {
-    if (result.chromeAnnouncementDismissed) {
-      // Already dismissed, don't show
-      return;
-    }
-    
-    // Show announcement section and badge
-    if (announcementSection) {
-      announcementSection.style.display = 'block';
-    }
-    
-    if (notificationBadge) {
-      notificationBadge.classList.add('visible');
-    }
-    
-    // Setup dismiss button
-    const dismissButton = document.getElementById('dismissAnnouncement');
-    if (dismissButton) {
-      dismissButton.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        
-        // Hide announcement and badge
-        if (announcementSection) {
-          announcementSection.style.display = 'none';
-        }
-        if (notificationBadge) {
-          notificationBadge.classList.remove('visible');
-        }
-        
-        // Save dismissed state
-        browser.storage.sync.set({ chromeAnnouncementDismissed: true });
-      });
-    }
-    
-    // Track when user clicks the Chrome Store link
-    const chromeStoreLink = document.getElementById('chromeStoreLink');
-    if (chromeStoreLink) {
-      chromeStoreLink.addEventListener('click', () => {
-        // Optionally auto-dismiss after clicking link
-        browser.storage.sync.set({ chromeAnnouncementDismissed: true });
-      });
-    }
   });
 }

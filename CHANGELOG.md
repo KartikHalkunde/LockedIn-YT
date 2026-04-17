@@ -1,3 +1,11 @@
+## [1.1.4] - 2026-04-17
+### Changed
+- Enhanced the Hide Members Only Content feature to detect and hide Members only videos across YouTube surfaces with newer badge markup
+
+### Fixed
+- Fixed bugs in Search Results where the Hide Recommended Videos toggle did not consistently hide recommendation shelves/cards
+- Fixed Disable Autoplay toggle behavior for more reliable autoplay-off enforcement across navigation and dynamic page updates
+
 ## [1.1.3] - 2026-04-04
 ### Added
 - Added a new thumbnail control dropdown with disable, blur, hidden, reveal-on-hover, and solid-color modes

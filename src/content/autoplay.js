@@ -19,9 +19,14 @@ function hideNativeAutoplayToggle(shouldHide) {
 		.ytp-autonav-toggle-button,
 		.ytp-autonav-toggle-button-bg,
 		.ytp-autonav-toggle-tooltip,
+		.ytp-next-button,
+		.ytp-prev-button,
 		.ytp-upnext-autoplay-icon,
 		.ytp-autonav-toggle-button-visible,
 		.ytp-autonav-toggle-button-cancel,
+		.ytm-autonav-bar,
+		.ytm-autonav-toggle-button-container,
+		.ytm-upnext-autoplay-container,
 		.ytp-chrome-bottom [aria-label*="Autoplay" i],
 		.ytp-chrome-controls [aria-label*="Autoplay" i],
 		.ytp-chrome-bottom [data-tooltip*="Autoplay" i],
@@ -38,6 +43,7 @@ function hideNativeAutoplayToggle(shouldHide) {
 let autoplayDisabledThisPage = false;
 let autoplayRetryInterval = null;
 let autoplayDomObserver = null;
+let autoplayPageEventHandler = null;
 let autoplayVideoEventHandler = null;
 let autoplayTrackedVideos = new Set();
 
@@ -46,7 +52,10 @@ function hideAutoplayUpNextUi(shouldHide) {
 	toggleAllElements('.ytp-upnext-container', shouldHide);
 	toggleAllElements('.ytp-autonav-endscreen', shouldHide);
 	toggleAllElements('.ytp-autonav-endscreen-upnext-container', shouldHide);
+	toggleAllElements('.ytp-next-button', shouldHide);
+	toggleAllElements('.ytp-prev-button', shouldHide);
 	toggleAllElements('.ytm-autonav-bar', shouldHide);
+	toggleAllElements('.ytm-autonav-toggle-button-container', shouldHide);
 	toggleAllElements('.ytm-upnext-autoplay-container', shouldHide);
 	document.querySelectorAll('.ytp-autonav-endscreen-upnext-button, .ytp-autonav-endscreen-countdown, .ytp-upnext-autoplay-icon').forEach((el) => {
 		el.style.display = shouldHide ? 'none' : '';
@@ -89,8 +98,10 @@ function forcePlayerAutonavOn() {
 
 function getAutoplayButtons() {
 	return Array.from(document.querySelectorAll(
-		'.ytp-right-controls button[data-tooltip-target-id="ytp-autonav-toggle-button"][style=""], ' +
-		'button.ytp-autonav-toggle-button, .ytp-autonav-toggle-button-container button'
+		'button[data-tooltip-target-id="ytp-autonav-toggle-button"], ' +
+		'button.ytp-autonav-toggle-button, ' +
+		'.ytp-autonav-toggle-button-container button, ' +
+		'.ytm-autonav-toggle-button-container button'
 	));
 }
 
@@ -146,6 +157,12 @@ function enforceAutoplayOn() {
 	hideAutoplayUpNextUi(false);
 }
 
+function onAutoplayPageChange() {
+	if (latestSyncedSettings.extensionEnabled === false) return;
+	if (!latestSyncedSettings.disableAutoplay) return;
+	enforceAutoplayOff();
+}
+
 function onNativeAutoplayButtonClick() {
 	setTimeout(() => {
 		if (latestSyncedSettings.extensionEnabled === false) return;
@@ -195,14 +212,18 @@ function removeAutoplayVideoNode(video) {
 }
 
 function stopAutoplayEnforcement() {
-	if (autoplayRetryInterval) {
-		clearInterval(autoplayRetryInterval);
-		autoplayRetryInterval = null;
-	}
-
 	if (autoplayDomObserver) {
 		autoplayDomObserver.disconnect();
 		autoplayDomObserver = null;
+	}
+
+	if (autoplayPageEventHandler) {
+		window.removeEventListener('load', autoplayPageEventHandler, true);
+		window.removeEventListener('yt-page-data-updated', autoplayPageEventHandler, true);
+		window.removeEventListener('state-navigateend', autoplayPageEventHandler, true);
+		document.removeEventListener('yt-page-data-updated', autoplayPageEventHandler, true);
+		document.removeEventListener('state-navigateend', autoplayPageEventHandler, true);
+		autoplayPageEventHandler = null;
 	}
 
 	Array.from(autoplayTrackedVideos).forEach((video) => removeAutoplayVideoNode(video));
@@ -218,45 +239,31 @@ function stopAutoplayEnforcement() {
 }
 
 function startAutoplayEnforcement() {
-	autoplayVideoEventHandler = () => enforceAutoplayOff();
+	if (!autoplayPageEventHandler) {
+		autoplayPageEventHandler = onAutoplayPageChange;
+		window.addEventListener('load', autoplayPageEventHandler, true);
+		window.addEventListener('yt-page-data-updated', autoplayPageEventHandler, true);
+		window.addEventListener('state-navigateend', autoplayPageEventHandler, true);
+		document.addEventListener('yt-page-data-updated', autoplayPageEventHandler, true);
+		document.addEventListener('state-navigateend', autoplayPageEventHandler, true);
+	}
 
-	document.querySelectorAll('video').forEach((video) => addAutoplayVideoNode(video));
-
-	autoplayDomObserver = new MutationObserver((mutations) => {
-		mutations.forEach((mutation) => {
-			mutation.addedNodes.forEach((node) => {
-				if (!(node instanceof Element)) return;
-				if (node.nodeName.toLowerCase() === 'video') {
-					addAutoplayVideoNode(node);
-				}
-				node.querySelectorAll?.('video').forEach((video) => addAutoplayVideoNode(video));
-			});
-
-			mutation.removedNodes.forEach((node) => {
-				if (!(node instanceof Element)) return;
-				if (node.nodeName.toLowerCase() === 'video') {
-					removeAutoplayVideoNode(node);
-				}
-				node.querySelectorAll?.('video').forEach((video) => removeAutoplayVideoNode(video));
-			});
+	if (!autoplayDomObserver) {
+		autoplayDomObserver = new MutationObserver(() => {
+			onAutoplayPageChange();
 		});
+		autoplayDomObserver.observe(document.documentElement || document.body, { childList: true, subtree: true });
+	}
 
+	if (latestSyncedSettings.extensionEnabled !== false && latestSyncedSettings.disableAutoplay) {
 		enforceAutoplayOff();
-	});
-
-	autoplayDomObserver.observe(document, { childList: true, subtree: true });
-
-	autoplayRetryInterval = setInterval(() => {
-		if (latestSyncedSettings.extensionEnabled === false) return;
-		if (!latestSyncedSettings.disableAutoplay) return;
-		enforceAutoplayOff();
-	}, 500);
+	}
 }
 
 function disableAutoplay(shouldDisable) {
-	stopAutoplayEnforcement();
-
 	if (!shouldDisable) {
+		stopAutoplayEnforcement();
+		hideNativeAutoplayToggle(false);
 		enforceAutoplayOn();
 		setTimeout(enforceAutoplayOn, 200);
 		setTimeout(enforceAutoplayOn, 700);
@@ -264,6 +271,7 @@ function disableAutoplay(shouldDisable) {
 		return;
 	}
 
+	hideNativeAutoplayToggle(true);
 	hideAutoplayUpNextUi(true);
 	startAutoplayEnforcement();
 	enforceAutoplayOff();

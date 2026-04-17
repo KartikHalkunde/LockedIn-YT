@@ -434,6 +434,22 @@ function hideMembersOnly(shouldHide) {
 		return;
 	}
 
+	function hasMembersOnlyBadge(video) {
+		const badgeNodes = video.querySelectorAll(
+			'.ytBadgeShapeText, ' +
+			'.ytBadgeShapeTextHasMultipleBadgesInRow, ' +
+			'.ytContentMetadataViewModelMetadataRow, ' +
+			'.ytContentMetadataViewModelBadge, ' +
+			'yt-badge-view-model, ' +
+			'badge-shape'
+		);
+
+		return Array.from(badgeNodes).some((node) => {
+			const text = (node.textContent || '').replace(/\s+/g, ' ').trim();
+			return /members only/i.test(text);
+		});
+	}
+
 	const videoSelectors = [
 		'ytd-rich-item-renderer',
 		'ytd-grid-video-renderer',
@@ -449,15 +465,9 @@ function hideMembersOnly(shouldHide) {
 		document.querySelectorAll(selector).forEach(video => {
 			if (video.hasAttribute('data-lockedin-hidden')) return;
 
-			const memberBadge = video.querySelector(
-				'badge-shape.yt-badge-shape--membership, ' +
-				'.yt-badge-shape--membership, ' +
-				'.badge-style-type-members-only, ' +
-				'[class*="members-only" i]'
-			);
-
+			const memberBadge = hasMembersOnlyBadge(video);
 			const membersOnlyHref = video.querySelector('a[href*="members-only" i], a[href*="membership" i]');
-			const isMembersOnly = !!memberBadge || !!membersOnlyHref;
+			const isMembersOnly = memberBadge || !!membersOnlyHref;
 
 			if (isMembersOnly) {
 				video.style.display = 'none';
