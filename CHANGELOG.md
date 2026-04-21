@@ -1,3 +1,8 @@
+## [1.1.5] - 2026-04-21
+### Fixed
+- Fixed the end screen cards toggle restore behavior so YouTube’s native endscreen inline styles are preserved correctly
+- Fixed the right-click target regression on watch pages where an endscreen layer could remain over the video area after toggling end screen cards
+
 ## [1.1.4] - 2026-04-17
 ### Changed
 - Enhanced the Hide Members Only Content feature to detect and hide Members only videos across YouTube surfaces with newer badge markup

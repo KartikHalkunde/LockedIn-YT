@@ -503,37 +503,36 @@ function hideEndCards(shouldHide) {
 
 	const player = document.querySelector('#movie_player');
 	if (!player) return;
+	const hiddenAttr = 'endcards';
+	const prevStyleAttr = 'data-lockedin-prev-style';
+
+	const markHidden = (el) => {
+		if (!el) return;
+		const existingHidden = el.getAttribute('data-lockedin-hidden');
+		if (existingHidden && existingHidden !== hiddenAttr) return;
+		if (existingHidden === hiddenAttr) return;
+
+		const previousStyle = el.getAttribute('style');
+		el.setAttribute(prevStyleAttr, previousStyle === null ? '__NONE__' : previousStyle);
+		el.setAttribute('data-lockedin-hidden', hiddenAttr);
+		el.style.display = 'none';
+	};
 
 	if (!shouldHide) {
-		togglePlayerElements('.ytp-ce-element', false);
-		togglePlayerElements('.ytp-ce-video', false);
-		togglePlayerElements('.ytp-ce-playlist', false);
-		togglePlayerElements('.ytp-ce-channel', false);
-		togglePlayerElements('.ytp-ce-website', false);
-		togglePlayerElements('.ytp-ce-covering-overlay', false);
-		togglePlayerElements('.ytp-ce-shadow', false);
-		togglePlayerElements('.ytp-ce-size-1280', false);
-		togglePlayerElements('.ytp-ce-size-853', false);
-		togglePlayerElements('.ytp-show-tiles', false);
+		player.querySelectorAll('[data-lockedin-hidden="endcards"]').forEach(el => {
+			const previousStyle = el.getAttribute(prevStyleAttr);
+			if (previousStyle === '__NONE__') {
+				el.removeAttribute('style');
+			} else if (previousStyle !== null) {
+				el.setAttribute('style', previousStyle);
+			} else {
+				el.style.display = '';
+				el.style.visibility = '';
+				el.style.opacity = '';
+			}
 
-		player.querySelectorAll('.ytp-endscreen-content').forEach(el => {
-			el.style.display = '';
-		});
-
-		player.querySelectorAll('[class*="endscreen"]').forEach(el => {
-			el.style.display = '';
-		});
-
-		togglePlayerElements('.ytp-suggestion-set', false);
-		togglePlayerElements('.ytp-videowall-still', false);
-		togglePlayerElements('.html5-endscreen', false);
-		togglePlayerElements('.ytp-endscreen-previous', false);
-		togglePlayerElements('.ytp-endscreen-next', false);
-
-		player.querySelectorAll('.html5-endscreen, .ytp-endscreen-content, .ytp-ce-covering-overlay').forEach(el => {
-			el.style.display = '';
-			el.style.visibility = '';
-			el.style.opacity = '';
+			el.removeAttribute(prevStyleAttr);
+			el.removeAttribute('data-lockedin-hidden');
 		});
 
 		return;
@@ -550,42 +549,35 @@ function hideEndCards(shouldHide) {
 		trackStat('endcards', endCardsCount);
 	}
 
-	togglePlayerElements('.ytp-ce-element', true);
-	togglePlayerElements('.ytp-ce-video', true);
-	togglePlayerElements('.ytp-ce-playlist', true);
-	togglePlayerElements('.ytp-ce-channel', true);
-	togglePlayerElements('.ytp-ce-website', true);
-	togglePlayerElements('.ytp-ce-covering-overlay', true);
-	togglePlayerElements('.ytp-ce-shadow', true);
-	togglePlayerElements('.ytp-ce-size-1280', true);
-	togglePlayerElements('.ytp-ce-size-853', true);
+	const hideSelectors = [
+		'.ytp-ce-element',
+		'.ytp-ce-video',
+		'.ytp-ce-playlist',
+		'.ytp-ce-channel',
+		'.ytp-ce-website',
+		'.ytp-ce-covering-overlay',
+		'.ytp-ce-shadow',
+		'.ytp-ce-size-1280',
+		'.ytp-ce-size-853',
+		'.ytp-show-tiles',
+		'.ytp-endscreen-content',
+		'.ytp-ce-element-show',
+		'.ytp-suggestion-set',
+		'.ytp-videowall-still',
+		'.html5-endscreen',
+		'.ytp-endscreen-previous',
+		'.ytp-endscreen-next',
+		'.ytp-videowall-still-image',
+		'.videowall-endscreen'
+	];
 
-	player.querySelectorAll('.ytp-endscreen-content').forEach(el => {
-		el.style.display = 'none';
+	hideSelectors.forEach((selector) => {
+		player.querySelectorAll(selector).forEach(markHidden);
 	});
-
-	togglePlayerElements('.ytp-show-tiles', true);
-	player.querySelectorAll('[class*="endscreen"]').forEach(el => {
-		el.style.display = 'none';
-	});
-
-	player.querySelectorAll('.ytp-ce-element-show').forEach(el => {
-		el.style.display = 'none';
-	});
-
-	togglePlayerElements('.ytp-suggestion-set', true);
-	togglePlayerElements('.ytp-videowall-still', true);
-	togglePlayerElements('.html5-endscreen', true);
-	togglePlayerElements('.ytp-endscreen-previous', true);
-	togglePlayerElements('.ytp-endscreen-next', true);
 
 	player.querySelectorAll('.html5-endscreen, .ytp-endscreen-content, .ytp-ce-covering-overlay').forEach(el => {
-		el.style.display = 'none';
+		markHidden(el);
 		el.style.visibility = 'hidden';
 		el.style.opacity = '0';
-	});
-
-	player.querySelectorAll('.ytp-videowall-still-image, .ytp-videowall-still, .videowall-endscreen').forEach(el => {
-		el.style.display = 'none';
 	});
 }

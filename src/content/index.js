@@ -117,8 +117,8 @@ videoProtectionStyle.id = 'lockedin-video-protection';
 videoProtectionStyle.textContent = `
 /* Ensure video player is never dimmed or filtered by our extension */
 #movie_player,
-#movie_player video,
 .html5-video-player,
+#movie_player video,
 .html5-video-player video,
 .html5-main-video,
 video.video-stream {

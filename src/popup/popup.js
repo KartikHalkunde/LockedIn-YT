@@ -727,8 +727,8 @@ document.addEventListener('DOMContentLoaded', () => {
 function displayVersion() {
   const versionElement = document.querySelector('.version');
   if (versionElement) {
-    versionElement.textContent = `v.1.1.4`;
-    versionElement.setAttribute('aria-label', `Version 1.1.4`);
+    versionElement.textContent = `v.1.1.5`;
+    versionElement.setAttribute('aria-label', `Version 1.1.5`);
   }
 }
 
