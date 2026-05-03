@@ -102,7 +102,7 @@ If LockedIn helps you stay focused, consider supporting its development!
 &nbsp;&nbsp;
 <a href="https://www.paypal.com/ncp/payment/F94XZ6QRAXJEQ">
   <img src="https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white" alt="Pay with PayPal" height="55" />
-</a>
+</a> 
 
 <br/>
 
