@@ -33,35 +33,12 @@ const DEFAULT_SETTINGS = {
   hideSubscriptions: false,
   extensionEnabled: true,
   lightMode: false,
-  showStats: false,
   hideFeedQuote: false,
   takeBreak: false,
   breakDuration: 5,
   customMeme: null,
   appearance: 'auto',
   language: 'auto'
-};
-
-// Default stats structure
-const DEFAULT_STATS = {
-  shortsBlocked: 0,
-  recsHidden: 0,
-  endCardsBlocked: 0,
-  autoplayStops: 0,
-  sessionTimeMs: 0,
-  todaySessionMs: 0,
-  todayDate: null,
-  weekTimeSaved: 0,
-  weekStartDate: null,
-  firstUseDate: null
-};
-
-// Time saved estimates (in minutes)
-const TIME_SAVED_ESTIMATES = {
-  short: 0.5,
-  recommendation: 5,
-  endCard: 3,
-  autoplay: 8
 };
 
 const APPEARANCE_OPTIONS = ['auto', 'light', 'dark'];
@@ -110,16 +87,9 @@ const I18N_STRINGS = {
     'power.twenty': 'Turn Off for 20 min',
     'power.thirty': 'Turn Off for 30 min',
     'menu.title': 'Menu',
-    'stats.minSaved': 'Min Saved',
-    'stats.timeSaved': 'Time Saved',
-    'stats.shortsAvoided': 'Shorts Avoided',
-    'stats.daysFocused': 'Days Focused',
-    'stats.hoursSuffix': 'hr',
-    'menu.option.showStats': 'Show Stats',
     'menu.option.hideFeedQuote': 'Hide Motivational Quotes',
     'menu.option.appearance': 'Extension Appearance',
     'menu.option.language': 'Extension Language',
-    'menu.option.showStats.desc': 'Show your focus stats like time saved and Shorts avoided.',
     'menu.option.hideFeedQuote.desc': 'Hide the motivational quote shown when your homepage feed is blocked.',
     'menu.option.appearance.desc': 'Choose Auto, Light, or Dark theme for the extension popup.',
     'menu.option.language.desc': 'Set popup language manually, or keep Auto to follow browser language.',
@@ -191,16 +161,9 @@ const I18N_STRINGS = {
     'power.twenty': 'Desactivar por 20 min',
     'power.thirty': 'Desactivar por 30 min',
     'menu.title': 'Menú',
-    'stats.minSaved': 'Min ahorrados',
-    'stats.timeSaved': 'Tiempo ahorrado',
-    'stats.shortsAvoided': 'Shorts evitados',
-    'stats.daysFocused': 'Días enfocado',
-    'stats.hoursSuffix': 'h',
-    'menu.option.showStats': 'Mostrar estadísticas',
     'menu.option.hideFeedQuote': 'Ocultar citas motivacionales',
     'menu.option.appearance': 'Apariencia de la extensión',
     'menu.option.language': 'Idioma de la extensión',
-    'menu.option.showStats.desc': 'Muestra estadísticas de enfoque como tiempo ahorrado y Shorts evitados.',
     'menu.option.hideFeedQuote.desc': 'Oculta la cita motivacional cuando el feed de inicio está bloqueado.',
     'menu.option.appearance.desc': 'Elige tema Automático, Claro u Oscuro para el popup.',
     'menu.option.language.desc': 'Define el idioma del popup o usa Automático según tu navegador.',
@@ -271,16 +234,9 @@ const I18N_STRINGS = {
     'power.twenty': '20 मिनट के लिए बंद करें',
     'power.thirty': '30 मिनट के लिए बंद करें',
     'menu.title': 'मेन्यू',
-    'stats.minSaved': 'बचाए गए मिनट',
-    'stats.timeSaved': 'बचाया गया समय',
-    'stats.shortsAvoided': 'टाले गए शॉर्ट्स',
-    'stats.daysFocused': 'फ़ोकस किए दिन',
-    'stats.hoursSuffix': 'घं',
-    'menu.option.showStats': 'आँकड़े दिखाएँ',
     'menu.option.hideFeedQuote': 'प्रेरणादायक उद्धरण छुपाएँ',
     'menu.option.appearance': 'एक्सटेंशन की रूपरेखा',
     'menu.option.language': 'एक्सटेंशन की भाषा',
-    'menu.option.showStats.desc': 'समय बचत और टाले गए Shorts जैसे फ़ोकस आँकड़े दिखाता है।',
     'menu.option.hideFeedQuote.desc': 'फ़ीड ब्लॉक होने पर दिखने वाले प्रेरक उद्धरण को छुपाएँ।',
     'menu.option.appearance.desc': 'पॉपअप के लिए Auto, Light या Dark थीम चुनें।',
     'menu.option.language.desc': 'पॉपअप भाषा सेट करें, या Auto रखकर ब्राउज़र भाषा अपनाएँ।',
@@ -351,16 +307,9 @@ const I18N_STRINGS = {
     'power.twenty': 'Ativar por 20 min',
     'power.thirty': 'Ativar por 30 min',
     'menu.title': 'Menu',
-    'stats.minSaved': 'Min economizados',
-    'stats.timeSaved': 'Tempo economizado',
-    'stats.shortsAvoided': 'Shorts evitados',
-    'stats.daysFocused': 'Dias focado',
-    'stats.hoursSuffix': 'h',
-    'menu.option.showStats': 'Mostrar estatísticas',
     'menu.option.hideFeedQuote': 'Ocultar citações motivacionais',
     'menu.option.appearance': 'Aparência da extensão',
     'menu.option.language': 'Idioma da extensão',
-    'menu.option.showStats.desc': 'Mostra estatísticas de foco, como tempo economizado e Shorts evitados.',
     'menu.option.hideFeedQuote.desc': 'Oculta a citação motivacional quando o feed inicial está bloqueado.',
     'menu.option.appearance.desc': 'Escolha o tema Automático, Claro ou Escuro para o popup.',
     'menu.option.language.desc': 'Defina o idioma do popup ou use Automático para seguir o navegador.',
@@ -431,16 +380,9 @@ const I18N_STRINGS = {
     'power.twenty': 'Désactiver pendant 20 min',
     'power.thirty': 'Désactiver pendant 30 min',
     'menu.title': 'Menu',
-    'stats.minSaved': 'Minutes gagnées',
-    'stats.timeSaved': 'Temps gagné',
-    'stats.shortsAvoided': 'Shorts évités',
-    'stats.daysFocused': 'Jours concentré',
-    'stats.hoursSuffix': 'h',
-    'menu.option.showStats': 'Afficher les statistiques',
     'menu.option.hideFeedQuote': 'Masquer les citations motivantes',
     'menu.option.appearance': "Apparence de l’extension",
     'menu.option.language': "Langue de l’extension",
-    'menu.option.showStats.desc': 'Affiche vos stats de concentration comme le temps gagné et les Shorts évités.',
     'menu.option.hideFeedQuote.desc': 'Masque la citation motivante lorsque le fil d’accueil est bloqué.',
     'menu.option.appearance.desc': 'Choisissez le thème Auto, Clair ou Sombre pour le popup.',
     'menu.option.language.desc': 'Définissez la langue du popup ou gardez Auto selon le navigateur.',
@@ -511,16 +453,9 @@ const I18N_STRINGS = {
     'power.twenty': 'Für 20 Min deaktivieren',
     'power.thirty': 'Für 30 Min deaktivieren',
     'menu.title': 'Menü',
-    'stats.minSaved': 'Minuten gespart',
-    'stats.timeSaved': 'Zeit gespart',
-    'stats.shortsAvoided': 'Shorts vermieden',
-    'stats.daysFocused': 'Tage fokussiert',
-    'stats.hoursSuffix': 'Std',
-    'menu.option.showStats': 'Statistiken anzeigen',
     'menu.option.hideFeedQuote': 'Motivationszitate ausblenden',
     'menu.option.appearance': 'Aussehen der Erweiterung',
     'menu.option.language': 'Sprache der Erweiterung',
-    'menu.option.showStats.desc': 'Zeigt Fokus-Statistiken wie gesparte Zeit und vermiedene Shorts.',
     'menu.option.hideFeedQuote.desc': 'Blendet das Motivationszitat aus, wenn der Startseiten-Feed blockiert ist.',
     'menu.option.appearance.desc': 'Wähle Auto-, Hell- oder Dunkel-Design für das Popup.',
     'menu.option.language.desc': 'Lege die Popup-Sprache fest oder nutze Auto für die Browser-Sprache.',
@@ -715,7 +650,6 @@ document.addEventListener('DOMContentLoaded', () => {
   setupSponsorButton();
   setupCustomMemeUpload();
   setupBreakTimer();
-  loadStats();
   updateHeaderVisibility();
 
   loadSettings().catch((error) => {
@@ -727,8 +661,8 @@ document.addEventListener('DOMContentLoaded', () => {
 function displayVersion() {
   const versionElement = document.querySelector('.version');
   if (versionElement) {
-    versionElement.textContent = `v.1.1.5`;
-    versionElement.setAttribute('aria-label', `Version 1.1.5`);
+    versionElement.textContent = `v.1.1.6`;
+    versionElement.setAttribute('aria-label', `Version 1.1.6`);
   }
 }
 
@@ -751,7 +685,6 @@ function setupMenuButton() {
       closeMenuInlineDropdowns();
       settingsMenu.classList.add('open');
       menuButton.classList.add('open');
-      triggerStatsAnimation();
     }
     updateHeaderVisibility();
   });
@@ -763,17 +696,6 @@ function setupMenuButton() {
     closeMenuInlineDropdowns();
     updateHeaderVisibility();
   });
-}
-
-// Trigger stats counter animation
-function triggerStatsAnimation() {
-  const statsSection = document.getElementById('statsSection');
-  if (statsSection && statsSection.classList.contains('visible')) {
-    browser.storage.local.get('stats', (result) => {
-      const stats = { ...DEFAULT_STATS, ...result.stats };
-      updateStatsDisplay(stats, true);
-    });
-  }
 }
 
 // ===== FEEDBACK BUTTON =====
@@ -1073,13 +995,6 @@ function applyLanguageSetting(value, options = {}) {
   updateThumbnailModeUI(currentThumbnailMode);
   updateMenuDropdownDisplay('language', normalized);
   updateMenuDropdownDisplay('appearance', currentAppearanceValue);
-  const statsSection = document.getElementById('statsSection');
-  if (statsSection && statsSection.classList.contains('visible')) {
-    browser.storage.local.get('stats', (result) => {
-      const stats = { ...DEFAULT_STATS, ...result.stats };
-      updateStatsDisplay(stats, false);
-    });
-  }
   browser.storage.sync.get(['extensionEnabled', 'takeBreak', 'breakStartTime', 'breakDuration'], (state) => {
     if (state && state.takeBreak && state.breakStartTime && state.breakDuration && state.extensionEnabled === false) {
       startBreakCountdown(Number(state.breakStartTime), Number(state.breakDuration));
@@ -1292,90 +1207,6 @@ function setupCustomMemeUpload() {
   });
 }
 
-// ===== STATS =====
-function loadStats() {
-  browser.storage.sync.get(['showStats'], (result) => {
-    const statsSection = document.getElementById('statsSection');
-    const showStats = result.showStats || false;
-    if (showStats) {
-      statsSection.classList.add('visible');
-      browser.storage.local.get('stats', (localResult) => {
-        const stats = { ...DEFAULT_STATS, ...localResult.stats };
-        updateStatsDisplay(stats, true);
-      });
-    } else {
-      statsSection.classList.remove('visible');
-    }
-  });
-}
-
-function animateCounter(element, targetValue, duration = 800, suffix = '') {
-  if (!element) return;
-  element.textContent = '0' + suffix;
-  const startValue = 0;
-  const startTime = performance.now();
-  function update(currentTime) {
-    const elapsed = currentTime - startTime;
-    const progress = Math.min(elapsed / duration, 1);
-    const easeOut = 1 - Math.pow(1 - progress, 3);
-    const currentValue = Math.round(startValue + (targetValue - startValue) * easeOut);
-    element.textContent = currentValue + suffix;
-    if (progress < 1) requestAnimationFrame(update);
-    else element.textContent = targetValue + suffix;
-  }
-  setTimeout(() => requestAnimationFrame(update), 50);
-}
-
-function updateStatsDisplay(stats, animate = false) {
-  const estimatedTimeSaved = 
-    (stats.shortsBlocked || 0) * TIME_SAVED_ESTIMATES.short +
-    (stats.recsHidden || 0) * TIME_SAVED_ESTIMATES.recommendation +
-    (stats.endCardsBlocked || 0) * TIME_SAVED_ESTIMATES.endCard +
-    (stats.autoplayStops || 0) * TIME_SAVED_ESTIMATES.autoplay;
-  
-  const timeSavedEl = document.getElementById('statTimeSaved');
-  const timeLabelEl = document.getElementById('statTimeLabel');
-  const hoursSuffix = translate('stats.hoursSuffix') || 'hr';
-  const minSavedLabel = translate('stats.minSaved') || 'Min Saved';
-  const timeSavedLabel = translate('stats.timeSaved') || 'Time Saved';
-  if (timeSavedEl && timeLabelEl) {
-    if (estimatedTimeSaved > 999) {
-      const hours = (estimatedTimeSaved / 60).toFixed(1);
-      timeLabelEl.textContent = timeSavedLabel;
-      if (animate) {
-        animateCounter(timeSavedEl, Math.floor(estimatedTimeSaved / 60), 800, hoursSuffix);
-        setTimeout(() => { timeSavedEl.textContent = `${hours}${hoursSuffix}`; }, 850);
-      } else timeSavedEl.textContent = `${hours}${hoursSuffix}`;
-    } else {
-      timeLabelEl.textContent = minSavedLabel;
-      if (animate) animateCounter(timeSavedEl, Math.round(estimatedTimeSaved), 800);
-      else timeSavedEl.textContent = Math.round(estimatedTimeSaved);
-    }
-  }
-  const shortsEl = document.getElementById('statShortsBlocked');
-  if (shortsEl) {
-    const shortsValue = stats.shortsBlocked || 0;
-    if (shortsValue > 999) {
-      const kValue = (shortsValue / 1000).toFixed(1);
-      const displayValue = kValue.endsWith('.0') ? Math.floor(shortsValue / 1000) + 'k' : kValue + 'k';
-      if (animate) {
-        animateCounter(shortsEl, Math.floor(shortsValue / 1000), 900, 'k');
-        setTimeout(() => { shortsEl.textContent = displayValue; }, 950);
-      } else shortsEl.textContent = displayValue;
-    } else {
-      if (animate) animateCounter(shortsEl, shortsValue, 900);
-      else shortsEl.textContent = shortsValue;
-    }
-  }
-  const daysEl = document.getElementById('statDaysActive');
-  if (daysEl) {
-    let daysValue = 1;
-    if (stats.firstUseDate) daysValue = Math.max(1, Math.floor((Date.now() - stats.firstUseDate) / (1000 * 60 * 60 * 24)));
-    if (animate) animateCounter(daysEl, daysValue, 700);
-    else daysEl.textContent = daysValue;
-  }
-}
-
 // ===== LOAD SETTINGS =====
 function loadSettings() {
   return new Promise((resolve) => {
@@ -1399,7 +1230,6 @@ function loadSettings() {
       if (savedAppearance === 'auto' && currentSettings.lightMode) savedAppearance = 'light';
       applyAppearanceSetting(savedAppearance, { skipSave: true });
       applyLanguageSetting(currentSettings.language || 'auto', { skipSave: true });
-      if (currentSettings.showStats) document.getElementById('statsSection').classList.add('visible');
       if (currentSettings.hideFeed) document.getElementById('redirectToSubsRow').classList.add('visible');
       const cleanFeedSubToggles = document.getElementById('cleanFeedSubToggles');
       if (!currentSettings.cleanHomepageFeed) cleanFeedSubToggles?.classList.add('visible');
@@ -1478,17 +1308,6 @@ function setupToggleListeners() {
     toggle.addEventListener('change', (e) => {
       const settingId = e.target.dataset.setting;
       const isChecked = e.target.checked;
-      if (settingId === 'showStats') {
-        const statsSection = document.getElementById('statsSection');
-        if (isChecked) {
-          statsSection.classList.add('visible');
-          browser.storage.local.get('stats', (result) => {
-            const stats = { ...DEFAULT_STATS, ...result.stats };
-            if (!stats.firstUseDate) { stats.firstUseDate = Date.now(); browser.storage.local.set({ stats }); }
-            updateStatsDisplay(stats, true);
-          });
-        } else statsSection.classList.remove('visible');
-      }
       if (settingId === 'hideFeed') {
         const row = document.getElementById('redirectToSubsRow');
         if (isChecked) row.classList.add('visible');

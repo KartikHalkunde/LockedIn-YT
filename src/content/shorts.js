@@ -120,10 +120,6 @@ function hideShortsHomepage(shouldHide) {
 				if (!shelf.hasAttribute('data-lockedin-hidden')) {
 					shelf.setAttribute('hidden', '');
 					shelf.setAttribute('data-lockedin-hidden', 'shorts-homepage');
-					const shortsCount = shelf.querySelectorAll('ytd-reel-item-renderer, ytm-reel-item-renderer, [href^="/shorts/"]').length;
-					if (shortsCount > 0) {
-						trackStat('shorts', shortsCount);
-					}
 					gridRearranger.execute(shelf);
 				}
 			}
@@ -147,7 +143,6 @@ function hideShortsHomepage(shouldHide) {
 				if (shortsLink && !video.hasAttribute('data-lockedin-hidden')) {
 					video.setAttribute('hidden', '');
 					video.setAttribute('data-lockedin-hidden', 'shorts-homepage');
-					trackStat('shorts', 1);
 					gridRearranger.execute(video);
 					hideContainerIfAllChildrenHiddenHomepage(video);
 				}
@@ -162,7 +157,6 @@ function hideShortsHomepage(shouldHide) {
 			if (container && !container.hasAttribute('data-lockedin-hidden')) {
 				container.setAttribute('hidden', '');
 				container.setAttribute('data-lockedin-hidden', 'shorts-homepage');
-				trackStat('shorts', 1);
 				hideContainerIfAllChildrenHiddenHomepage(container);
 			}
 		});

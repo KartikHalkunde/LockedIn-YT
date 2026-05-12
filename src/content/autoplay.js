@@ -183,7 +183,6 @@ function enforceAutoplayOff() {
 
 		if (isAutoplayButtonOn(button)) {
 			if (!autoplayDisabledThisPage) {
-				trackStat('autoplay', 1);
 				autoplayDisabledThisPage = true;
 			}
 			button.click();

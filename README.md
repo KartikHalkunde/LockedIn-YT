@@ -78,7 +78,6 @@ LockedIn is an open-source browser extension that helps you focus on YouTube by 
 - New organized UI with 4 logical groups
 - Power button to quickly toggle entire extension
 - "Take a Break" mode (temporarily disables extension with auto-redirect)
-- Stats tracking for time saved and content blocked
 - **Privacy:** Zero data collection. No external network requests.
 
 <div align="center">

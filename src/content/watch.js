@@ -153,7 +153,6 @@ function hideSidebar(shouldHide) {
 			});
 		});
 		if (recsCount > 0) {
-			trackStat('recs', recsCount);
 		}
 
 		const allContainers = [
@@ -296,7 +295,6 @@ function hideRecommendedVideos(shouldHide) {
 	});
 
 	if (recsCount > 0) {
-		trackStat('recs', recsCount);
 	}
 
 	collapseSidebarIfEmpty();
@@ -387,7 +385,6 @@ function hideSidebarShorts(shouldHide) {
 	});
 
 	if (shortsCount > 0) {
-		trackStat('shorts', shortsCount);
 	}
 
 	collapseSidebarIfEmpty();
@@ -546,7 +543,6 @@ function hideEndCards(shouldHide) {
 		}
 	});
 	if (endCardsCount > 0) {
-		trackStat('endcards', endCardsCount);
 	}
 
 	const hideSelectors = [

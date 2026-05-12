@@ -1,3 +1,7 @@
+## [1.1.6] - 2026-05-13
+### Changed
+- Removed the Show Stats feature for now; improving the stats logic and fixing issues, will add it back with a corrected implementation
+
 ## [1.1.5] - 2026-04-21
 ### Fixed
 - Fixed the end screen cards toggle restore behavior so YouTube’s native endscreen inline styles are preserved correctly
