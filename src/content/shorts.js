@@ -120,10 +120,6 @@ function hideShortsHomepage(shouldHide) {
 				if (!shelf.hasAttribute('data-lockedin-hidden')) {
 					shelf.setAttribute('hidden', '');
 					shelf.setAttribute('data-lockedin-hidden', 'shorts-homepage');
-					const shortsCount = shelf.querySelectorAll('ytd-reel-item-renderer, ytm-reel-item-renderer, [href^="/shorts/"]').length;
-					if (shortsCount > 0) {
-						trackStat('shorts', shortsCount);
-					}
 					gridRearranger.execute(shelf);
 				}
 			}
@@ -147,7 +143,6 @@ function hideShortsHomepage(shouldHide) {
 				if (shortsLink && !video.hasAttribute('data-lockedin-hidden')) {
 					video.setAttribute('hidden', '');
 					video.setAttribute('data-lockedin-hidden', 'shorts-homepage');
-					trackStat('shorts', 1);
 					gridRearranger.execute(video);
 					hideContainerIfAllChildrenHiddenHomepage(video);
 				}
@@ -162,7 +157,6 @@ function hideShortsHomepage(shouldHide) {
 			if (container && !container.hasAttribute('data-lockedin-hidden')) {
 				container.setAttribute('hidden', '');
 				container.setAttribute('data-lockedin-hidden', 'shorts-homepage');
-				trackStat('shorts', 1);
 				hideContainerIfAllChildrenHiddenHomepage(container);
 			}
 		});
@@ -410,12 +404,18 @@ function hideShortsGlobally(shouldHide) {
 	});
 }
 
-function redirectShorts(shouldRedirect) {
+async function redirectShorts(shouldRedirect) {
 	if (!shouldRedirect) return;
 
 	if (window.location.pathname.startsWith('/shorts/')) {
 		const videoId = window.location.pathname.split('/shorts/')[1]?.split('?')[0]?.split('/')[0];
 		if (videoId && videoId.length === 11) {
+			if (window._lockedinShortsRedirected !== window.location.href) {
+				window._lockedinShortsRedirected = window.location.href;
+				if (typeof trackStat === 'function') {
+					await trackStat('shortsAvoided', 1, { requireActive: false });
+				}
+			}
 			const searchParams = new URLSearchParams(window.location.search);
 			const newUrl = `https://www.youtube.com/watch?v=${videoId}${searchParams.toString() ? '&' + searchParams.toString() : ''}`;
 			window.location.replace(newUrl);
@@ -509,7 +509,7 @@ function hideEndCardsForShortsInPlayer(shouldHide) {
 }
 
 function setupShortsLinkInterception(shouldIntercept) {
-	const interceptHandler = (event) => {
+	const interceptHandler = async (event) => {
 		const link = event.target.closest('a[href^="/shorts/"]');
 		if (!link) return;
 
@@ -520,6 +520,9 @@ function setupShortsLinkInterception(shouldIntercept) {
 
 			const videoId = href.split('/shorts/')[1]?.split('?')[0]?.split('/')[0];
 			if (videoId && videoId.length === 11) {
+				if (typeof trackStat === 'function') {
+					await trackStat('shortsAvoided', 1, { requireActive: false });
+				}
 				window.location.href = `https://www.youtube.com/watch?v=${videoId}`;
 			}
 		}

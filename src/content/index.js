@@ -421,6 +421,8 @@ const DEFAULT_STATS = {
   recsHidden: 0,
   endCardsBlocked: 0,
   autoplayStops: 0,
+  timeSavedMinutes: 0,
+  distractionBlocks: 0,
   sessionTimeMs: 0,
   todaySessionMs: 0,
   todayDate: null,
@@ -429,13 +431,11 @@ const DEFAULT_STATS = {
   firstUseDate: null
 };
 
-// Time saved estimates (in minutes)
-const TIME_SAVED_ESTIMATES = {
-  short: 0.5,
-  recommendation: 5,
-  endCard: 3,
-  autoplay: 8
-};
+const TIME_SAVED_MINUTES_PER_SHORT = 0.5;
+
+let lastDistractionTrackingUrl = null;
+let hasTrackedHomepageBlock = false;
+let hasTrackedShortsBlock = false;
 
 // Track session time
 let sessionStartTime = null;
@@ -510,56 +510,46 @@ function updateSessionTime() {
 }
 
 // Track stats for blocked elements - only when page is active
-function trackStat(type, count = 1) {
+function trackStat(type, count = 1, options = {}) {
   if (count <= 0) return;
-  
-  // Only track stats when user is actively on the YouTube page
-  if (!isPageCurrentlyActive()) return;
-  
-  storageGet('local', 'stats').then((result) => {
+
+  const requireActive = options.requireActive !== false;
+  if (requireActive && !isPageCurrentlyActive()) return;
+
+  return storageGet('local', 'stats').then((result) => {
     const stats = { ...DEFAULT_STATS, ...result.stats };
     const today = new Date().toDateString();
     const now = Date.now();
-    
-    // Initialize first use date
+
     if (!stats.firstUseDate) {
       stats.firstUseDate = now;
     }
-    
-    // Reset today's time if it's a new day
+
     if (stats.todayDate !== today) {
       stats.todaySessionMs = 0;
       stats.todayDate = today;
     }
-    
-    // Reset weekly stats if it's a new week (Sunday)
-    const currentWeekStart = getWeekStart(now);
-    if (!stats.weekStartDate || stats.weekStartDate !== currentWeekStart) {
-      stats.weekTimeSaved = 0;
-      stats.weekStartDate = currentWeekStart;
-    }
-    
-    // Update specific stat
+
     switch (type) {
-      case 'shorts':
+      case 'shortsAvoided':
         stats.shortsBlocked += count;
-        stats.weekTimeSaved += count * TIME_SAVED_ESTIMATES.short;
+        stats.timeSavedMinutes += count * TIME_SAVED_MINUTES_PER_SHORT;
         break;
-      case 'recs':
-        stats.recsHidden += count;
-        stats.weekTimeSaved += count * TIME_SAVED_ESTIMATES.recommendation;
+      case 'shortsBlocked':
+        stats.shortsBlocked += count;
+        stats.timeSavedMinutes += count * TIME_SAVED_MINUTES_PER_SHORT;
         break;
-      case 'endcards':
-        stats.endCardsBlocked += count;
-        stats.weekTimeSaved += count * TIME_SAVED_ESTIMATES.endCard;
+      case 'timeSavedMinutes':
+        stats.timeSavedMinutes += count;
         break;
-      case 'autoplay':
-        stats.autoplayStops += count;
-        stats.weekTimeSaved += count * TIME_SAVED_ESTIMATES.autoplay;
+      case 'distractionBlock':
+        stats.distractionBlocks += count;
+        break;
+      default:
         break;
     }
-    
-    storageSet('local', { stats });
+
+    return storageSet('local', { stats });
   });
 }
 
@@ -569,6 +559,14 @@ function getWeekStart(timestamp) {
   const diff = date.getDate() - day;
   const weekStart = new Date(date.setDate(diff));
   return weekStart.toDateString();
+}
+
+function resetDistractionTrackingIfNeeded() {
+  if (lastDistractionTrackingUrl !== window.location.href) {
+    lastDistractionTrackingUrl = window.location.href;
+    hasTrackedHomepageBlock = false;
+    hasTrackedShortsBlock = false;
+  }
 }
 
 // Start session tracking when script loads
@@ -609,6 +607,17 @@ function runAll() {
     // Merge with defaults to ensure all settings exist
     const currentSettings = { ...DEFAULT_SETTINGS, ...settings };
     latestSyncedSettings = currentSettings;
+    resetDistractionTrackingIfNeeded();
+    if (isHomeLikeSurface && typeof isHomeLikeSurface === 'function' && isHomeLikeSurface()) {
+      if (currentSettings.hideFeed && !hasTrackedHomepageBlock) {
+        trackStat('distractionBlock', 1, { requireActive: false });
+        hasTrackedHomepageBlock = true;
+      }
+      if ((currentSettings.hideShortsHomepage || currentSettings.hideShortsGlobally) && !hasTrackedShortsBlock) {
+        trackStat('shortsBlocked', 1, { requireActive: false });
+        hasTrackedShortsBlock = true;
+      }
+    }
     observeGuideContainers();
     updateGuideVisibility();
     startTranscriptObserver();
@@ -710,11 +719,25 @@ function runAll() {
     
     updateGuideVisibility();
     ensureEssentialElementsVisible();
+    if (typeof initWatchTimeSavedTracking === 'function') {
+      initWatchTimeSavedTracking();
+    }
   }).catch((error) => {
     console.error('LockedIn: Failed to load settings', error);
     // Fallback: use default settings if storage fails
     const currentSettings = DEFAULT_SETTINGS;
     latestSyncedSettings = currentSettings;
+    resetDistractionTrackingIfNeeded();
+    if (isHomeLikeSurface && typeof isHomeLikeSurface === 'function' && isHomeLikeSurface()) {
+      if (currentSettings.hideFeed && !hasTrackedHomepageBlock) {
+        trackStat('distractionBlock', 1, { requireActive: false });
+        hasTrackedHomepageBlock = true;
+      }
+      if ((currentSettings.hideShortsHomepage || currentSettings.hideShortsGlobally) && !hasTrackedShortsBlock) {
+        trackStat('shortsBlocked', 1, { requireActive: false });
+        hasTrackedShortsBlock = true;
+      }
+    }
     setInstantHiding(currentSettings.hideShortsHomepage, currentSettings.hideShortsSearch, currentSettings.hideShortsGlobally);
     observeGuideContainers();
     updateGuideVisibility();
@@ -775,6 +798,9 @@ function runAll() {
       hideSubscriptions(currentSettings.hideSubscriptions);
     }
     updateGuideVisibility();
+    if (typeof initWatchTimeSavedTracking === 'function') {
+      initWatchTimeSavedTracking();
+    }
   });
 }
 

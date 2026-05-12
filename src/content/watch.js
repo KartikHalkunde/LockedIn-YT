@@ -54,6 +54,87 @@ function setCenteredWatchLayout(enabled) {
 	}
 }
 
+const TIME_SAVED_COMPLETION_THRESHOLD = 0.85;
+
+function getCurrentVideoId() {
+	try {
+		const params = new URLSearchParams(window.location.search);
+		return params.get('v');
+	} catch (error) {
+		return null;
+	}
+}
+
+function initWatchTimeSavedTracking() {
+	if (!window._lockedinTimeSavedTracker) {
+		window._lockedinTimeSavedTracker = {
+			video: null,
+			videoId: null,
+			watchedSeconds: 0,
+			lastTime: null,
+			creditedVideos: new Set()
+		};
+	}
+
+	const tracker = window._lockedinTimeSavedTracker;
+	const video = document.querySelector('video.html5-main-video, video');
+	const videoId = getCurrentVideoId();
+
+	if (!video) {
+		return;
+	}
+
+	if (tracker.video !== video) {
+		if (tracker.video) {
+			tracker.video.removeEventListener('timeupdate', tracker.onTimeUpdate);
+		}
+
+		tracker.video = video;
+		tracker.videoId = videoId;
+		tracker.watchedSeconds = 0;
+		tracker.lastTime = null;
+
+		tracker.onTimeUpdate = () => {
+			if (!tracker.video) return;
+			const duration = tracker.video.duration;
+			if (!Number.isFinite(duration) || duration <= 0) return;
+
+			const currentId = getCurrentVideoId();
+			if (currentId && currentId !== tracker.videoId) {
+				tracker.videoId = currentId;
+				tracker.watchedSeconds = 0;
+				tracker.lastTime = null;
+			}
+
+			if (tracker.video.paused || tracker.video.seeking) {
+				tracker.lastTime = tracker.video.currentTime;
+				return;
+			}
+
+			if (tracker.lastTime !== null) {
+				const delta = tracker.video.currentTime - tracker.lastTime;
+				if (delta > 0 && delta < 5) {
+					tracker.watchedSeconds += delta;
+				}
+			}
+
+			tracker.lastTime = tracker.video.currentTime;
+
+			const thresholdSeconds = duration * TIME_SAVED_COMPLETION_THRESHOLD;
+			const hideSidebarOrRecs = !!(latestSyncedSettings && (latestSyncedSettings.hideSidebar || latestSyncedSettings.hideRecommended));
+			if (!hideSidebarOrRecs) return;
+
+			if (tracker.watchedSeconds >= thresholdSeconds && currentId && !tracker.creditedVideos.has(currentId)) {
+				tracker.creditedVideos.add(currentId);
+				const minutesSaved = duration / 2 / 60;
+				trackStat('timeSavedMinutes', minutesSaved);
+			}
+		};
+
+		tracker.video.addEventListener('timeupdate', tracker.onTimeUpdate);
+	}
+}
+
 function hideSidebar(shouldHide) {
 	if (!window.location.href.includes('/watch')) {
 		return;

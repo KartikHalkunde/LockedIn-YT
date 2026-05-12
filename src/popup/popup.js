@@ -48,6 +48,8 @@ const DEFAULT_STATS = {
   recsHidden: 0,
   endCardsBlocked: 0,
   autoplayStops: 0,
+  timeSavedMinutes: 0,
+  distractionBlocks: 0,
   sessionTimeMs: 0,
   todaySessionMs: 0,
   todayDate: null,
@@ -1327,11 +1329,7 @@ function animateCounter(element, targetValue, duration = 800, suffix = '') {
 }
 
 function updateStatsDisplay(stats, animate = false) {
-  const estimatedTimeSaved = 
-    (stats.shortsBlocked || 0) * TIME_SAVED_ESTIMATES.short +
-    (stats.recsHidden || 0) * TIME_SAVED_ESTIMATES.recommendation +
-    (stats.endCardsBlocked || 0) * TIME_SAVED_ESTIMATES.endCard +
-    (stats.autoplayStops || 0) * TIME_SAVED_ESTIMATES.autoplay;
+  const estimatedTimeSaved = stats.timeSavedMinutes || 0;
   
   const timeSavedEl = document.getElementById('statTimeSaved');
   const timeLabelEl = document.getElementById('statTimeLabel');
