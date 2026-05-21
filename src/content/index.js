@@ -522,6 +522,8 @@ function runAll() {
       hideSidebarShorts(currentSettings.hideSidebarShorts);
       hidePlaylists(currentSettings.hidePlaylists);
     }
+    const allowUnrelatedFilter = !currentSettings.hideSidebar && !currentSettings.hideRecommended;
+    setHideUnrelatedVideos(allowUnrelatedFilter && currentSettings.hideUnrelatedVideos);
     ensureSidebarObserver(currentSettings.hideSidebar || currentSettings.hideRecommended);
     scheduleSidebarHideRetries(currentSettings);
     hideLiveChat(currentSettings.hideLiveChat);
@@ -594,6 +596,8 @@ function runAll() {
       hideSidebarShorts(currentSettings.hideSidebarShorts);
       hidePlaylists(currentSettings.hidePlaylists);
     }
+    const allowUnrelatedFilter = !currentSettings.hideSidebar && !currentSettings.hideRecommended;
+    setHideUnrelatedVideos(allowUnrelatedFilter && currentSettings.hideUnrelatedVideos);
     hideLiveChat(currentSettings.hideLiveChat);
     hideEndCards(currentSettings.hideEndCards);
     hideComments(currentSettings.hideComments);

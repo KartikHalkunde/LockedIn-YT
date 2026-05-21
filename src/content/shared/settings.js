@@ -112,6 +112,7 @@ const DEFAULT_SETTINGS = {
 	hideVideoThumbnails: false,
 	hideSidebar: false,
 	hideRecommended: false,
+	hideUnrelatedVideos: false,
 	hideSidebarShorts: false,
 	hideLiveChat: false,
 	hideEndCards: false,

@@ -20,6 +20,7 @@ const DEFAULT_SETTINGS = {
   hideVideoThumbnails: false,
   hideSidebar: false,
   hideRecommended: false,
+  hideUnrelatedVideos: false,
   hideSidebarShorts: false,
   hideLiveChat: false,
   hideEndCards: false,
@@ -122,6 +123,7 @@ const I18N_STRINGS = {
     'group.video': 'Video Page',
     'setting.hideSidebar': 'Hide Video Sidebar',
     'setting.hideRecommended': 'Hide Recommended Videos',
+    'setting.hideUnrelatedVideos': 'Hide Unrelated Videos',
     'setting.hideSidebarShorts': 'Hide YouTube Shorts',
     'setting.hidePlaylists': 'Hide Playlists',
     'setting.hideSubscriptions': 'Hide Subscriptions',
@@ -195,6 +197,7 @@ const I18N_STRINGS = {
     'group.video': 'Página de video',
     'setting.hideSidebar': 'Ocultar barra lateral del video',
     'setting.hideRecommended': 'Ocultar videos recomendados',
+    'setting.hideUnrelatedVideos': 'Hide Unrelated Videos',
     'setting.hideSidebarShorts': 'Ocultar Shorts de YouTube',
     'setting.hidePlaylists': 'Ocultar listas de reproducción',
     'setting.hideSubscriptions': 'Ocultar suscripciones',
@@ -268,6 +271,7 @@ const I18N_STRINGS = {
     'group.video': 'वीडियो पेज',
     'setting.hideSidebar': 'वीडियो साइडबार छुपाएँ',
     'setting.hideRecommended': 'अनुशंसित वीडियो छुपाएँ',
+    'setting.hideUnrelatedVideos': 'Hide Unrelated Videos',
     'setting.hideSidebarShorts': 'YouTube शॉर्ट्स छुपाएँ',
     'setting.hidePlaylists': 'प्लेलिस्ट छुपाएँ',
     'setting.hideSubscriptions': 'सदस्यताएँ छुपाएँ',
@@ -341,6 +345,7 @@ const I18N_STRINGS = {
     'group.video': 'Página de vídeo',
     'setting.hideSidebar': 'Ocultar barra lateral do vídeo',
     'setting.hideRecommended': 'Ocultar vídeos recomendados',
+    'setting.hideUnrelatedVideos': 'Hide Unrelated Videos',
     'setting.hideSidebarShorts': 'Ocultar Shorts do YouTube',
     'setting.hidePlaylists': 'Ocultar playlists',
     'setting.hideSubscriptions': 'Ocultar inscrições',
@@ -414,6 +419,7 @@ const I18N_STRINGS = {
     'group.video': 'Page vidéo',
     'setting.hideSidebar': 'Masquer la barre latérale',
     'setting.hideRecommended': 'Masquer les vidéos recommandées',
+    'setting.hideUnrelatedVideos': 'Hide Unrelated Videos',
     'setting.hideSidebarShorts': 'Masquer les YouTube Shorts',
     'setting.hidePlaylists': 'Masquer les playlists',
     'setting.hideSubscriptions': 'Masquer les abonnements',
@@ -487,6 +493,7 @@ const I18N_STRINGS = {
     'group.video': 'Videoseite',
     'setting.hideSidebar': 'Videoseitenleiste ausblenden',
     'setting.hideRecommended': 'Empfohlene Videos ausblenden',
+    'setting.hideUnrelatedVideos': 'Hide Unrelated Videos',
     'setting.hideSidebarShorts': 'YouTube Shorts ausblenden',
     'setting.hidePlaylists': 'Playlists ausblenden',
     'setting.hideSubscriptions': 'Abonnements ausblenden',
@@ -1237,6 +1244,9 @@ function loadSettings() {
       const sidebarSubToggles = document.getElementById('sidebarSubToggles');
       if (!currentSettings.hideSidebar) sidebarSubToggles?.classList.add('visible');
       else sidebarSubToggles?.classList.remove('visible');
+      const hideUnrelatedRow = document.getElementById('hideUnrelatedRow');
+      if (!currentSettings.hideRecommended) hideUnrelatedRow?.classList.add('visible');
+      else hideUnrelatedRow?.classList.remove('visible');
       const cleanSidebarSubToggles = document.getElementById('cleanSidebarSubToggles');
       if (!currentSettings.cleanSidebar) cleanSidebarSubToggles?.classList.add('visible');
       else cleanSidebarSubToggles?.classList.remove('visible');
@@ -1330,13 +1340,33 @@ function setupToggleListeners() {
       }
       if (settingId === 'hideSidebar') {
         const sub = document.getElementById('sidebarSubToggles');
-        if (!isChecked) sub?.classList.add('visible');
+        if (!isChecked) {
+          sub?.classList.add('visible');
+          const hideUnrelatedRow = document.getElementById('hideUnrelatedRow');
+          const recommendedToggle = document.querySelector('input[data-setting="hideRecommended"]');
+          if (hideUnrelatedRow) {
+            if (recommendedToggle && recommendedToggle.checked) hideUnrelatedRow.classList.remove('visible');
+            else hideUnrelatedRow.classList.add('visible');
+          }
+        }
         else {
           sub?.classList.remove('visible');
-          ['hideRecommended', 'hideSidebarShorts', 'hidePlaylists'].forEach(s => {
+          ['hideRecommended', 'hideUnrelatedVideos', 'hideSidebarShorts', 'hidePlaylists'].forEach(s => {
             const t = document.querySelector(`input[data-setting="${s}"]`);
             if (t && t.checked) { t.checked = false; browser.storage.sync.set({ [s]: false }); }
           });
+        }
+      }
+      if (settingId === 'hideRecommended') {
+        const row = document.getElementById('hideUnrelatedRow');
+        if (!isChecked) row?.classList.add('visible');
+        else {
+          row?.classList.remove('visible');
+          const unrelatedToggle = document.querySelector('input[data-setting="hideUnrelatedVideos"]');
+          if (unrelatedToggle && unrelatedToggle.checked) {
+            unrelatedToggle.checked = false;
+            browser.storage.sync.set({ hideUnrelatedVideos: false });
+          }
         }
       }
       if (settingId === 'cleanSidebar') {

@@ -1,5 +1,12 @@
 // ===== WATCH MODULE =====
 
+let lastWatchVideoId = null;
+let lastAppliedChipVideoId = null;
+let userSelectedChipVideoId = null;
+let chipSelectionListenerBound = false;
+let hideUnrelatedRetryTimers = [];
+let hideUnrelatedObserver = null;
+
 function setCenteredWatchLayout(enabled) {
 	const styleId = 'lockedin-center-watch-layout';
 	let style = document.getElementById(styleId);
@@ -300,6 +307,156 @@ function hideRecommendedVideos(shouldHide) {
 	collapseSidebarIfEmpty();
 	ensureCommentsVisible();
 	ensureTranscriptPanelVisible();
+}
+
+function getWatchVideoId() {
+	try {
+		const url = new URL(window.location.href);
+		return url.searchParams.get('v') || null;
+	} catch (error) {
+		return null;
+	}
+}
+
+function getSidebarChips() {
+	const containers = Array.from(new Set([
+		...document.querySelectorAll('#secondary, #related, ytd-watch-next-secondary-results-renderer')
+	]));
+
+	const chips = [];
+	containers.forEach((container) => {
+		container.querySelectorAll('iron-selector#chips').forEach((selector) => {
+			selector.querySelectorAll('yt-chip-cloud-chip-renderer').forEach((chip) => chips.push(chip));
+		});
+		container.querySelectorAll('yt-chip-cloud-chip-renderer').forEach((chip) => chips.push(chip));
+	});
+
+	const unique = Array.from(new Set(chips));
+	return unique.filter((chip) => chip.closest('#secondary, #related, ytd-watch-next-secondary-results-renderer'));
+}
+
+function isChipSelected(chip) {
+	if (!chip) return false;
+	const button = chip.querySelector('button');
+	if (button && button.getAttribute('aria-selected') === 'true') return true;
+	return chip.hasAttribute('selected') || chip.classList.contains('iron-selected');
+}
+
+function getSelectedChipIndex(chips) {
+	for (let i = 0; i < chips.length; i++) {
+		if (isChipSelected(chips[i])) return i;
+	}
+	return -1;
+}
+
+function clickChipAtIndex(chips, index) {
+	if (!chips || chips.length <= index || index < 0) return false;
+	const chip = chips[index];
+	if (isChipSelected(chip)) return false;
+	const button = chip.querySelector('button');
+	if (!button) return false;
+	button.dispatchEvent(new MouseEvent('pointerdown', { bubbles: true }));
+	button.dispatchEvent(new MouseEvent('mousedown', { bubbles: true }));
+	button.dispatchEvent(new MouseEvent('pointerup', { bubbles: true }));
+	button.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }));
+	button.click();
+	return true;
+}
+
+function bindChipSelectionListener() {
+	if (chipSelectionListenerBound) return;
+	chipSelectionListenerBound = true;
+
+	document.addEventListener('click', (event) => {
+		if (!window.location.pathname.startsWith('/watch')) return;
+		const chip = event.target.closest('yt-chip-cloud-chip-renderer');
+		if (!chip) return;
+		if (!chip.closest('#secondary, #related, ytd-watch-next-secondary-results-renderer')) return;
+		const currentVideoId = getWatchVideoId();
+		if (!currentVideoId) return;
+		userSelectedChipVideoId = currentVideoId;
+	}, true);
+}
+
+function clearHideUnrelatedRetry() {
+	hideUnrelatedRetryTimers.forEach(clearTimeout);
+	hideUnrelatedRetryTimers = [];
+	if (hideUnrelatedObserver) {
+		hideUnrelatedObserver.disconnect();
+		hideUnrelatedObserver = null;
+	}
+}
+
+function scheduleHideUnrelatedRetry() {
+	clearHideUnrelatedRetry();
+	[120, 350, 800, 1500].forEach((ms) => {
+		hideUnrelatedRetryTimers.push(setTimeout(() => {
+			if (latestSyncedSettings.hideUnrelatedVideos) {
+				setHideUnrelatedVideos(true);
+			}
+		}, ms));
+	});
+	if (hideUnrelatedObserver) return;
+	const root = document.querySelector('#secondary') || document.body || document.documentElement;
+	if (!root) return;
+	hideUnrelatedObserver = new MutationObserver(() => {
+		if (!latestSyncedSettings.hideUnrelatedVideos) return;
+		const chips = getSidebarChips();
+		if (chips.length > 0) {
+			setHideUnrelatedVideos(true);
+			clearHideUnrelatedRetry();
+		}
+	});
+	hideUnrelatedObserver.observe(root, { childList: true, subtree: true });
+}
+
+function setHideUnrelatedVideos(enabled) {
+	if (!window.location.pathname.startsWith('/watch')) {
+		return;
+	}
+
+	const playlistPanel = document.querySelector('#secondary ytd-playlist-panel-renderer, ytd-playlist-panel-renderer, ytd-playlist-panel-view-model, #playlist');
+	if (playlistPanel) {
+		return;
+	}
+
+	bindChipSelectionListener();
+	if (!enabled) {
+		clearHideUnrelatedRetry();
+	}
+
+	const currentVideoId = getWatchVideoId();
+	if (!currentVideoId) return;
+	const chips = getSidebarChips();
+	if (chips.length === 0) {
+		if (enabled) scheduleHideUnrelatedRetry();
+		return;
+	}
+
+	const isInitialLoad = lastWatchVideoId === null;
+	const videoChanged = !isInitialLoad && currentVideoId !== lastWatchVideoId;
+	if (isInitialLoad || videoChanged) {
+		lastWatchVideoId = currentVideoId;
+		lastAppliedChipVideoId = null;
+		userSelectedChipVideoId = null;
+	}
+
+	const selectedIndex = getSelectedChipIndex(chips);
+
+	if (!enabled) {
+		if (selectedIndex !== 0) {
+			clickChipAtIndex(chips, 0);
+		}
+		return;
+	}
+
+	if (userSelectedChipVideoId === currentVideoId) return;
+	if (lastAppliedChipVideoId === currentVideoId) return;
+	if (isInitialLoad && selectedIndex > 0) return;
+
+	if (clickChipAtIndex(chips, 1)) {
+		lastAppliedChipVideoId = currentVideoId;
+	}
 }
 
 function hideAll(shouldHide) {
