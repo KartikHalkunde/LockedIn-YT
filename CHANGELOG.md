@@ -1,3 +1,7 @@
+## [1.1.8] - 2026-06-03
+### Added
+- Added language support for Simplified Chinese and Traditional Chinese (thanks @Hendrix4858).
+
 ## [1.1.7] - 2026-05-23
 ### Added
 - Added a new Homepage toggle to hide the "Explore more topics" shelf
