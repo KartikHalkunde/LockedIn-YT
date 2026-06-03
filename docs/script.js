@@ -162,6 +162,90 @@ document.querySelectorAll('.download-btn').forEach(btn => {
     });
 });
 
+// Feature demo videos: play only when centered in viewport
+const demoVideos = document.querySelectorAll('.demo-video');
+
+const setPlayPauseState = (video, isPaused) => {
+    const button = video.closest('.feature-video')?.querySelector('.play-pause');
+    if (!button) return;
+    button.classList.toggle('is-paused', isPaused);
+};
+
+const videoObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+        const video = entry.target;
+        if (entry.isIntersecting) {
+            if (video.dataset.userPaused !== 'true') {
+                video.play().catch(() => {});
+                setPlayPauseState(video, false);
+            }
+        } else {
+            video.pause();
+            setPlayPauseState(video, true);
+        }
+    });
+}, {
+    root: null,
+    rootMargin: '-40% 0px -40% 0px',
+    threshold: 0.01
+});
+
+demoVideos.forEach((video) => {
+    video.muted = true;
+    setPlayPauseState(video, true);
+    videoObserver.observe(video);
+
+    const container = video.closest('.feature-video');
+    if (!container) return;
+
+    const playPauseBtn = container.querySelector('.play-pause');
+    const expandBtn = container.querySelector('.expand');
+
+    if (playPauseBtn) {
+        playPauseBtn.addEventListener('click', () => {
+            if (video.paused) {
+                video.dataset.userPaused = 'false';
+                video.play().catch(() => {});
+                setPlayPauseState(video, false);
+            } else {
+                video.dataset.userPaused = 'true';
+                video.pause();
+                setPlayPauseState(video, true);
+            }
+        });
+    }
+
+    if (expandBtn) {
+        expandBtn.addEventListener('click', () => {
+            const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement;
+            if (fullscreenElement) {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
+            } else if (container.requestFullscreen) {
+                container.requestFullscreen();
+            } else if (container.webkitRequestFullscreen) {
+                container.webkitRequestFullscreen();
+            }
+        });
+    }
+
+    const updateFullscreenState = () => {
+        const fullscreenElement = document.fullscreenElement || document.webkitFullscreenElement;
+        const isFullscreen = fullscreenElement === container;
+        container.classList.toggle('is-fullscreen', isFullscreen);
+        if (expandBtn) {
+            expandBtn.classList.toggle('is-collapsed', isFullscreen);
+            expandBtn.setAttribute('aria-label', isFullscreen ? 'Collapse demo' : 'Expand demo');
+        }
+    };
+
+    document.addEventListener('fullscreenchange', updateFullscreenState);
+    document.addEventListener('webkitfullscreenchange', updateFullscreenState);
+});
+
 
 // Add copy-to-clipboard for install commands (if you add them later)
 const addCopyButtons = () => {
