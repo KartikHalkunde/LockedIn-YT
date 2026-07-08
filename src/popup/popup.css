@@ -1982,3 +1982,50 @@ body {
 .popup-container.light-mode .settings-menu-scroll::-webkit-scrollbar-thumb {
   background: hsla(210, 30%, 65%, 0.4);
 }
+
+/* ===== MANAGED (ENTERPRISE POLICY) LOCK STATE ===== */
+/* Controls whose value is forced by an administrator via storage.managed are
+   disabled here and marked with a small lock badge. */
+.managed-lock-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  margin-left: 6px;
+  /* auto margin keeps the badge next to its label and pushes the (disabled)
+     control to the far right of the row. */
+  margin-right: auto;
+  color: hsla(0, 0%, 100%, 0.55);
+  flex: 0 0 auto;
+  cursor: help;
+}
+
+.managed-lock-badge svg {
+  width: 12px;
+  height: 12px;
+}
+
+/* Dim the label of a locked row to signal it can't be changed. */
+.setting-row.managed-locked .setting-label,
+.sub-toggle-row.managed-locked .setting-label {
+  opacity: 0.65;
+}
+
+/* Disabled toggle slider + button affordances for locked controls. */
+.toggle-switch input:disabled + .toggle-slider {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.thumbnail-mode-button:disabled,
+.menu-inline-trigger:disabled,
+.power-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Light-mode variant for the lock badge. */
+.popup-container.light-mode .managed-lock-badge {
+  color: hsla(210, 20%, 25%, 0.6);
+}

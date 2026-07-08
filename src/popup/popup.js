@@ -42,6 +42,159 @@ const DEFAULT_SETTINGS = {
   language: 'auto'
 };
 
+// ===== MANAGED (ENTERPRISE POLICY) STORAGE =====
+// Any key present in storage.managed is BOTH forced (value applied) and locked
+// (control disabled in the popup). An administrator pushes settings via
+// enterprise policy and the user cannot change them. These are populated once
+// on load by applyManagedLocks().
+let managedSettings = {};
+let managedKeys = new Set();
+
+// Read managed policy, tolerating promise (Firefox) and callback (Chromium)
+// styles. Never throws: absent/empty policy resolves to {}.
+function getManagedSettings() {
+  return new Promise((resolve) => {
+    try {
+      const area = browser && browser.storage ? browser.storage.managed : null;
+      if (!area || typeof area.get !== 'function') {
+        resolve({});
+        return;
+      }
+      const maybePromise = area.get(null, (result) => {
+        if (browser.runtime && browser.runtime.lastError) {
+          resolve({});
+          return;
+        }
+        resolve(result || {});
+      });
+      if (maybePromise && typeof maybePromise.then === 'function') {
+        maybePromise.then((result) => resolve(result || {})).catch(() => resolve({}));
+      }
+    } catch (error) {
+      resolve({});
+    }
+  });
+}
+
+// Save to sync while NEVER writing admin-locked keys. Use this everywhere in
+// place of browser.storage.sync.set so locked settings can't be overwritten.
+function syncSet(data, callback) {
+  const filtered = {};
+  Object.keys(data || {}).forEach((key) => {
+    if (!managedKeys.has(key)) filtered[key] = data[key];
+  });
+  if (Object.keys(filtered).length === 0) {
+    if (typeof callback === 'function') callback();
+    return;
+  }
+  browser.storage.sync.set(filtered, callback);
+}
+
+// Push a live setting change to the active tab's content script, but NEVER for
+// an admin-locked key: managed storage is authoritative on the page, so a popup
+// message must not transiently override a locked setting. Use this everywhere in
+// place of a raw settingChanged sendMessage.
+function sendSettingChanged(setting, value) {
+  if (managedKeys.has(setting)) return;
+  browser.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    if (tabs[0]) {
+      browser.tabs.sendMessage(tabs[0].id, { action: 'settingChanged', setting, value }).catch(() => {});
+    }
+  });
+}
+
+// Small inline lock badge shown next to a control that is enforced by policy.
+function createLockBadge() {
+  const badge = document.createElement('span');
+  badge.className = 'managed-lock-badge';
+  const label = (typeof translate === 'function' && translate('managed.locked'))
+    || 'Enforced by your administrator';
+  badge.title = label;
+  badge.setAttribute('aria-label', label);
+  badge.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>';
+  return badge;
+}
+
+// Mark a control's row as admin-locked: add a lock badge (once) and a class the
+// CSS uses to dim the row.
+function markRowLocked(control) {
+  const row = control.closest('.setting-row, .sub-toggle-row');
+  if (!row) return;
+  row.classList.add('managed-locked');
+  if (!row.querySelector('.managed-lock-badge')) {
+    const label = row.querySelector('.setting-label');
+    const badge = createLockBadge();
+    if (label) label.insertAdjacentElement('afterend', badge);
+    else row.appendChild(badge);
+  }
+}
+
+// Remove any previously-applied managed locks so a policy change or removal
+// while the popup is open releases controls that are no longer managed. The only
+// code that disables these controls is applyManagedLocks(), so re-enabling them
+// here is safe.
+function clearManagedLocks() {
+  document.querySelectorAll('.managed-lock-badge').forEach((badge) => badge.remove());
+  document.querySelectorAll('.managed-locked').forEach((el) => el.classList.remove('managed-locked'));
+  document.querySelectorAll('input[type="checkbox"][data-setting]').forEach((toggle) => {
+    toggle.disabled = false;
+  });
+  ['thumbnailModeButton', 'powerButton', 'appearanceDropdownTrigger', 'languageDropdownTrigger'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.disabled = false;
+  });
+}
+
+// Apply admin locks to the UI after settings are loaded. Called from
+// loadSettings() with the already-merged effective settings.
+function applyManagedLocks() {
+  // Always clear first so removing policy at runtime unlocks the UI.
+  clearManagedLocks();
+  if (!managedKeys || managedKeys.size === 0) return;
+
+  // Checkbox toggles.
+  document.querySelectorAll('input[type="checkbox"]').forEach((toggle) => {
+    const settingId = toggle.dataset.setting;
+    if (!settingId || !managedKeys.has(settingId)) return;
+    toggle.checked = managedSettings[settingId] === true;
+    toggle.disabled = true;
+    markRowLocked(toggle);
+  });
+
+  // Thumbnail mode is a button-dropdown, not a checkbox.
+  if (managedKeys.has('hideVideoThumbnails')) {
+    const modeButton = document.getElementById('thumbnailModeButton');
+    if (modeButton) {
+      modeButton.disabled = true;
+      modeButton.classList.add('managed-locked');
+      markRowLocked(modeButton);
+    }
+  }
+
+  // extensionEnabled locked => the on/off power control is fixed.
+  if (managedKeys.has('extensionEnabled')) {
+    const powerButton = document.getElementById('powerButton');
+    if (powerButton) {
+      powerButton.disabled = true;
+      powerButton.classList.add('managed-locked');
+      powerButton.title = (typeof translate === 'function' && translate('managed.locked'))
+        || 'Enforced by your administrator';
+    }
+  }
+
+  // Appearance / language are menu dropdowns.
+  [['appearance', 'appearanceDropdownTrigger'], ['language', 'languageDropdownTrigger']].forEach(([key, triggerId]) => {
+    if (!managedKeys.has(key)) return;
+    const trigger = document.getElementById(triggerId);
+    if (trigger) {
+      trigger.disabled = true;
+      trigger.classList.add('managed-locked');
+      trigger.title = (typeof translate === 'function' && translate('managed.locked'))
+        || 'Enforced by your administrator';
+    }
+  });
+}
+
 const APPEARANCE_OPTIONS = ['auto', 'light', 'dark'];
 const APPEARANCE_LABEL_KEYS = {
   auto: 'appearance.option.auto',
@@ -85,6 +238,7 @@ const I18N_STRINGS = {
     'tooltip.menu': 'Menu',
     'tooltip.power': 'Toggle Extension',
     'tooltip.close': 'Close',
+    'managed.locked': 'Enforced by your administrator',
     'power.instant': 'Turn Off Now',
     'power.ten': 'Turn Off for 10 min',
     'power.twenty': 'Turn Off for 20 min',
@@ -170,6 +324,7 @@ const I18N_STRINGS = {
     'tooltip.menu': 'Menú',
     'tooltip.power': 'Activar o desactivar',
     'tooltip.close': 'Cerrar',
+    'managed.locked': 'Aplicado por tu administrador',
     'power.instant': 'Desactivar ahora',
     'power.ten': 'Desactivar por 10 min',
     'power.twenty': 'Desactivar por 20 min',
@@ -254,6 +409,7 @@ const I18N_STRINGS = {
     'tooltip.menu': 'मेन्यू',
     'tooltip.power': 'एक्सटेंशन चालू/बंद करें',
     'tooltip.close': 'बंद करें',
+    'managed.locked': 'आपके व्यवस्थापक द्वारा लागू किया गया',
     'power.instant': 'अभी बंद करें',
     'power.ten': '10 मिनट के लिए बंद करें',
     'power.twenty': '20 मिनट के लिए बंद करें',
@@ -338,6 +494,7 @@ const I18N_STRINGS = {
     'tooltip.menu': 'Menu',
     'tooltip.power': 'Ativar/desativar',
     'tooltip.close': 'Fechar',
+    'managed.locked': 'Aplicado pelo seu administrador',
     'power.instant': 'Desativar agora',
     'power.ten': 'Ativar por 10 min',
     'power.twenty': 'Ativar por 20 min',
@@ -422,6 +579,7 @@ const I18N_STRINGS = {
     'tooltip.menu': 'Menu',
     'tooltip.power': "Activer/désactiver",
     'tooltip.close': 'Fermer',
+    'managed.locked': 'Appliqué par votre administrateur',
     'power.instant': 'Désactiver maintenant',
     'power.ten': 'Désactiver pendant 10 min',
     'power.twenty': 'Désactiver pendant 20 min',
@@ -506,6 +664,7 @@ const I18N_STRINGS = {
     'tooltip.menu': 'Menü',
     'tooltip.power': 'Erweiterung umschalten',
     'tooltip.close': 'Schließen',
+    'managed.locked': 'Von deinem Administrator festgelegt',
     'power.instant': 'Jetzt deaktivieren',
     'power.ten': 'Für 10 Min deaktivieren',
     'power.twenty': 'Für 20 Min deaktivieren',
@@ -590,6 +749,7 @@ const I18N_STRINGS = {
     'tooltip.menu': '菜单',
     'tooltip.power': '扩展开关',
     'tooltip.close': '关闭',
+    'managed.locked': '由您的管理员强制执行',
     'power.instant': '立即关闭',
     'power.ten': '关闭10分钟',
     'power.twenty': '关闭20分钟',
@@ -676,6 +836,7 @@ const I18N_STRINGS = {
     'tooltip.menu': '菜單',
     'tooltip.power': '擴展開關',
     'tooltip.close': '關閉',
+    'managed.locked': '由您的管理員強制執行',
     'power.instant': '立即關閉',
     'power.ten': '關閉10分鐘',
     'power.twenty': '關閉20分鐘',
@@ -906,9 +1067,31 @@ document.addEventListener('DOMContentLoaded', () => {
   setupBreakTimer();
   updateHeaderVisibility();
 
-  loadSettings().catch((error) => {
-    console.error('LockedIn: Failed to load popup settings', error);
-  });
+  // Make the popup inert (blocks pointer AND keyboard/focus activation) until
+  // settings — including managed policy — have loaded, so an early interaction
+  // can't write a managed-locked key to sync before the lock is applied.
+  // loadSettings() reads storage.managed and calls applyManagedLocks() before it
+  // resolves. Also used for the runtime managed-change path below.
+  const initContainer = document.querySelector('.popup-container');
+  const loadSettingsGated = () => {
+    if (initContainer) initContainer.inert = true;
+    return loadSettings()
+      .catch((error) => {
+        console.error('LockedIn: Failed to load popup settings', error);
+      })
+      .finally(() => {
+        if (initContainer) initContainer.inert = false;
+      });
+  };
+  loadSettingsGated();
+
+  // Re-apply (or release) admin locks if enterprise policy changes while the
+  // popup is open, gated the same way so the transient window stays closed.
+  if (browser.storage && browser.storage.onChanged) {
+    browser.storage.onChanged.addListener((changes, area) => {
+      if (area === 'managed') loadSettingsGated();
+    });
+  }
 });
 
 function setupGroupCollapsibles() {
@@ -934,7 +1117,7 @@ function setupGroupCollapsibles() {
         chevron.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
         if (persist) {
           saved[groupKey] = collapsed;
-          browser.storage.sync.set({ collapsedGroups: saved });
+          syncSet({ collapsedGroups: saved });
         }
       };
 
@@ -1061,7 +1244,7 @@ function setupPowerButton() {
     browser.storage.sync.get(['extensionEnabled'], (result) => {
       const isEnabled = result.extensionEnabled !== undefined ? result.extensionEnabled : true;
       if (!isEnabled) {
-        browser.storage.sync.set({
+        syncSet({
           extensionEnabled: true,
           breakStartTime: null,
           takeBreak: false
@@ -1123,7 +1306,7 @@ function setupPowerButton() {
       } else {
         saveData.breakStartTime = null;
       }
-      browser.storage.sync.set(saveData, () => {
+      syncSet(saveData, () => {
         if (browser.runtime.lastError) {
           console.error('LockedIn: Failed to save power state', browser.runtime.lastError);
           return;
@@ -1282,7 +1465,7 @@ function applyAppearanceSetting(value, options = {}) {
   }
   updateMenuDropdownDisplay('appearance', normalized);
   if (!options.skipSave) {
-    browser.storage.sync.set({ appearance: normalized });
+    syncSet({ appearance: normalized });
   }
 }
 
@@ -1300,7 +1483,7 @@ function applyLanguageSetting(value, options = {}) {
     }
   });
   if (!options.skipSave) {
-    browser.storage.sync.set({ language: normalized });
+    syncSet({ language: normalized });
   }
 }
 
@@ -1377,7 +1560,7 @@ function startBreakCountdown(startTime, duration) {
   const now = Date.now();
   if (!Number.isFinite(normalizedStart) || normalizedStart <= 0) {
     normalizedStart = now;
-    browser.storage.sync.set({ breakStartTime: normalizedStart });
+    syncSet({ breakStartTime: normalizedStart });
   }
   const endTime = normalizedStart + (fallbackDuration * 60 * 1000);
 
@@ -1394,7 +1577,7 @@ function startBreakCountdown(startTime, duration) {
       breakTimerText.style.display = 'none';
       updatePowerState(true);
       browser.runtime.sendMessage({ action: 'completeBreak' }).catch(() => {
-        browser.storage.sync.set({ extensionEnabled: true, breakStartTime: null });
+        syncSet({ extensionEnabled: true, breakStartTime: null });
       });
       return;
     }
@@ -1510,18 +1693,25 @@ function setupCustomMemeUpload() {
 function loadSettings() {
   return new Promise((resolve) => {
     const toggles = document.querySelectorAll('input[type="checkbox"]');
-    browser.storage.sync.get(null, (settings) => {
-      if (settings.hideFeedImage !== undefined && settings.hideFeedQuote === undefined) {
-        settings.hideFeedQuote = settings.hideFeedImage;
-        browser.storage.sync.set({ hideFeedQuote: settings.hideFeedImage }, () => {
-          browser.storage.sync.remove('hideFeedImage');
+    // Load managed (enterprise policy) first so admin-forced keys win and can
+    // be locked in the UI. getManagedSettings() never rejects.
+    getManagedSettings().then((managed) => {
+      managedSettings = managed && typeof managed === 'object' ? managed : {};
+      managedKeys = new Set(Object.keys(managedSettings));
+      browser.storage.sync.get(null, (settings) => {
+        if (settings.hideFeedImage !== undefined && settings.hideFeedQuote === undefined) {
+          settings.hideFeedQuote = settings.hideFeedImage;
+          // Never write a locked key back to sync.
+          syncSet({ hideFeedQuote: settings.hideFeedImage }, () => {
+            browser.storage.sync.remove('hideFeedImage');
+          });
+        }
+        // Effective settings: defaults -> sync -> managed (managed wins).
+        const currentSettings = { ...DEFAULT_SETTINGS, ...settings, ...managedSettings };
+        toggles.forEach((toggle) => {
+          const settingId = toggle.dataset.setting;
+          if (currentSettings[settingId] !== undefined) toggle.checked = currentSettings[settingId];
         });
-      }
-      const currentSettings = { ...DEFAULT_SETTINGS, ...settings };
-      toggles.forEach((toggle) => {
-        const settingId = toggle.dataset.setting;
-        if (currentSettings[settingId] !== undefined) toggle.checked = currentSettings[settingId];
-      });
       updateThumbnailModeUI(currentSettings.hideVideoThumbnails);
       const popupContainer = document.querySelector('.popup-container');
       if (popupContainer) popupContainer.classList.toggle('disabled', !currentSettings.extensionEnabled);
@@ -1539,7 +1729,10 @@ function loadSettings() {
       const cleanSidebarSubToggles = document.getElementById('cleanSidebarSubToggles');
       if (!currentSettings.cleanSidebar) cleanSidebarSubToggles?.classList.add('visible');
       else cleanSidebarSubToggles?.classList.remove('visible');
+      // Disable + badge every admin-locked control.
+      applyManagedLocks();
       resolve();
+      });
     });
   });
 }
@@ -1554,6 +1747,8 @@ function setupThumbnailModeDropdown() {
 
   modeButton.addEventListener('click', (e) => {
     e.stopPropagation();
+    // Locked by admin policy: do not open the dropdown.
+    if (managedKeys.has('hideVideoThumbnails')) return;
     const shouldOpen = !dropdown.classList.contains('open');
     closeThumbnailDropdown();
     if (shouldOpen) {
@@ -1567,19 +1762,13 @@ function setupThumbnailModeDropdown() {
   options.forEach((option) => {
     option.addEventListener('click', (e) => {
       e.stopPropagation();
+      // Locked by admin policy: ignore selection.
+      if (managedKeys.has('hideVideoThumbnails')) return;
       const mode = normalizeThumbnailMode(option.dataset.mode);
       updateThumbnailModeUI(mode);
       closeThumbnailDropdown();
-      browser.storage.sync.set({ hideVideoThumbnails: mode }, () => {
-        browser.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-          if (tabs[0]) {
-            browser.tabs.sendMessage(tabs[0].id, {
-              action: 'settingChanged',
-              setting: 'hideVideoThumbnails',
-              value: mode
-            }).catch(() => {});
-          }
-        });
+      syncSet({ hideVideoThumbnails: mode }, () => {
+        sendSettingChanged('hideVideoThumbnails', mode);
       });
     });
   });
@@ -1607,13 +1796,19 @@ function setupToggleListeners() {
     toggle.addEventListener('change', (e) => {
       const settingId = e.target.dataset.setting;
       const isChecked = e.target.checked;
+      // Admin-locked controls are disabled in the UI, but guard anyway:
+      // revert to the enforced value and do nothing (no save, no side effects).
+      if (managedKeys.has(settingId)) {
+        e.target.checked = managedSettings[settingId] === true;
+        return;
+      }
       if (settingId === 'hideFeed') {
         const row = document.getElementById('redirectToSubsRow');
         if (isChecked) row.classList.add('visible');
         else {
           row.classList.remove('visible');
           const redirectToggle = document.querySelector('input[data-setting="redirectToSubs"]');
-          if (redirectToggle && redirectToggle.checked) { redirectToggle.checked = false; browser.storage.sync.set({ redirectToSubs: false }); }
+          if (redirectToggle && redirectToggle.checked) { redirectToggle.checked = false; syncSet({ redirectToSubs: false }); }
         }
       }
       if (settingId === 'cleanHomepageFeed') {
@@ -1623,7 +1818,7 @@ function setupToggleListeners() {
           sub?.classList.remove('visible');
           ['hideCommunityPosts', 'hideFeaturedContent', 'hideMembersOnly', 'hidePlayables'].forEach(s => {
             const t = document.querySelector(`input[data-setting="${s}"]`);
-            if (t && t.checked) { t.checked = false; browser.storage.sync.set({ [s]: false }); }
+            if (t && t.checked) { t.checked = false; syncSet({ [s]: false }); }
           });
         }
       }
@@ -1634,7 +1829,7 @@ function setupToggleListeners() {
           sub?.classList.remove('visible');
           ['hideRecommended', 'hideSidebarShorts', 'hidePlaylists'].forEach(s => {
             const t = document.querySelector(`input[data-setting="${s}"]`);
-            if (t && t.checked) { t.checked = false; browser.storage.sync.set({ [s]: false }); }
+            if (t && t.checked) { t.checked = false; syncSet({ [s]: false }); }
           });
         }
       }
@@ -1645,7 +1840,7 @@ function setupToggleListeners() {
           sub?.classList.remove('visible');
           ['hideExplore', 'hideMoreFromYT', 'hideSubscriptions'].forEach(s => {
             const t = document.querySelector(`input[data-setting="${s}"]`);
-            if (t && t.checked) { t.checked = false; browser.storage.sync.set({ [s]: false }); }
+            if (t && t.checked) { t.checked = false; syncSet({ [s]: false }); }
           });
         }
       }
@@ -1661,7 +1856,7 @@ function setupToggleListeners() {
         if (communityToggle?.checked && featuredToggle?.checked && membersToggle?.checked && playablesToggle?.checked) {
           // All sub-toggles are on, enable parent and collapse sub-toggles
           cleanFeedToggle.checked = true;
-          browser.storage.sync.set({
+          syncSet({
             cleanHomepageFeed: true,
             hideCommunityPosts: false,
             hideFeaturedContent: false,
@@ -1677,9 +1872,7 @@ function setupToggleListeners() {
             const sub = document.getElementById('cleanFeedSubToggles');
             sub?.classList.remove('visible');
             // Notify content script
-            browser.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-              if (tabs[0]) browser.tabs.sendMessage(tabs[0].id, { action: 'settingChanged', setting: 'cleanHomepageFeed', value: true }).catch(() => {});
-            });
+            sendSettingChanged('cleanHomepageFeed', true);
           });
           return; // Skip the normal storage save below
         }
@@ -1695,7 +1888,7 @@ function setupToggleListeners() {
         if (exploreToggle?.checked && moreFromYTToggle?.checked && subscriptionsToggle?.checked) {
           // All sub-toggles are on, enable parent and collapse sub-toggles
           cleanSidebarToggle.checked = true;
-          browser.storage.sync.set({
+          syncSet({
             cleanSidebar: true,
             hideExplore: false,
             hideMoreFromYT: false,
@@ -1709,9 +1902,7 @@ function setupToggleListeners() {
             const sub = document.getElementById('cleanSidebarSubToggles');
             sub?.classList.remove('visible');
             // Notify content script
-            browser.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-              if (tabs[0]) browser.tabs.sendMessage(tabs[0].id, { action: 'settingChanged', setting: 'cleanSidebar', value: true }).catch(() => {});
-            });
+            sendSettingChanged('cleanSidebar', true);
           });
           return; // Skip the normal storage save below
         }
@@ -1727,7 +1918,7 @@ function setupToggleListeners() {
         if (recommendedToggle?.checked && shortsToggle?.checked && playlistsToggle?.checked) {
           // All sub-toggles are on, enable parent and collapse sub-toggles
           sidebarToggle.checked = true;
-          browser.storage.sync.set({
+          syncSet({
             hideSidebar: true,
             hideRecommended: false,
             hideSidebarShorts: false,
@@ -1741,18 +1932,14 @@ function setupToggleListeners() {
             const sub = document.getElementById('sidebarSubToggles');
             sub?.classList.remove('visible');
             // Notify content script
-            browser.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-              if (tabs[0]) browser.tabs.sendMessage(tabs[0].id, { action: 'settingChanged', setting: 'hideSidebar', value: true }).catch(() => {});
-            });
+            sendSettingChanged('hideSidebar', true);
           });
           return; // Skip the normal storage save below
         }
       }
 
-      browser.storage.sync.set({ [settingId]: isChecked }, () => {
-        browser.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-          if (tabs[0]) browser.tabs.sendMessage(tabs[0].id, { action: 'settingChanged', setting: settingId, value: isChecked }).catch(() => {});
-        });
+      syncSet({ [settingId]: isChecked }, () => {
+        sendSettingChanged(settingId, isChecked);
       });
     });
   });
@@ -1800,7 +1987,7 @@ function setupBreakTimer() {
     b.addEventListener('click', () => {
       btns.forEach(x => x.classList.remove('selected')); b.classList.add('selected');
       const dur = b.dataset.time ? parseFloat(b.dataset.time) : (b.dataset.seconds ? parseFloat(b.dataset.seconds) / 60 : 5);
-      browser.storage.sync.set({ breakDuration: dur });
+      syncSet({ breakDuration: dur });
     });
   });
 }

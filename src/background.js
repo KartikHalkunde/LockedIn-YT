@@ -5,8 +5,12 @@ async function updateRedirectRule() {
   const dnr = browser.declarativeNetRequest || chrome.declarativeNetRequest;
   if (!dnr) return; // Fallback if API is unavailable
 
-  const state = await browser.storage.sync.get(['redirectToSubs', 'extensionEnabled']);
-  const shouldRedirect = state.redirectToSubs === true && state.extensionEnabled !== false;
+  // Use effective (managed-overlaid) values so an admin can force the redirect.
+  // Gate on hideFeed too, matching the content path (index.js instantRedirect):
+  // redirectToSubs is a sub-option of hideFeed, so a managed hideFeed:false must
+  // suppress the redirect even if sync has redirectToSubs:true.
+  const state = await getEffectiveState(['hideFeed', 'redirectToSubs', 'extensionEnabled']);
+  const shouldRedirect = state.extensionEnabled !== false && !!state.hideFeed && !!state.redirectToSubs;
 
   if (shouldRedirect) {
     await dnr.updateDynamicRules({
@@ -42,11 +46,50 @@ if (typeof browser === 'undefined') {
   var browser = chrome;
 }
 
+// ===== MANAGED (ENTERPRISE POLICY) STORAGE =====
+// The service worker does not load the content scripts, so it needs its own
+// copy of the managed-overlay helper from content/shared/settings.js. Any key
+// present in storage.managed is admin-forced; effective precedence is
+// managed > sync > default. Never throws when policy is absent/empty.
+function readManaged() {
+  return new Promise((resolve) => {
+    try {
+      const area = browser && browser.storage ? browser.storage.managed : null;
+      if (!area || typeof area.get !== 'function') {
+        resolve({});
+        return;
+      }
+      const maybePromise = area.get(null, (result) => {
+        if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.lastError) {
+          resolve({});
+          return;
+        }
+        resolve(result || {});
+      });
+      if (maybePromise && typeof maybePromise.then === 'function') {
+        maybePromise.then((result) => resolve(result || {})).catch(() => resolve({}));
+      }
+    } catch (error) {
+      resolve({});
+    }
+  });
+}
+
+// Effective values for the given keys: sync overlaid by managed (managed wins).
+async function getEffectiveState(keys) {
+  const [sync, managed] = await Promise.all([
+    browser.storage.sync.get(keys),
+    readManaged()
+  ]);
+  return { ...(sync || {}), ...(managed || {}) };
+}
+
 const BREAK_ALARM_NAME = 'lockedin-break-timer';
 const YOUTUBE_QUERY = { url: ['*://www.youtube.com/*'] };
 
 async function getBreakState() {
-  return browser.storage.sync.get([
+  // Overlay managed so a locked extensionEnabled is honored by break logic too.
+  return getEffectiveState([
     'takeBreak',
     'breakStartTime',
     'breakDuration',
@@ -96,7 +139,15 @@ async function finalizeBreak(reason = 'alarm') {
     await clearBreakAlarm();
     return;
   }
-  await browser.storage.sync.set({ extensionEnabled: true, breakStartTime: null });
+  // Never write extensionEnabled back to sync when policy owns it: managed
+  // storage is authoritative and would override sync anyway. Clear only the
+  // break marker in that case.
+  const managed = await readManaged();
+  if (managed && Object.prototype.hasOwnProperty.call(managed, 'extensionEnabled')) {
+    await browser.storage.sync.set({ breakStartTime: null });
+  } else {
+    await browser.storage.sync.set({ extensionEnabled: true, breakStartTime: null });
+  }
   await clearBreakAlarm();
   await notifyTabsBreakEnded();
 }
@@ -180,6 +231,12 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 browser.storage.onChanged.addListener((changes, area) => {
+  if (area === 'managed') {
+    // Enterprise policy changed: re-evaluate break alarm and redirect rule.
+    scheduleBreakAlarm();
+    updateRedirectRule();
+    return;
+  }
   if (area !== 'sync') return;
   if (
     Object.prototype.hasOwnProperty.call(changes, 'breakStartTime') ||
@@ -191,6 +248,7 @@ browser.storage.onChanged.addListener((changes, area) => {
   }
   // Handle Redirect Rule Updates (NEW CODE)
   if (
+    Object.prototype.hasOwnProperty.call(changes, 'hideFeed') ||
     Object.prototype.hasOwnProperty.call(changes, 'redirectToSubs') ||
     Object.prototype.hasOwnProperty.call(changes, 'extensionEnabled')
   ) {

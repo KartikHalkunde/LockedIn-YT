@@ -46,6 +46,9 @@
     "default_popup": "popup/popup.html",
     "default_icon": "assets/icons/icon48.png"
   },
+  "storage": {
+    "managed_schema": "managed-schema.json"
+  },
   "web_accessible_resources": [
     {
       "resources": ["assets/library/*.json"],

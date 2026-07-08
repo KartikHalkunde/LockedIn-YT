@@ -20,6 +20,7 @@ Your settings are stored locally using your browser's storage API:
 - **Where it's stored**: Your browser's local storage
 - **Who can access it**: Only you
 - **Sync**: If you use browser sync, settings sync across your devices through your browser's built-in sync (Firefox Sync, Edge Sync, etc.)
+- **Managed settings (optional)**: On a managed device, an administrator (for example a parent or school) can force and lock certain settings via your browser's enterprise policy. LockedIn only *reads* these policy values locally to apply them - it never sends them anywhere and collects no data. See [Managed Deployment](project-docs/MANAGED-DEPLOYMENT.md).
 
 ## Permissions
 

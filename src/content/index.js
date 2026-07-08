@@ -81,17 +81,23 @@ function storageSet(area, value) {
 (function instantRedirectCheck() {
   if (!isExtensionContextValid()) return;
   if (isHomePath()) {
-    // Check storage synchronously using the sync API
-    try {
-      browser.storage.sync.get(['hideFeed', 'redirectToSubs', 'extensionEnabled'], (result) => {
-        if (result.extensionEnabled !== false && result.hideFeed && result.redirectToSubs) {
-          // Redirect immediately before page renders
-          window.location.replace('https://www.youtube.com/feed/subscriptions');
-        }
-      });
-    } catch (e) {
-      // Extension context invalidated, ignore
-    }
+    // Wait for the managed overlay (a fast local read, {} when no policy) so an
+    // admin-forced redirectToSubs — or an admin forcing it OFF — wins on this
+    // first check rather than a stale sync value being applied before it loads.
+    managedOverlayReady.then(() => {
+      try {
+        browser.storage.sync.get(['hideFeed', 'redirectToSubs', 'extensionEnabled'], (result) => {
+          // Overlay any admin-forced values so enterprise policy wins here too.
+          const eff = overlayManaged(result || {});
+          if (eff.extensionEnabled !== false && eff.hideFeed && eff.redirectToSubs) {
+            // Redirect immediately before page renders
+            window.location.replace('https://www.youtube.com/feed/subscriptions');
+          }
+        });
+      } catch (e) {
+        // Extension context invalidated, ignore
+      }
+    }).catch(() => {});
   }
 })();
 
@@ -417,17 +423,19 @@ function setInstantRecsHiding(hideRecommended, hideSidebar) {
 
 // ===== INITIALIZE SETTINGS ON INSTALL =====
 // This fixes the race condition - ensures settings exist before content script runs
-storageGet('sync', null).then((settings) => {
+// Wait for the managed overlay so first-run seeding knows which keys are
+// admin-locked and can skip them (a locked key must never be written to sync).
+managedOverlayReady.then(() => storageGet('sync', null)).then((settings) => {
   // If no settings exist, initialize with defaults
   if (Object.keys(settings).length === 0) {
-    latestSyncedSettings = { ...DEFAULT_SETTINGS };
-    storageSet('sync', DEFAULT_SETTINGS).then((ok) => {
+    latestSyncedSettings = overlayManaged({ ...DEFAULT_SETTINGS });
+    storageSet('sync', stripLockedKeys(DEFAULT_SETTINGS)).then((ok) => {
       if (!ok) {
         console.error('LockedIn: Failed to initialize settings');
       }
     });
   } else {
-    latestSyncedSettings = { ...DEFAULT_SETTINGS, ...settings };
+    latestSyncedSettings = overlayManaged({ ...DEFAULT_SETTINGS, ...settings });
   }
   updateGuideVisibility();
 }).catch(() => {
@@ -447,8 +455,9 @@ function runAll() {
   
   // Add error handling to prevent extension from breaking
   storageGet('sync', null).then((settings) => {
-    // Merge with defaults to ensure all settings exist
-    const currentSettings = { ...DEFAULT_SETTINGS, ...settings };
+    // Merge with defaults to ensure all settings exist, then overlay any
+    // admin-forced (managed) values so enterprise policy always wins.
+    const currentSettings = overlayManaged({ ...DEFAULT_SETTINGS, ...settings });
     latestSyncedSettings = currentSettings;
     observeGuideContainers();
     updateGuideVisibility();
@@ -554,8 +563,8 @@ function runAll() {
     ensureEssentialElementsVisible();
   }).catch((error) => {
     console.error('LockedIn: Failed to load settings', error);
-    // Fallback: use default settings if storage fails
-    const currentSettings = DEFAULT_SETTINGS;
+    // Fallback: use default settings if storage fails (still honor managed policy)
+    const currentSettings = overlayManaged({ ...DEFAULT_SETTINGS });
     latestSyncedSettings = currentSettings;
     setInstantHiding(currentSettings.hideShortsHomepage, currentSettings.hideShortsSearch, currentSettings.hideShortsGlobally);
     observeGuideContainers();
@@ -659,8 +668,11 @@ function restoreAllElements() {
 // ===== INITIALIZE INSTANT HIDING ON LOAD =====
 // Load settings and set instant hiding CSS immediately
 if (isExtensionContextValid()) {
-  storageGet('sync', null).then((settings) => {
-    const currentSettings = { ...DEFAULT_SETTINGS, ...settings };
+  // Wait for BOTH sync and the managed overlay so the instant-hiding CSS applies
+  // admin-forced values on the first paint, not a stale sync value that managed
+  // would override a moment later. managedOverlayReady is a fast local read.
+  Promise.all([storageGet('sync', null), managedOverlayReady]).then(([settings]) => {
+    const currentSettings = overlayManaged({ ...DEFAULT_SETTINGS, ...settings });
     latestSyncedSettings = currentSettings;
     if (currentSettings.extensionEnabled) {
       setInstantHiding(currentSettings.hideShortsHomepage, currentSettings.hideShortsSearch, currentSettings.hideShortsGlobally);
@@ -668,8 +680,8 @@ if (isExtensionContextValid()) {
     }
     updateGuideVisibility();
   }).catch(() => {
-    // Use defaults if storage fails or context is invalidated
-    latestSyncedSettings = { ...DEFAULT_SETTINGS };
+    // Use defaults if storage fails or context is invalidated (honor managed)
+    latestSyncedSettings = overlayManaged({ ...DEFAULT_SETTINGS });
     setInstantHiding(DEFAULT_SETTINGS.hideShortsHomepage, DEFAULT_SETTINGS.hideShortsSearch, DEFAULT_SETTINGS.hideShortsGlobally);
     setInstantRecsHiding(DEFAULT_SETTINGS.hideRecommended, DEFAULT_SETTINGS.hideSidebar);
     updateGuideVisibility();
@@ -677,7 +689,14 @@ if (isExtensionContextValid()) {
 }
 
 // ===== RUN ON PAGE LOAD =====
-runAll();
+// Wait for the managed overlay so admin-forced values win on the FIRST apply,
+// not just a later re-apply. managedOverlayReady resolves fast (a local read)
+// and to {} when no policy is present, so unmanaged installs are unaffected.
+managedOverlayReady.then(() => {
+  if (isExtensionContextValid()) runAll();
+}).catch(() => {
+  if (isExtensionContextValid()) runAll();
+});
 
 // Re-run shortly after load to catch late-rendered sidebar on hard refresh
 setTimeout(runAll, 400);
@@ -745,7 +764,7 @@ function forceSidebarRehide() {
 
 function forcePopupEquivalent() {
   storageGet('sync', null).then((settings) => {
-    latestSyncedSettings = { ...DEFAULT_SETTINGS, ...settings };
+    latestSyncedSettings = overlayManaged({ ...DEFAULT_SETTINGS, ...settings });
     if (latestSyncedSettings.extensionEnabled === false) return;
     applyInstantRecsCssFromCache();
     runAll();
@@ -772,6 +791,16 @@ window.addEventListener('pageshow', () => {
 
 // ===== LISTEN FOR SETTINGS CHANGES =====
 browser.storage.onChanged.addListener((changes, area) => {
+  if (area === 'managed') {
+    // Enterprise policy changed: reload the overlay, refresh the active language
+    // (a managed language change/removal must update the UI too), and re-apply.
+    loadManagedOverlay().then(() => {
+      initLocalization();
+      updateGuideVisibility();
+      runAll();
+    });
+    return;
+  }
   if (area !== 'sync') {
     return;
   }
@@ -782,11 +811,17 @@ browser.storage.onChanged.addListener((changes, area) => {
 
   Object.keys(changes).forEach((key) => {
     if (key === 'language') {
+      // Managed language wins: ignore a sync change to a locked language.
+      if (managedLockedKeys && managedLockedKeys.has('language')) return;
       const change = changes[key];
       const preferred = Object.prototype.hasOwnProperty.call(change, 'newValue')
         ? change.newValue
         : 'auto';
       handleLanguagePreferenceChange(preferred);
+      return;
+    }
+    // Managed (admin-forced) keys always win: ignore any sync change to them.
+    if (managedLockedKeys && managedLockedKeys.has(key)) {
       return;
     }
     const change = changes[key];
@@ -827,7 +862,8 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     // Immediately apply the power state change
     runAll();
   } else if (message.action === 'settingChanged') {
-    if (message.setting) {
+    // Managed value wins: never apply a messaged change to a locked key.
+    if (message.setting && !(managedLockedKeys && managedLockedKeys.has(message.setting))) {
       latestSyncedSettings[message.setting] = message.value;
 
       if (latestSyncedSettings.extensionEnabled !== false) {
@@ -845,7 +881,8 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
   } else if (message.action === 'customMemesUpdated') {
     // Re-apply hideFeed to update the displayed meme
     browser.storage.sync.get(['hideFeed', 'extensionEnabled'], (result) => {
-      if (result.extensionEnabled !== false && result.hideFeed) {
+      const eff = overlayManaged(result || {});
+      if (eff.extensionEnabled !== false && eff.hideFeed) {
         // Remove existing placeholder and re-create with new meme
         const placeholder = document.getElementById('lockedin-feed-placeholder');
         if (placeholder) placeholder.remove();
@@ -862,6 +899,8 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 browser.storage.onChanged.addListener((changes, areaName) => {
   if (areaName !== 'sync' && areaName !== 'local') return;
   if (changes.hideVideoThumbnails) {
+    // Managed value wins: ignore a sync/local change to a locked key.
+    if (managedLockedKeys && managedLockedKeys.has('hideVideoThumbnails')) return;
     const newMode = changes.hideVideoThumbnails.newValue || 'off';
     hideVideoThumbnails(newMode);
   }

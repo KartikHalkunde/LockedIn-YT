@@ -2,6 +2,10 @@
 if (typeof browser !== 'undefined' && browser.runtime && browser.runtime.onMessage) {
 	browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 		if (message && message.action === 'settingChanged') {
+			// Managed value wins: ignore a messaged change to a locked key.
+			if (message.setting && typeof managedLockedKeys !== 'undefined' && managedLockedKeys.has(message.setting)) {
+				return;
+			}
 			if (message.setting === 'hidePlayables') {
 				hidePlayables(message.value);
 			} else if (message.setting === 'hideExploreMoreTopics') {
