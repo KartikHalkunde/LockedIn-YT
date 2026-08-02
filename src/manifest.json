@@ -48,7 +48,7 @@
   },
   "web_accessible_resources": [
     {
-      "resources": ["assets/library/*.json"],
+      "resources": ["assets/library/*.json", "content/playlist-blocker-inject.js"],
       "matches": [
         "*://www.youtube.com/*",
         "*://m.youtube.com/*",

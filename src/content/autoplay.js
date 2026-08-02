@@ -46,6 +46,8 @@ let autoplayDomObserver = null;
 let autoplayPageEventHandler = null;
 let autoplayVideoEventHandler = null;
 let autoplayTrackedVideos = new Set();
+let playlistEndedListenerActive = false;
+let playlistNavigationBlocked = false;
 
 function hideAutoplayUpNextUi(shouldHide) {
 	toggleAllElements('.ytp-upnext', shouldHide);
@@ -60,6 +62,40 @@ function hideAutoplayUpNextUi(shouldHide) {
 	document.querySelectorAll('.ytp-autonav-endscreen-upnext-button, .ytp-autonav-endscreen-countdown, .ytp-upnext-autoplay-icon').forEach((el) => {
 		el.style.display = shouldHide ? 'none' : '';
 	});
+}
+
+// ===== PLAYLIST AUTO-ADVANCE BLOCKING =====
+// YouTube handles playlist continuation separately from Autonav.
+// Content scripts run in Chrome's ISOLATED world and cannot intercept
+// event listeners registered in YouTube's MAIN world. We must inject
+// a script into the page context to monkey-patch YouTube's player API.
+//
+// Communication: content script sets a data attribute on <html> to
+// signal the injected script whether playlist blocking is active.
+
+const PLAYLIST_BLOCK_ATTR = 'data-lockedin-block-playlist-autoplay';
+let playlistPageScriptInjected = false;
+
+function injectPlaylistBlockerScript() {
+	if (playlistPageScriptInjected) return;
+	playlistPageScriptInjected = true;
+
+	const script = document.createElement('script');
+	script.src = browser.runtime.getURL('content/playlist-blocker-inject.js');
+	(document.head || document.documentElement).appendChild(script);
+	script.onload = () => script.remove();
+}
+
+function startPlaylistEndedInterception() {
+	injectPlaylistBlockerScript();
+	document.documentElement.setAttribute(PLAYLIST_BLOCK_ATTR, 'true');
+	playlistEndedListenerActive = true;
+}
+
+function stopPlaylistEndedInterception() {
+	document.documentElement.removeAttribute(PLAYLIST_BLOCK_ATTR);
+	playlistEndedListenerActive = false;
+	playlistNavigationBlocked = false;
 }
 
 function forcePlayerAutonavOff() {
@@ -235,6 +271,9 @@ function stopAutoplayEnforcement() {
 			button.removeAttribute('data-lockedin-autoplay-bound');
 		}
 	});
+
+	// Stop playlist auto-advance interception
+	stopPlaylistEndedInterception();
 }
 
 function startAutoplayEnforcement() {
@@ -253,6 +292,9 @@ function startAutoplayEnforcement() {
 		});
 		autoplayDomObserver.observe(document.documentElement || document.body, { childList: true, subtree: true });
 	}
+
+	// Start playlist auto-advance interception
+	startPlaylistEndedInterception();
 
 	if (latestSyncedSettings.extensionEnabled !== false && latestSyncedSettings.disableAutoplay) {
 		enforceAutoplayOff();
