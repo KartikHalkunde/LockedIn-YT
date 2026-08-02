@@ -1,3 +1,7 @@
+## [1.1.9] - 2026-08-02
+### Fixed
+- Block playlist auto-advance when Disable Autoplay is enabled (#27)
+
 ## [1.1.8] - 2026-06-03
 ### Added
 - Added language support for Simplified Chinese and Traditional Chinese (thanks @Hendrix4858).
