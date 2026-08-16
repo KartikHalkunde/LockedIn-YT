@@ -495,6 +495,7 @@ function runAll() {
     redirectToSubscriptions(currentSettings.hideFeed && currentSettings.redirectToSubs);
     hideFeed(currentSettings.hideFeed);
     hideMostRelevantSubscriptions(currentSettings.hideMostRelevantSubscriptions);
+    hideSubscriptionsLiveStreams(currentSettings.hideSubsLiveStreams);
     // Only apply individual Shorts hiding if global is not enabled
     if (!currentSettings.hideShortsGlobally) {
       hideShortsHomepage(currentSettings.hideShortsHomepage);
@@ -570,6 +571,7 @@ function runAll() {
     redirectToSubscriptions(currentSettings.hideFeed && currentSettings.redirectToSubs);
     hideFeed(currentSettings.hideFeed);
     hideMostRelevantSubscriptions(currentSettings.hideMostRelevantSubscriptions);
+    hideSubscriptionsLiveStreams(currentSettings.hideSubsLiveStreams);
     if (!currentSettings.hideShortsGlobally) {
       hideShortsHomepage(currentSettings.hideShortsHomepage);
     }
@@ -626,6 +628,7 @@ function restoreAllElements() {
   setInstantHiding(false, false, false); // Disable CSS hiding for homepage, search, and global
   hideFeed(false);
   hideMostRelevantSubscriptions(false);
+  hideSubscriptionsLiveStreams(false);
   hideShortsHomepage(false);
   hideExploreMoreTopics(false);
   hideCommunityPosts(false);

@@ -29,3 +29,54 @@ function hideMostRelevantSubscriptions(shouldHide) {
 		}
 	});
 }
+
+function hideSubscriptionsLiveStreams(shouldHide) {
+	const hiddenAttr = 'subscriptions-live-streams';
+
+	if (!shouldHide) {
+		document.querySelectorAll(`[data-lockedin-hidden="${hiddenAttr}"]`).forEach((el) => {
+			el.style.display = '';
+			el.removeAttribute('data-lockedin-hidden');
+		});
+		return;
+	}
+
+	if (!window.location.pathname.startsWith('/feed/subscriptions')) {
+		return;
+	}
+
+	// Helper to hide a lockup's closest rich-item wrapper
+	function hideItem(el) {
+		const wrapper = el.closest('ytd-rich-item-renderer') || el.closest('ytd-grid-video-renderer');
+		const target = wrapper || el;
+		if (!target.hasAttribute('data-lockedin-hidden')) {
+			target.style.display = 'none';
+			target.setAttribute('data-lockedin-hidden', hiddenAttr);
+		}
+	}
+
+	// --- LIVE streams ---
+	// New layout: badge-shape inside yt-lockup-view-model uses class ytBadgeShapeThumbnailLive
+	document.querySelectorAll('badge-shape.ytBadgeShapeThumbnailLive').forEach((badge) => {
+		hideItem(badge);
+	});
+
+	// Old layout fallback: ytd-thumbnail-overlay-time-status-renderer with overlay-style="LIVE"
+	document.querySelectorAll('ytd-thumbnail-overlay-time-status-renderer[overlay-style="LIVE"]').forEach((badge) => {
+		hideItem(badge);
+	});
+
+	// --- Upcoming / Scheduled streams ---
+	// Upcoming badges use ytBadgeShapeThumbnailDefault (same as regular videos) so check text content
+	document.querySelectorAll('badge-shape.ytBadgeShapeThumbnailDefault').forEach((badge) => {
+		const text = badge.querySelector('.ytBadgeShapeText')?.textContent?.trim() || '';
+		if (text === 'Upcoming' || text === 'Premieres' || /^Premieres/i.test(text)) {
+			hideItem(badge);
+		}
+	});
+
+	// Old layout fallback: overlay-style="UPCOMING"
+	document.querySelectorAll('ytd-thumbnail-overlay-time-status-renderer[overlay-style="UPCOMING"]').forEach((badge) => {
+		hideItem(badge);
+	});
+}

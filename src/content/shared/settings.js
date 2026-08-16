@@ -100,6 +100,7 @@ const DEFAULT_SETTINGS = {
 	hideFeed: false,
 	redirectToSubs: false,
 	hideMostRelevantSubscriptions: false,
+	hideSubsLiveStreams: false,
 	hideShortsHomepage: false,
 	hideExploreMoreTopics: false,
 	cleanHomepageFeed: false,
