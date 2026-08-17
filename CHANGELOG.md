@@ -1,3 +1,7 @@
+## [1.2.0] - 2026-08-18
+### Added
+- Added a new "Hide Live Streams" toggle to the Subscriptions page to hide live streams from the subscriptions feed
+
 ## [1.1.9] - 2026-08-02
 ### Fixed
 - Block playlist auto-advance when Disable Autoplay is enabled (#27)
