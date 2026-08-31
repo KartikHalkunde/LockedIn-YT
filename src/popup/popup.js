@@ -26,6 +26,8 @@ const DEFAULT_SETTINGS = {
   hideLiveChat: false,
   hideEndCards: false,
   disableAutoplay: false,
+  disablePlaylistAutoplay: false,
+  disableRegularAutoplay: false,
   hideComments: false,
   hideSearchRecommended: false,
   hideShortsSearch: false,
@@ -135,6 +137,8 @@ const I18N_STRINGS = {
     'setting.hideComments': 'Hide Comments',
     'setting.hideLiveChat': 'Hide Live Chat',
     'setting.disableAutoplay': 'Disable Autoplay',
+    'setting.disablePlaylistAutoplay': 'Disable for Playlist Videos',
+    'setting.disableRegularAutoplay': 'Disable for Regular Videos',
     'group.search': 'Search Results',
     'setting.hideShortsSearch': 'Hide YouTube Shorts',
     'group.sidebar': 'YouTube Sidebar',
@@ -1548,6 +1552,9 @@ function loadSettings() {
       const cleanSidebarSubToggles = document.getElementById('cleanSidebarSubToggles');
       if (!currentSettings.cleanSidebar) cleanSidebarSubToggles?.classList.add('visible');
       else cleanSidebarSubToggles?.classList.remove('visible');
+      const autoplaySubToggles = document.getElementById('autoplaySubToggles');
+      if (!currentSettings.disableAutoplay) autoplaySubToggles?.classList.add('visible');
+      else autoplaySubToggles?.classList.remove('visible');
       resolve();
     });
   });
@@ -1656,6 +1663,42 @@ function setupToggleListeners() {
             const t = document.querySelector(`input[data-setting="${s}"]`);
             if (t && t.checked) { t.checked = false; browser.storage.sync.set({ [s]: false }); }
           });
+        }
+      }
+      if (settingId === 'disableAutoplay') {
+        const sub = document.getElementById('autoplaySubToggles');
+        if (!isChecked) sub?.classList.add('visible');
+        else {
+          sub?.classList.remove('visible');
+          ['disablePlaylistAutoplay', 'disableRegularAutoplay'].forEach(s => {
+            const t = document.querySelector(`input[data-setting="${s}"]`);
+            if (t && t.checked) { t.checked = false; browser.storage.sync.set({ [s]: false }); }
+          });
+        }
+      }
+
+      // Auto-enable Disable Autoplay when both sub-toggles are enabled
+      if (['disablePlaylistAutoplay', 'disableRegularAutoplay'].includes(settingId)) {
+        const playlistToggle = document.querySelector('input[data-setting="disablePlaylistAutoplay"]');
+        const regularToggle = document.querySelector('input[data-setting="disableRegularAutoplay"]');
+        const masterToggle = document.querySelector('input[data-setting="disableAutoplay"]');
+
+        if (playlistToggle?.checked && regularToggle?.checked) {
+          masterToggle.checked = true;
+          browser.storage.sync.set({
+            disableAutoplay: true,
+            disablePlaylistAutoplay: false,
+            disableRegularAutoplay: false
+          }, () => {
+            playlistToggle.checked = false;
+            regularToggle.checked = false;
+            const sub = document.getElementById('autoplaySubToggles');
+            sub?.classList.remove('visible');
+            browser.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+              if (tabs[0]) browser.tabs.sendMessage(tabs[0].id, { action: 'settingChanged', setting: 'disableAutoplay', value: true }).catch(() => {});
+            });
+          });
+          return;
         }
       }
 
