@@ -118,6 +118,8 @@ const DEFAULT_SETTINGS = {
 	hideLiveChat: false,
 	hideEndCards: false,
 	disableAutoplay: false,
+	disablePlaylistAutoplay: false,
+	disableRegularAutoplay: false,
 	hideComments: false,
 	hideSearchRecommended: false,
 	hideShortsSearch: false,

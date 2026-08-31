@@ -15,6 +15,25 @@
 		return window.location.search.includes('list=');
 	}
 
+	var lastUserInteractionAt = 0;
+	var USER_INTERACTION_WINDOW = 1500;
+
+	function hasRecentUserInteraction() {
+		return Date.now() - lastUserInteractionAt < USER_INTERACTION_WINDOW;
+	}
+
+	document.addEventListener('pointerdown', function(event) {
+		if (event.isTrusted && isPlaylistUrl()) {
+			lastUserInteractionAt = Date.now();
+		}
+	}, true);
+
+	document.addEventListener('click', function(event) {
+		if (event.isTrusted && isPlaylistUrl()) {
+			lastUserInteractionAt = Date.now();
+		}
+	}, true);
+
 	// --- Monkey-patch the YouTube player's nextVideo method ---
 	var patchApplied = false;
 
@@ -26,7 +45,7 @@
 		if (typeof player.nextVideo === 'function' && !player.__lockedin_nextVideo_original) {
 			player.__lockedin_nextVideo_original = player.nextVideo;
 			player.nextVideo = function() {
-				if (isBlocking() && isPlaylistUrl()) {
+				if (isBlocking() && isPlaylistUrl() && !hasRecentUserInteraction()) {
 					try { player.pauseVideo(); } catch(e) {}
 					return;
 				}
@@ -38,7 +57,7 @@
 		if (typeof player.playVideoAt === 'function' && !player.__lockedin_playVideoAt_original) {
 			player.__lockedin_playVideoAt_original = player.playVideoAt;
 			player.playVideoAt = function(index) {
-				if (isBlocking() && isPlaylistUrl()) {
+				if (isBlocking() && isPlaylistUrl() && !hasRecentUserInteraction()) {
 					try { player.pauseVideo(); } catch(e) {}
 					return;
 				}
@@ -78,7 +97,7 @@
 		var detail = event.detail;
 		if (detail && detail.endpoint) {
 			var cmd = detail.endpoint.watchEndpoint;
-			if (cmd && cmd.playlistId) {
+			if (cmd && cmd.playlistId && !hasRecentUserInteraction()) {
 				// This is a playlist navigation — block it
 				event.stopImmediatePropagation();
 				event.preventDefault();

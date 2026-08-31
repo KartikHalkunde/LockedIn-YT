@@ -49,6 +49,51 @@ let autoplayTrackedVideos = new Set();
 let playlistEndedListenerActive = false;
 let playlistNavigationBlocked = false;
 
+function isPlaylistAutoplayContext() {
+	if (!window || !document) return false;
+
+	try {
+		const currentUrl = new URL(window.location.href);
+		if (currentUrl.searchParams.has('list')) {
+			return true;
+		}
+	} catch (_) {
+		return false;
+	}
+
+	const player = document.getElementById('movie_player');
+	if (player && typeof player.getPlaylistId === 'function') {
+		try {
+			const playlistId = player.getPlaylistId();
+			if (playlistId) return true;
+		} catch (_) {
+			// Ignore and fall through
+		}
+	}
+
+	return false;
+}
+
+function isRegularVideoAutoplayContext() {
+	return !isPlaylistAutoplayContext();
+}
+
+function shouldDisablePlaylistAutoplay() {
+	const settings = latestSyncedSettings || {};
+	return settings.extensionEnabled !== false && (settings.disableAutoplay || settings.disablePlaylistAutoplay);
+}
+
+function shouldDisableRegularAutoplay() {
+	const settings = latestSyncedSettings || {};
+	return settings.extensionEnabled !== false && (settings.disableAutoplay || settings.disableRegularAutoplay);
+}
+
+function shouldDisableAutoplayForCurrentContext() {
+	if (shouldDisablePlaylistAutoplay() && isPlaylistAutoplayContext()) return true;
+	if (shouldDisableRegularAutoplay() && isRegularVideoAutoplayContext()) return true;
+	return false;
+}
+
 function hideAutoplayUpNextUi(shouldHide) {
 	toggleAllElements('.ytp-upnext', shouldHide);
 	toggleAllElements('.ytp-upnext-container', shouldHide);
@@ -195,15 +240,19 @@ function enforceAutoplayOn() {
 
 function onAutoplayPageChange() {
 	if (latestSyncedSettings.extensionEnabled === false) return;
-	if (!latestSyncedSettings.disableAutoplay) return;
-	enforceAutoplayOff();
+	if (shouldDisableAutoplayForCurrentContext()) {
+		enforceAutoplayOff();
+		return;
+	}
+	enforceAutoplayOn();
 }
 
 function onNativeAutoplayButtonClick() {
 	setTimeout(() => {
 		if (latestSyncedSettings.extensionEnabled === false) return;
-		if (!latestSyncedSettings.disableAutoplay) return;
-		enforceAutoplayOff();
+		if (shouldDisableAutoplayForCurrentContext()) {
+			enforceAutoplayOff();
+		}
 	}, 0);
 }
 
@@ -293,16 +342,21 @@ function startAutoplayEnforcement() {
 		autoplayDomObserver.observe(document.documentElement || document.body, { childList: true, subtree: true });
 	}
 
-	// Start playlist auto-advance interception
-	startPlaylistEndedInterception();
+	if (shouldDisablePlaylistAutoplay() && isPlaylistAutoplayContext()) {
+		startPlaylistEndedInterception();
+	} else {
+		stopPlaylistEndedInterception();
+	}
 
-	if (latestSyncedSettings.extensionEnabled !== false && latestSyncedSettings.disableAutoplay) {
+	if (latestSyncedSettings.extensionEnabled !== false && shouldDisableAutoplayForCurrentContext()) {
 		enforceAutoplayOff();
 	}
 }
 
 function disableAutoplay(shouldDisable) {
-	if (!shouldDisable) {
+	const shouldDisableMaster = Boolean(shouldDisable);
+	const shouldDisableContextual = shouldDisableAutoplayForCurrentContext();
+	if (!shouldDisableMaster && !shouldDisableContextual) {
 		stopAutoplayEnforcement();
 		hideNativeAutoplayToggle(false);
 		enforceAutoplayOn();
