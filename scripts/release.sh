@@ -674,13 +674,7 @@ out.append("")
 
 # Full changelog link.
 if previous_tag:
-    out.append("## 📋 Full Changelog")
-    out.append("")
-    out.append(
-        f"[Compare {previous_tag}...v{version}]"
-        f"(https://github.com/KartikHalkunde/LockedIn-YT/compare/"
-        f"{previous_tag}...v{version})"
-    )
+    out.append(f"**Full Changelog**: https://github.com/KartikHalkunde/LockedIn-YT/compare/{previous_tag}...v{version}")
     out.append("")
 
 # Issues.
