@@ -1,3 +1,7 @@
+## [1.2.1] - 2026-09-03
+### Fixed
+- Minor bug fixes and improvements
+
 ## [1.2.0] - 2026-08-18
 ### Added
 - Added a new "Hide Live Streams" toggle to the Subscriptions page to hide live streams from the subscriptions feed

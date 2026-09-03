@@ -973,8 +973,8 @@ function setupGroupCollapsibles() {
 function displayVersion() {
   const versionElement = document.querySelector('.version');
   if (versionElement) {
-    versionElement.textContent = `v.1.2.0`;
-    versionElement.setAttribute('aria-label', `Version 1.2.0`);
+    versionElement.textContent = `v.1.2.1`;
+    versionElement.setAttribute('aria-label', `Version 1.2.1`);
   }
 }
 
