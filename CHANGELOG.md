@@ -1,3 +1,10 @@
+## [1.2.1] - 2026-09-03
+### Added
+- Split the Disable Autoplay functionality into separate options for regular videos and playlists (#29)
+
+### Fixed
+- Fixed an issue where videos inside a playlist would not start playing when clicked (#30)
+
 ## [1.2.0] - 2026-08-18
 ### Added
 - Added a new "Hide Live Streams" toggle to the Subscriptions page to hide live streams from the subscriptions feed
