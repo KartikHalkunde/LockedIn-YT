@@ -617,7 +617,7 @@ for line in lines[1:]:
 
 out = []
 
-out.append(f"# Whats new in v{version}")
+out.append(f"## Whats new in v{version}")
 out.append("")
 out.append(f"> {summary}")
 out.append("")
