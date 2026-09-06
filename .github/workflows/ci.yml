@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    name: Build and Validate
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zip python3
+
+      - name: Check JavaScript syntax
+        run: |
+          find src -name "*.js" -print0 | xargs -0 -n1 node --check
+
+      - name: Make build script executable
+        run: chmod +x scripts/build.sh
+
+      - name: Build extension
+        run: ./scripts/build.sh
+
+      - name: Validate generated archives
+        run: |
+          set -e
+
+          for zip in dist/*.zip; do
+            echo "Checking $zip"
+            unzip -t "$zip"
+          done
+
+          for zip in dist/*-firefox.zip dist/*-chromium.zip dist/*-opera.zip; do
+            echo "Checking required files in $zip"
+            unzip -l "$zip" | grep -q "manifest.json"
+            unzip -l "$zip" | grep -q "background.js"
+          done
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: lockedin-build
+          path: dist/*.zip

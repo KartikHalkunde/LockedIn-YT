@@ -1,0 +1,89 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zip python3
+
+      - name: Verify tag matches manifest version
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          MANIFEST_VERSION=$(python3 -c "
+          import json
+          with open('src/manifest.json') as f:
+              print(json.load(f)['version'])
+          ")
+
+          echo "Tag version:      $TAG_VERSION"
+          echo "Manifest version: $MANIFEST_VERSION"
+
+          if [ "$TAG_VERSION" != "$MANIFEST_VERSION" ]; then
+            echo "ERROR: Git tag does not match manifest version."
+            exit 1
+          fi
+
+      - name: Make build script executable
+        run: chmod +x scripts/build.sh
+
+      - name: Build extension
+        run: ./scripts/build.sh
+
+      - name: Validate release artifacts
+        run: |
+          set -e
+
+          version="${GITHUB_REF_NAME#v}"
+          expected=(
+            "dist/lockedin-v${version}-firefox.zip"
+            "dist/lockedin-v${version}-chromium.zip"
+            "dist/lockedin-v${version}-opera.zip"
+            "dist/lockedin-v${version}-source.zip"
+          )
+
+          for zip in "${expected[@]}"; do
+            test -s "$zip"
+            echo "Validating $zip"
+            unzip -t "$zip"
+          done
+
+          for zip in "${expected[0]}" "${expected[1]}" "${expected[2]}"; do
+            unzip -l "$zip" | grep -q "manifest.json"
+            unzip -l "$zip" | grep -q "background.js"
+            archive_version=$(unzip -p "$zip" manifest.json | python3 -c 'import json, sys; print(json.load(sys.stdin)["version"])')
+            test "$archive_version" = "$version"
+          done
+
+      - name: Generate SHA256 checksums
+        run: |
+          cd dist
+          sha256sum *.zip > SHA256SUMS.txt
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            dist/lockedin-${{ github.ref_name }}-firefox.zip
+            dist/lockedin-${{ github.ref_name }}-chromium.zip
+            dist/lockedin-${{ github.ref_name }}-opera.zip
+            dist/lockedin-${{ github.ref_name }}-source.zip
+            dist/SHA256SUMS.txt

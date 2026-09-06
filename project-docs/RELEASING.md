@@ -1,6 +1,13 @@
 # Releasing LockedIn
 
-This repository uses `scripts/release.sh` to build and publish GitHub releases.
+Pushing a semantic-version tag (for example, `v1.2.2`) starts the GitHub Actions
+release workflow. It builds and validates the browser packages, generates
+checksums, and publishes the GitHub release.
+
+The local `scripts/release.sh` command remains available for an interactive
+release from a developer machine. Do not run it for a tag that has already been
+published or use it together with the automated workflow, because the script
+also creates the GitHub release itself.
 
 ## One-time setup
 
@@ -33,13 +40,20 @@ The account must have permission to create releases in the repository.
 3. Test the changes.
 4. Commit the version, changelog, and source changes.
 5. Push the commit to GitHub.
-6. Build and publish the release:
+6. Create and push the release tag:
 
    ```bash
-   ./scripts/release.sh
+   git tag -a v1.2.2 -m "LockedIn v1.2.2"
+   git push origin v1.2.2
    ```
 
-The command reads the version from `src/manifest.json`, verifies the matching changelog section, runs `scripts/build.sh`, creates tag `v<version>`, generates notes from `.github/release-template.md`, and uploads every matching ZIP from `dist/`.
+GitHub Actions reads the version from `src/manifest.json`, verifies that it
+matches the pushed tag, builds the packages, and uploads the ZIP files and
+`SHA256SUMS.txt`.
+
+For the local interactive release path, run `./scripts/release.sh` instead of
+creating and pushing the tag manually. It performs its own validation and
+publishes the release directly.
 
 The release command intentionally requires a clean working tree and refuses to reuse an existing tag. This prevents a release from being made from uncommitted or incorrectly versioned files.
 
@@ -51,9 +65,11 @@ If the build was already completed and the `dist/` files are correct, skip rebui
 ./scripts/release.sh --skip-build
 ```
 
-## Release template
+## Local release template
 
-Edit `.github/release-template.md` to change the release format. These placeholders are replaced automatically:
+When using `scripts/release.sh`, edit `.github/release-template.md` to change
+the release format. The GitHub Actions workflow uses GitHub's generated notes
+instead. These placeholders are replaced automatically by the local script:
 
 - `{{VERSION}}` becomes the manifest version without the `v` prefix.
 - `{{CHANGELOG}}` becomes the matching version section from `CHANGELOG.md`, excluding its `## [version]` heading.
