@@ -83,6 +83,19 @@ const THUMBNAIL_MODE_FALLBACK_LABELS = {
   'solid-color': 'Solid Color'
 };
 
+function isYouTubeTabUrl(tabUrl) {
+  if (!tabUrl) {
+    return false;
+  }
+
+  try {
+    const hostname = new URL(tabUrl).hostname.toLowerCase();
+    return hostname === 'youtube.com' || hostname.endsWith('.youtube.com');
+  } catch (_error) {
+    return false;
+  }
+}
+
 const I18N_STRINGS = {
   en: {
     'tooltip.menu': 'Menu',
@@ -1091,7 +1104,7 @@ function setupPowerButton() {
           updatePowerState(true);
           browser.tabs.query({}, (tabs) => {
             tabs.forEach((tab) => {
-              if (tab.url && tab.url.includes('youtube.com')) {
+              if (isYouTubeTabUrl(tab.url)) {
                 browser.tabs.sendMessage(tab.id, {
                   action: 'powerStateChanged',
                   enabled: true
@@ -1144,7 +1157,7 @@ function setupPowerButton() {
         updatePowerState(false);
         browser.tabs.query({}, (tabs) => {
           tabs.forEach((tab) => {
-            if (tab.url && tab.url.includes('youtube.com')) {
+            if (isYouTubeTabUrl(tab.url)) {
               browser.tabs.sendMessage(tab.id, {
                 action: 'powerStateChanged',
                 enabled: false
