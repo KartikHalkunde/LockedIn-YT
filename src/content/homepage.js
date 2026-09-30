@@ -396,7 +396,7 @@ function hideFeaturedContent(shouldHide) {
 	document.querySelectorAll('ytd-rich-section-renderer').forEach(section => {
 		const hasVisibleFeaturedBadge = section.querySelector('#featured-badge:not([hidden]), #paygated-featured-badge:not([hidden])');
 		const hasPromoRenderer = section.querySelector(
-			'ytd-display-ad-renderer, ytd-promoted-sparkles-web-renderer, ytd-primetime-promo-renderer, ytd-statement-banner-renderer, ytd-brand-video-singleton-renderer'
+			'ytd-display-ad-renderer, ytd-promoted-sparkles-web-renderer, ytd-primetime-promo-renderer, ytd-statement-banner-renderer, ytd-brand-video-singleton-renderer, ytd-brand-video-shelf-renderer'
 		);
 		const hasPremiumOrPromoLink = section.querySelector(
 			'a[href*="/premium"], a[href*="youtube.com/premium"], a[href*="/music/premium"], a[href*="googleads"], a[href*="doubleclick"]'
@@ -427,13 +427,34 @@ function hideFeaturedContent(shouldHide) {
 }
 
 function hideMembersOnly(shouldHide) {
+	const styleId = 'lockedin-hide-members-only';
+	let style = document.getElementById(styleId);
+
 	if (!shouldHide) {
+		if (style) style.remove();
 		document.querySelectorAll('[data-lockedin-hidden="members-only"]').forEach(el => {
 			el.style.display = '';
 			el.removeAttribute('hidden');
 			el.removeAttribute('data-lockedin-hidden');
 		});
 		return;
+	}
+
+	if (!style) {
+		style = document.createElement('style');
+		style.id = styleId;
+		style.textContent = `
+			ytd-brand-video-shelf-renderer,
+			ytd-brand-video-shelf-renderer #dismissible,
+			ytd-rich-section-renderer:has(ytd-brand-video-shelf-renderer),
+			ytd-rich-section-renderer:has(a[href*="/channel_memberships" i]),
+			ytd-rich-section-renderer:has(a[href*="members-only" i]),
+			ytd-rich-shelf-renderer:has(a[href*="/channel_memberships" i]),
+			ytd-rich-shelf-renderer:has(a[href*="members-only" i]) {
+				display: none !important;
+			}
+		`;
+		(document.head || document.documentElement).appendChild(style);
 	}
 
 	function hasMembersOnlyBadge(video) {
@@ -448,10 +469,47 @@ function hideMembersOnly(shouldHide) {
 
 		return Array.from(badgeNodes).some((node) => {
 			const text = (node.textContent || '').replace(/\s+/g, ' ').trim();
-			return /members only/i.test(text);
+			return /members only|memberships/i.test(text);
 		});
 	}
 
+	// 1. Hide brand video shelves and membership shelves (e.g. "Get more from memberships")
+	document.querySelectorAll('ytd-brand-video-shelf-renderer').forEach(shelf => {
+		const container = shelf.closest('ytd-rich-section-renderer') || shelf;
+		if (!container.hasAttribute('data-lockedin-hidden')) {
+			container.style.display = 'none';
+			container.setAttribute('hidden', '');
+			container.setAttribute('data-lockedin-hidden', 'members-only');
+		}
+		if (shelf !== container && !shelf.hasAttribute('data-lockedin-hidden')) {
+			shelf.style.display = 'none';
+			shelf.setAttribute('hidden', '');
+			shelf.setAttribute('data-lockedin-hidden', 'members-only');
+		}
+		const dismissible = shelf.querySelector('#dismissible');
+		if (dismissible && !dismissible.hasAttribute('data-lockedin-hidden')) {
+			dismissible.style.display = 'none';
+			dismissible.setAttribute('hidden', '');
+			dismissible.setAttribute('data-lockedin-hidden', 'members-only');
+		}
+	});
+
+	// Also hide any rich section/shelf containing membership links or headers
+	document.querySelectorAll('ytd-rich-section-renderer, ytd-rich-shelf-renderer').forEach(section => {
+		if (section.hasAttribute('data-lockedin-hidden')) return;
+
+		const hasMembershipLink = section.querySelector('a[href*="channel_memberships" i], a[href*="/membership" i], a[href*="members-only" i]');
+		const headerText = (section.querySelector('#title, #shelf-header-container, #header, h2')?.textContent || '').toLowerCase();
+		const isMembershipHeader = headerText.includes('membership') || headerText.includes('members only') || headerText.includes('members-only');
+
+		if (hasMembershipLink || isMembershipHeader) {
+			section.style.display = 'none';
+			section.setAttribute('hidden', '');
+			section.setAttribute('data-lockedin-hidden', 'members-only');
+		}
+	});
+
+	// 2. Hide individual members-only video items
 	const videoSelectors = [
 		'ytd-rich-item-renderer',
 		'ytd-grid-video-renderer',
