@@ -49,7 +49,8 @@ function applyInstantShortsCssFromCache() {
 function applyInstantRecsCssFromCache() {
 	setInstantRecsHiding(
 		latestSyncedSettings.hideRecommended,
-		latestSyncedSettings.hideSidebar
+		latestSyncedSettings.hideSidebar,
+		latestSyncedSettings.hideEndCards
 	);
 }
 

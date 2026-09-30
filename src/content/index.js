@@ -325,16 +325,20 @@ function setInstantHiding(hideHomepage, hideSearch, hideGlobally = false) {
 }
 
 // Function to set instant CSS hiding for recommended videos
-function setInstantRecsHiding(hideRecommended, hideSidebar) {
+function setInstantRecsHiding(hideRecommended, hideSidebar, hideEndCards = false) {
   const style = document.getElementById('lockedin-instant-recs-hide');
   if (!style) return;
   
   let css = '';
+  const shouldHideSidebarRecs = Boolean(hideRecommended || hideSidebar);
+  const shouldHideEndScreens = Boolean(hideRecommended || hideSidebar || hideEndCards);
   
-  // Only apply instant hiding if either hideRecommended or hideSidebar is enabled
-  if (hideRecommended || hideSidebar) {
-    css = `
-  /* ===== INSTANT RECOMMENDED VIDEOS HIDING ===== */
+  // Only apply instant hiding if either sidebar recs or end screen recommendations need hiding
+  if (shouldHideSidebarRecs || shouldHideEndScreens) {
+    css = `/* ===== INSTANT RECOMMENDED VIDEOS HIDING ===== */\n`;
+
+    if (shouldHideSidebarRecs) {
+      css += `
   /* Hide chip cloud (sidebar only) */
   #secondary yt-chip-cloud-renderer,
   #secondary yt-related-chip-cloud-renderer,
@@ -408,6 +412,46 @@ function setInstantRecsHiding(hideRecommended, hideSidebar) {
     overflow: visible !important;
   }
 `;
+    }
+
+    if (shouldHideEndScreens) {
+      css += `
+  /* Hide end screen videowall and recommended videos that appear after video ends */
+  .html5-endscreen,
+  .ytp-endscreen-content,
+  .ytp-videowall-still,
+  .ytp-videowall-still-info,
+  .ytp-videowall-still-image,
+  .ytp-videowall-still-list,
+  .ytp-endscreen-paginate,
+  .ytp-endscreen-previous,
+  .ytp-endscreen-next,
+  .ytp-modern-videowall,
+  .ytp-modern-videowall-container,
+  .videowall-endscreen,
+  .ytp-suggestion-set,
+  .ytp-autonav-endscreen-countdown-container,
+  .ytp-autonav-endscreen-button-container,
+  .ytp-autonav-endscreen-upnext-container,
+  .ytp-upnext,
+  .ytp-pause-overlay,
+  .ytp-pause-overlay-container,
+  .ytp-ce-element,
+  .ytp-ce-video,
+  .ytp-ce-playlist,
+  .ytp-ce-channel,
+  .ytp-ce-website,
+  .ytp-ce-covering-overlay,
+  .ytp-ce-covering-image,
+  .ytp-ce-shadow,
+  .ytp-ce-size-1280,
+  .ytp-ce-size-853,
+  .ytp-ce-element-show,
+  .ytp-ce-expanding-overlay {
+    display: none !important;
+  }
+`;
+    }
   }
   
   style.textContent = css;
@@ -460,7 +504,7 @@ function runAll() {
       restoreAllElements();
       stopTranscriptObserver();
       setInstantHiding(false, false, false); // Disable CSS hiding for homepage, search, and global
-      setInstantRecsHiding(false, false); // Disable instant recs hiding
+      setInstantRecsHiding(false, false, false); // Disable instant recs hiding
       hideNativeAutoplayToggle(false);
       return;
     }
@@ -470,7 +514,7 @@ function runAll() {
     setInstantHiding(currentSettings.hideShortsHomepage, currentSettings.hideShortsSearch, currentSettings.hideShortsGlobally);
     
     // Enable/disable instant CSS hiding for recommended videos
-    setInstantRecsHiding(currentSettings.hideRecommended, currentSettings.hideSidebar);
+    setInstantRecsHiding(currentSettings.hideRecommended, currentSettings.hideSidebar, currentSettings.hideEndCards);
     
     // YouTube Shorts group - handle redirects first
     redirectShorts(currentSettings.redirectShorts);
@@ -527,7 +571,7 @@ function runAll() {
     ensureSidebarObserver(currentSettings.hideSidebar || currentSettings.hideRecommended);
     scheduleSidebarHideRetries(currentSettings);
     hideLiveChat(currentSettings.hideLiveChat);
-    hideEndCards(currentSettings.hideEndCards);
+    hideEndCards(currentSettings.hideEndCards || currentSettings.hideRecommended);
     hideComments(currentSettings.hideComments);
     disableAutoplay(currentSettings.disableAutoplay);
     hideNativeAutoplayToggle(true);
@@ -599,7 +643,7 @@ function runAll() {
       hidePlaylists(currentSettings.hidePlaylists);
     }
     hideLiveChat(currentSettings.hideLiveChat);
-    hideEndCards(currentSettings.hideEndCards);
+    hideEndCards(currentSettings.hideEndCards || currentSettings.hideRecommended);
     hideComments(currentSettings.hideComments);
     hideNativeAutoplayToggle(true);
     disableAutoplay(currentSettings.disableAutoplay);
@@ -667,14 +711,14 @@ if (isExtensionContextValid()) {
     latestSyncedSettings = currentSettings;
     if (currentSettings.extensionEnabled) {
       setInstantHiding(currentSettings.hideShortsHomepage, currentSettings.hideShortsSearch, currentSettings.hideShortsGlobally);
-      setInstantRecsHiding(currentSettings.hideRecommended, currentSettings.hideSidebar);
+      setInstantRecsHiding(currentSettings.hideRecommended, currentSettings.hideSidebar, currentSettings.hideEndCards);
     }
     updateGuideVisibility();
   }).catch(() => {
     // Use defaults if storage fails or context is invalidated
     latestSyncedSettings = { ...DEFAULT_SETTINGS };
     setInstantHiding(DEFAULT_SETTINGS.hideShortsHomepage, DEFAULT_SETTINGS.hideShortsSearch, DEFAULT_SETTINGS.hideShortsGlobally);
-    setInstantRecsHiding(DEFAULT_SETTINGS.hideRecommended, DEFAULT_SETTINGS.hideSidebar);
+    setInstantRecsHiding(DEFAULT_SETTINGS.hideRecommended, DEFAULT_SETTINGS.hideSidebar, DEFAULT_SETTINGS.hideEndCards);
     updateGuideVisibility();
   });
 }
@@ -804,7 +848,7 @@ browser.storage.onChanged.addListener((changes, area) => {
     if (key === 'hideShortsHomepage' || key === 'hideShortsSearch' || key === 'hideShortsGlobally') {
       shortsChanged = true;
     }
-    if (key === 'hideRecommended' || key === 'hideSidebar') {
+    if (key === 'hideRecommended' || key === 'hideSidebar' || key === 'hideEndCards') {
       recsChanged = true;
     }
   });
@@ -840,6 +884,10 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         if (message.setting === 'hideShortsHomepage' || message.setting === 'hideShortsSearch' || message.setting === 'hideShortsGlobally') {
           applyInstantShortsCssFromCache();
+        }
+
+        if (message.setting === 'hideRecommended' || message.setting === 'hideSidebar' || message.setting === 'hideEndCards') {
+          applyInstantRecsCssFromCache();
         }
       }
     }
