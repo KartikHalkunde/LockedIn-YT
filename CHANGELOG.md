@@ -1,3 +1,7 @@
+## [1.2.2] - 2026-10-01
+### Fixed
+- Fixed hiding of "Get more from memberships" brand video shelves on the homepage (#35)
+
 ## [1.2.1] - 2026-09-03
 ### Added
 - Split the Disable Autoplay functionality into separate options for regular videos and playlists (#29)
