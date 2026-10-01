@@ -1,6 +1,7 @@
 ## [1.2.2] - 2026-10-01
 ### Fixed
-- Fixed hiding of "Get more from memberships" brand video shelves on the homepage (#35)
+- Fixed hiding of "Get more from memberships" brand video shelves on the homepage
+- Fixed "Hide recommended videos" now, hides the recommended videos that appear after video ends(#34)
 
 ## [1.2.1] - 2026-09-03
 ### Added
